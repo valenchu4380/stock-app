@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Stock</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f7fb; }
+
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            text-align: center;
+            padding: 60px;
+        }
+        .hero h1 { font-size: 3rem; }
+        .hero p { margin-top: 10px; font-size: 1.2rem; }
+
+        .cards {
+            width: 80%;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            cursor: pointer;
+            transition: .3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover { transform: translateY(-8px); }
+        .card h2 { font-size: 3rem; margin-bottom: 10px; }
+
+        .search-bar {
+            width: 80%;
+            margin: 30px auto 0;
+            display: flex;
+            gap: 10px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-bar input:focus { border-color: #2563eb; }
+        .search-bar button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .search-bar button:hover { background: #1e40af; }
+
+        .mensaje {
+            width: 80%;
+            margin: 20px auto 0;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        .mensaje.ok  { background: #d1fae5; color: #065f46; }
+        .mensaje.err { background: #fee2e2; color: #991b1b; }
+
+        .tabla-container {
+            width: 80%;
+            margin: 30px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            overflow: hidden;
+        }
+        .tabla-container h2 {
+            padding: 20px 30px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #1e3a8a;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #eff6ff; }
+        th { padding: 14px 20px; text-align: left; font-size: 0.85rem; color: #2563eb; text-transform: uppercase; letter-spacing: .05em; }
+        td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 0.95rem; }
+        tr:hover td { background: #f8faff; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge-avon     { background: #fce7f3; color: #9d174d; }
+        .badge-natura   { background: #d1fae5; color: #065f46; }
+        .badge-saphirus { background: #ede9fe; color: #4c1d95; }
+
+        .btn-editar {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 6px;
+        }
+        .btn-editar:hover { background: #dbeafe; }
+
+        .btn-eliminar {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .btn-eliminar:hover { background: #fee2e2; }
+
+        .estadisticas {
+            width: 80%;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            text-align: center;
+        }
+        .stat-item p:first-child { font-size: 2rem; font-weight: 700; color: #2563eb; }
+        .stat-item p:last-child  { font-size: 0.9rem; color: #6b7280; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Sistema de Gestión de Stock</h1>
+    <p>Administra tus productos de manera rápida y eficiente</p>
+</div>
+
+<div class="cards">
+    <a class="card" th:href="@{/productos/nuevo}">
+        <h2>➕</h2>
+        <h3>Agregar Producto</h3>
+    </a>
+</div>
+
+<!-- name tiene que coincidir con @RequestParam String name del controller -->
+<form class="search-bar" th:action="@{/productos/buscar}" method="get">
+    <input type="text" name="name" placeholder="Buscar producto por nombre..." />
+    <button type="submit">Buscar</button>
+</form>
+
+<div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
+<div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
+
+<div class="tabla-container">
+    <h2>📋 Listado de Productos</h2>
+
+    <table th:if="${productos != null and !#lists.isEmpty(productos)}">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${productos}">
+                <!-- p.name → getName() de tu Product.java -->
+                <td th:text="${p.name}">Nombre</td>
+                <!-- p.price → getPrice() -->
+                <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
+                <!-- p.stock → getStock() -->
+                <td th:text="${p.stock}">0</td>
+                <td>
+                    <!-- p.category → getCategory() -->
+                    <span class="badge"
+                          th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
+                          th:text="${p.category}">Cat</span>
+                </td>
+                <td>
+                    <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+                    <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
+                        <button class="btn-eliminar" type="submit"
+                                onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p th:if="${productos == null or #lists.isEmpty(productos)}"
+       style="padding: 30px; text-align: center; color: #9ca3af;">
+        No hay productos registrados aún.
+    </p>
+</div>
+
+<div class="estadisticas">
+    <div class="stat-item">
+        <p th:text="${productos != null ? #lists.size(productos) : 0}">0</p>
+        <p>Productos registrados</p>
+    </div>
+    <div class="stat-item">
+        <p th:text="${totalStock != null ? totalStock : 0}">0</p>
+        <p>Unidades en stock</p>
+    </div>
+</div>
+
+</body>
+</html>
