@@ -12,6 +12,10 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 
@@ -37,20 +42,18 @@ public class ProductController {
 
     // ── Pantalla principal ──────────────────────────────
 @GetMapping
-public String index(Model model) throws InvalidProductException {
-    // 1. Obtén la lista de productos
-    java.util.List<Product> listaProductos = productService.getAll();
-    
-    // 2. Calcula el total aquí mismo
-    int totalStock = listaProductos.stream()
-                                   .mapToInt(Product::getStock) // Asegúrate que tu clase Product tenga el método getStock()
-                                   .sum();
-    
-    // 3. Pasa los datos limpios al modelo
-    model.addAttribute("productos", listaProductos);
-    model.addAttribute("totalStock", totalStock);
+public String index(Model model) {
+    try {
+        java.util.List<Product> listaProductos = productService.getAll();
+        int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
+        model.addAttribute("productos", listaProductos);
+        model.addAttribute("totalStock", totalStock);
+    } catch (InvalidProductException e) {
+        // Lista vacía → mandamos lista vacía, no rompemos la página
+        model.addAttribute("productos", java.util.Collections.emptyList());
+        model.addAttribute("totalStock", 0);
+    }
     model.addAttribute("Categorys", ProductCategory.values());
-    
     return "index";
 }
 
@@ -105,6 +108,23 @@ public String index(Model model) throws InvalidProductException {
         }
         return "redirect:/productos";
     }
+
+    @GetMapping("/sugerencias")
+@ResponseBody  // ← devuelve JSON, no una vista
+public List<String> sugerencias(@RequestParam String q) {
+    if (q == null || q.trim().length() < 1) {
+        return java.util.Collections.emptyList();
+    }
+    try {
+        return productService.getAll().stream()
+            .map(Product::getName)
+            .filter(name -> name.toLowerCase().contains(q.trim().toLowerCase()))
+            .limit(5)
+            .collect(java.util.stream.Collectors.toList());
+    } catch (InvalidProductException e) {
+        return java.util.Collections.emptyList();
+    }
+}
 
     // ── Buscar por name ───────────────────────────────
 @GetMapping("/buscar")

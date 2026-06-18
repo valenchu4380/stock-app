@@ -43,27 +43,25 @@ private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
-    @Override
-    public List<Product> findAll() throws InvalidProductException {
-        List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM products";
+ @Override
+public List<Product> findAll() throws InvalidProductException {
+    List<Product> products = new ArrayList<>();
+    String sql = "SELECT * FROM products";
 
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
 
-            while (rs.next()) {
-                products.add(mapResult(rs));
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        while (rs.next()) {
+            products.add(mapResult(rs));
         }
-
-        if (products.isEmpty()) {
-            throw new InvalidProductException("La lista está vacía");
-        }
-        return products;
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
     }
+
+    // Ya no tiramos excepción si está vacía
+    return products;
+}
 
  @Override
 public Optional<Product> findByname(String name) {
