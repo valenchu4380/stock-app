@@ -204,7 +204,7 @@
         }
 
         // Llama al endpoint /productos/sugerencias?q=lo_que_escribio
-        const res = await fetch(`/productos/sugerencias?q=${encodeURIComponent(q)}`);
+     const res = await fetch('/productos/sugerencias?q=' + encodeURIComponent(q));
         const nombres = await res.json();
 
         if (nombres.length === 0) {
