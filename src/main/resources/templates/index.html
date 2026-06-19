@@ -212,7 +212,7 @@
 
             try {
                 // Forzamos la URL absoluta al servidor
-                const res = await fetch('/productos/sugerencias?q=' + encodeURIComponent(q));
+                const res = await fetch(window.location.origin + '/productos/sugerencias?q=' + encodeURIComponent(q));
                 const data = await response.json();
                 
                 console.log("Datos recibidos:", data);
