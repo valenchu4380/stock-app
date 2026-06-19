@@ -1,48 +1,21 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Stock</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Stock</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        @media (max-width: 768px) {
-    .hero { padding: 30px 20px; }
-    .hero h1 { font-size: 1.8rem; }
-
-    .form-container {
-        width: 90%;
-        margin: 30px auto;
-        padding: 25px;
-    }
-}
-
-        body {
-            background: #f5f7fb;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f7fb; min-height: 100vh; }
 
         .hero {
             background: linear-gradient(135deg, #2563eb, #1e40af);
             color: white;
             text-align: center;
-            padding: 60px;
+            padding: 40px 20px;
         }
-
-        .hero h1 {
-            font-size: 3rem;
-        }
-
-        .hero p {
-            margin-top: 10px;
-            font-size: 1.2rem;
-        }
+        .hero h1 { font-size: 2rem; }
+        .hero p  { margin-top: 8px; font-size: 1rem; }
 
         .form-container {
             width: 50%;
@@ -50,9 +23,8 @@
             background: white;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
         }
-
         .form-container h2 {
             font-size: 1.5rem;
             color: #1e3a8a;
@@ -60,11 +32,7 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #eff6ff;
         }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
+        .form-group { margin-bottom: 22px; }
         .form-group label {
             display: block;
             font-size: 0.9rem;
@@ -72,7 +40,6 @@
             color: #374151;
             margin-bottom: 8px;
         }
-
         .form-group input,
         .form-group select {
             width: 100%;
@@ -83,38 +50,28 @@
             outline: none;
             transition: border-color .2s;
             background: #fafafa;
+            -webkit-appearance: none;
+            appearance: none;
         }
-
         .form-group input:focus,
-        .form-group select:focus {
-            border-color: #2563eb;
-            background: white;
-        }
+        .form-group select:focus { border-color: #2563eb; background: white; }
+        .form-group input[readonly] { background: #f1f5f9; color: #6b7280; cursor: not-allowed; }
 
-        .form-group input[readonly] {
-            background: #f1f5f9;
+        .select-wrapper { position: relative; }
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #6b7280;
-            cursor: not-allowed;
+            pointer-events: none;
         }
 
-        .mensaje {
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
+        .mensaje { padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 20px; }
+        .mensaje.err { background: #fee2e2; color: #991b1b; }
 
-        .mensaje.err {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
+        .btn-row { display: flex; gap: 15px; margin-top: 30px; }
         .btn-guardar {
             flex: 1;
             background: #2563eb;
@@ -127,11 +84,7 @@
             cursor: pointer;
             transition: background .2s;
         }
-
-        .btn-guardar:hover {
-            background: #1e40af;
-        }
-
+        .btn-guardar:hover { background: #1e40af; }
         .btn-cancelar {
             flex: 1;
             background: white;
@@ -145,74 +98,104 @@
             text-align: center;
             text-decoration: none;
             transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .btn-cancelar:hover { background: #f1f5f9; }
 
-        .btn-cancelar:hover {
-            background: #f1f5f9;
+        @media (max-width: 768px) {
+            .hero { padding: 25px 16px; }
+            .hero h1 { font-size: 1.5rem; }
+
+            .form-container {
+                width: 92%;
+                margin: 20px auto 40px;
+                padding: 24px 20px;
+                border-radius: 12px;
+            }
+            .form-container h2 { font-size: 1.2rem; }
+
+            .form-group input,
+            .form-group select { font-size: 16px; /* evita zoom en iOS */ }
+
+            .btn-row { flex-direction: column; }
+            .btn-guardar, .btn-cancelar { padding: 16px; font-size: 1rem; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="hero">
-        <h1>Sistema de Gestión de Stock</h1>
-        <p>Administra tus productos de manera rápida y eficiente</p>
-    </div>
+<div class="hero">
+    <h1>Sistema de Gestión de Stock</h1>
+    <p>Administra tus productos de manera rápida y eficiente</p>
+</div>
 
-    <div class="form-container">
-
-        <!-- Si product.name tiene valor → es edición, si no → es alta -->
-        <h2 th:text="${product.name != null and !#strings.isEmpty(product.name)}
+<div class="form-container">
+    <h2 th:text="${product.name != null and !#strings.isEmpty(product.name)}
                   ? '✏️ Modificar Producto'
                   : '➕ Agregar Producto'">Formulario</h2>
 
-        <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+    <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
 
-        <!-- Action dinámico según si es nuevo o edición -->
-        <form th:action="${product.name != null and !#strings.isEmpty(product.name)}
+    <form th:action="${product.name != null and !#strings.isEmpty(product.name)}
                       ? @{/productos/editar}
-                      : @{/productos/nuevo}" method="post" th:object="${product}">
+                      : @{/productos/nuevo}"
+          method="post"
+          th:object="${product}">
 
-            <!-- name → field name de Product.java -->
-            <div class="form-group">
-                <label for="name">Nombre del producto</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="Ej: Perfume Musk 50ml" />
-                <input type="hidden" name="oldName" th:value="${product.name}">
-            </div>
+        <!-- Campo oculto con nombre original para edición -->
+        <input type="hidden" name="oldName" th:value="${product.name}" />
 
-            <!-- price → field price de Product.java -->
-            <div class="form-group">
-                <label for="price">Precio ($)</label>
-                <input type="number" id="price" name="price" th:value="${product.price != 0 ? product.price : ''}"
-                    step="0.01" min="0.01" placeholder="Ej: 1500.00" />
-            </div>
+        <div class="form-group">
+            <label for="name">Nombre del producto</label>
+            <input type="text"
+                   id="name"
+                   th:field="*{name}"
+                   th:readonly="${product.name != null and !#strings.isEmpty(product.name)}"
+                   placeholder="Ej: Perfume Musk 50ml" />
+        </div>
 
-            <!-- stock → field stock de Product.java -->
-            <div class="form-group">
-                <label for="stock">Stock (unidades)</label>
-                <input type="number" id="stock" name="stock" th:value="${product.stock != 0 ? product.stock : ''}"
-                    min="1" placeholder="Ej: 50" />
-            </div>
+        <div class="form-group">
+            <label for="price">Precio ($)</label>
+            <input type="number"
+                   id="price"
+                   name="price"
+                   th:value="${product.price != 0 ? product.price : ''}"
+                   step="0.01"
+                   min="0"
+                   placeholder="Ej: 1500.00" />
+        </div>
 
-            <!-- category → field Category de Product.java (Lombok genera getCategory()) -->
-            <div class="form-group">
-                <label for="category">Categoría</label>
+        <div class="form-group">
+            <label for="stock">Stock (unidades)</label>
+            <input type="number"
+                   id="stock"
+                   name="stock"
+                   th:value="${product.stock != 0 ? product.stock : ''}"
+                   min="0"
+                   placeholder="Ej: 50" />
+        </div>
+
+        <div class="form-group">
+            <label for="category">Categoría</label>
+            <div class="select-wrapper">
                 <select id="category" th:field="*{category}">
                     <option value="">-- Seleccioná una categoría --</option>
-                    <!-- Categorys es el nombre que manda el controller -->
-                    <option th:each="cat : ${Categorys}" th:value="${cat}" th:text="${cat}">Categoría</option>
+                    <option th:each="cat : ${Categorys}"
+                            th:value="${cat}"
+                            th:text="${cat}">Categoría</option>
                 </select>
             </div>
+        </div>
 
-            <div class="btn-row">
-                <button class="btn-guardar" type="submit">Guardar</button>
-                <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>
-            </div>
+        <div class="btn-row">
+            <button class="btn-guardar" type="submit">Guardar</button>
+            <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>
+        </div>
 
-        </form>
-    </div>
+    </form>
+</div>
 
 </body>
-
 </html>
