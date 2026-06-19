@@ -5,8 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock</title>
     <style>
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f5f7fb; }
+
+
+        .btn-orden {
+    background: white;
+    border: 1.5px solid #dce1ec;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+}
+.btn-orden:hover { background: #eff6ff; }
+
 
         .hero {
             background: linear-gradient(135deg, #2563eb, #1e40af);
@@ -296,6 +311,12 @@
 <!-- TARJETAS MOBILE -->
 <div class="cards-mobile">
     <h2>📋 Listado de Productos</h2>
+    <!-- Selector de orden mobile -->
+<div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+    <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
+    <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
+    <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
+</div>
     <div th:each="p : ${productos}" class="product-card">
         <div class="product-card-header">
             <span class="product-card-name" th:text="${p.name}">Nombre</span>
@@ -360,6 +381,54 @@
         `).join('');
         lista.style.display = 'block';
     });
+
+    // ── ORDENAMIENTO MOBILE ───────────────────────────
+let ordenMobile = null;
+let ascMobile = true;
+
+function ordenarMobile(campo) {
+    const contenedor = document.querySelector('.cards-mobile');
+    const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
+
+    if (ordenMobile === campo) { ascMobile = !ascMobile; }
+    else { ordenMobile = campo; ascMobile = true; }
+
+    // Actualizar íconos
+    ['name','price','stock'].forEach(c => {
+        const el = document.getElementById('micon-' + c);
+        if (el) el.textContent = '⇅';
+    });
+    const icono = document.getElementById('micon-' + campo);
+    if (icono) icono.textContent = ascMobile ? '↑' : '↓';
+
+    tarjetas.sort((a, b) => {
+        let valA, valB;
+
+        if (campo === 'name') {
+            valA = a.querySelector('.product-card-name').textContent.trim();
+            valB = b.querySelector('.product-card-name').textContent.trim();
+            return ascMobile
+                ? valA.localeCompare(valB, 'es')
+                : valB.localeCompare(valA, 'es');
+        }
+
+        if (campo === 'price') {
+            // El precio está en el primer product-card-field span
+            valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+            valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+        }
+
+        if (campo === 'stock') {
+            valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+            valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+        }
+
+        return ascMobile ? valA - valB : valB - valA;
+    });
+
+    // Reinsertar tarjetas ordenadas (solo las tarjetas, no el selector)
+    tarjetas.forEach(t => contenedor.appendChild(t));
+}
 
     function seleccionar(nombre) {
         input.value = nombre;
