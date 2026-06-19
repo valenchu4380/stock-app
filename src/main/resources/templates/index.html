@@ -379,6 +379,10 @@
     </div>
 </div>
 
+<div id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
+    No se encontraron productos.
+</div>
+
 <script>
     // ── FILTRADO EN TIEMPO REAL ───────────────────────
     const input = document.getElementById('searchInput');
@@ -449,10 +453,8 @@
     let ascMobile = true;
 
     function ordenarMobile(campo) {
+        
         const contenedor = document.querySelector('.cards-mobile');
-        <p id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
-    No se encontraron productos.
-</p>
         const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
 
         if (ordenMobile === campo) { ascMobile = !ascMobile; }
