@@ -244,16 +244,7 @@
         
     </style>
 
-<div style="width:80%; margin: 30px auto 0;">
-    <div class="search-bar">
-        <input type="text"
-               id="searchInput"
-               name="name"
-               placeholder="Buscar producto por nombre..."
-               autocomplete="off" />
-    </div>
-    <ul id="sugerencias"></ul>
-</div>
+
 
 </head>
 <body>
@@ -263,6 +254,8 @@
     <p>Administra tus productos de manera rápida y eficiente</p>
 </div>
 
+
+
 <div class="cards">
     <a class="card" th:href="@{/productos/nuevo}">
         <h2>➕</h2>
@@ -270,13 +263,19 @@
     </a>
 </div>
 
-<div style="width:80%; margin: 30px auto 0; position: relative;" class="search-wrap">
-    <form class="search-bar" th:action="@{/productos/buscar}" method="get" style="margin:0; width:100%;">
-        <input type="text" id="searchInput" name="name" placeholder="Buscar producto por nombre..." autocomplete="off"/>
-        <button type="submit">Buscar</button>
-    </form>
+<div style="width:80%; margin: 30px auto 0;">
+    <div class="search-bar">
+        <input type="text"
+               id="searchInput"
+               name="name"
+               placeholder="Buscar producto por nombre..."
+               autocomplete="off" />
+        <button type="button">Buscar</button>
+    </div>
     <ul id="sugerencias"></ul>
 </div>
+
+
 
 <div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
 <div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
