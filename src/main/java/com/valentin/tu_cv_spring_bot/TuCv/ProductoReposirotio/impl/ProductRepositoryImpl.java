@@ -45,6 +45,7 @@ private Connection getConnection() throws SQLException {
 
  @Override
 public List<Product> findAll() throws InvalidProductException {
+       System.out.println("Entrando a findAll()");
     List<Product> products = new ArrayList<>();
     String sql = "SELECT * FROM products";
 
@@ -56,9 +57,10 @@ public List<Product> findAll() throws InvalidProductException {
             products.add(mapResult(rs));
         }
     } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        e.printStackTrace();
     }
 
+    System.out.println("Productos encontrados: " + products.size());
     // Ya no tiramos excepción si está vacía
     return products;
 }
