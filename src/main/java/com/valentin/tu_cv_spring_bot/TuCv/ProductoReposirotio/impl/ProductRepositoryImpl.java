@@ -10,7 +10,6 @@ import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 
-
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -30,73 +29,72 @@ public class ProductRepositoryImpl implements ProductRepository {
     // Spring Boot inyecta el DataSource automaticamente con los datos
     // de application.properties — no necesitas HikariCP manual
     private final DataSource dataSource;
-// Cambia esto temporalmente para ver si el error cambia:
+    // Cambia esto temporalmente para ver si el error cambia:
 
-public ProductRepositoryImpl(DataSource dataSource) {
-    if (dataSource == null) {
-        System.out.println("¡ERROR: El DataSource es nulo!");
+    public ProductRepositoryImpl(DataSource dataSource) {
+        if (dataSource == null) {
+            System.out.println("¡ERROR: El DataSource es nulo!");
+        }
+        this.dataSource = dataSource;
     }
-    this.dataSource = dataSource;
-}
 
-private Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
- @Override
-public List<Product> findAll() throws InvalidProductException {
-       System.out.println("Entrando a findAll()");
-    List<Product> products = new ArrayList<>();
-    String sql = "SELECT * FROM products";
+    @Override
+    public List<Product> findAll() throws InvalidProductException {
+        System.out.println("Entrando a findAll()");
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products";
 
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql);
-         ResultSet rs = st.executeQuery()) {
+        try (Connection con = getConnection();
+                PreparedStatement st = con.prepareStatement(sql);
+                ResultSet rs = st.executeQuery()) {
 
-        while (rs.next()) {
-            products.add(mapResult(rs));
+            while (rs.next()) {
+                products.add(mapResult(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+
+        System.out.println("Productos encontrados: " + products.size());
+        // Ya no tiramos excepción si está vacía
+        return products;
     }
 
-    System.out.println("Productos encontrados: " + products.size());
-    // Ya no tiramos excepción si está vacía
-    return products;
-}
+    @Override
+    public Optional<Product> findByname(String name) {
+        // LOWER() en ambos lados para que coincida sin importar mayúsculas
+        String sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?)";
+        try (Connection con = getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
 
- @Override
-public Optional<Product> findByname(String name) {
-    // LOWER() en ambos lados para que coincida sin importar mayúsculas
-    String sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?)";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
-
-        st.setString(1, name.trim().toLowerCase());
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            return Optional.of(mapResult(rs));
+            st.setString(1, name.trim().toLowerCase());
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapResult(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        return Optional.empty();
     }
-    return Optional.empty();
-}
 
-private Product mapResult(ResultSet rs) throws SQLException {
-    return new Product(
-        rs.getString("name"),
-        rs.getDouble("price"),
-        rs.getInt("stock"),
-        ProductCategory.valueOf(rs.getString("category"))
-    );
-}
+    private Product mapResult(ResultSet rs) throws SQLException {
+        return new Product(
+                rs.getString("name"),
+                rs.getDouble("price"),
+                rs.getInt("stock"),
+                ProductCategory.valueOf(rs.getString("category")));
+    }
 
     @Override
     public void save(Product product) {
         String sql = "INSERT INTO products(name, price, stock, Category) VALUES(?, ?, ?, ?)";
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
+                PreparedStatement st = con.prepareStatement(sql)) {
 
             st.setString(1, product.getName());
             st.setDouble(2, product.getPrice());
@@ -112,7 +110,7 @@ private Product mapResult(ResultSet rs) throws SQLException {
     public void delete(String name) throws ProductNotFoundException {
         String sql = "DELETE FROM products WHERE name = ?";
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
+                PreparedStatement st = con.prepareStatement(sql)) {
 
             st.setString(1, name);
             int rows = st.executeUpdate();
@@ -124,15 +122,20 @@ private Product mapResult(ResultSet rs) throws SQLException {
         }
     }
 
-    public void update(Product product) throws ProductNotFoundException {
-        String sql = "UPDATE products SET price=?, stock=?, Category=? WHERE name=?";
+    public void update(Product product, String oldName) throws ProductNotFoundException {
+        String sql = """
+                UPDATE products
+                SET name=?, price=?, stock=?, Category=?
+                WHERE name=?
+                """;
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
+                PreparedStatement st = con.prepareStatement(sql)) {
 
-            st.setDouble(1, product.getPrice());
-            st.setInt(2, product.getStock());
-            st.setString(3, product.getCategory().name());
-            st.setString(4, product.getName());
+            st.setString(1, product.getName());
+            st.setDouble(2, product.getPrice());
+            st.setInt(3, product.getStock());
+            st.setString(4, product.getCategory().name());
+            st.setString(5, oldName);
 
             int rows = st.executeUpdate();
             if (rows == 0) {
@@ -143,42 +146,41 @@ private Product mapResult(ResultSet rs) throws SQLException {
         }
     }
 
-@Override
-public boolean existsByname(String name) {
-    String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
+    @Override
+    public boolean existsByname(String name) {
+        String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
+        try (Connection con = getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.setString(1, name.trim().toLowerCase());
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1) > 0;
+            st.setString(1, name.trim().toLowerCase());
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        return false;
     }
-    return false;
-}
 
     @Override
-public void actualizarpricePorCategory(ProductCategory Category, double porcentaje) {
+    public void actualizarpricePorCategory(ProductCategory Category, double porcentaje) {
 
-    
+        // Calculamos el multiplicador (ej: 1.10 para un aumento del 10%)
+        double factor = 1.0 + (porcentaje / 100.0);
+        String sql = "UPDATE products SET price = price * ? WHERE Category = ?";
 
-    // Calculamos el multiplicador (ej: 1.10 para un aumento del 10%)
-    double factor = 1.0 + (porcentaje / 100.0);
-    String sql = "UPDATE products SET price = price * ? WHERE Category = ?";
-    
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
-        
-        st.setDouble(1, factor);
-        st.setString(2, Category.name());
-        st.executeUpdate();
-        
-    } catch (SQLException e) {
-        // En un entorno real, usa un Logger: log.error("Error al actualizar prices", e);
-        System.out.println("Error en SQL: " + e.getMessage());
+        try (Connection con = getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setDouble(1, factor);
+            st.setString(2, Category.name());
+            st.executeUpdate();
+
+        } catch (SQLException e) {
+            // En un entorno real, usa un Logger: log.error("Error al actualizar prices",
+            // e);
+            System.out.println("Error en SQL: " + e.getMessage());
+        }
     }
-}
 }

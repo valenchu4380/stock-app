@@ -13,7 +13,7 @@ public interface ProductRepository {
     Optional<Product> findByname(String name);
     void save(Product product);
     void delete(String name) throws ProductNotFoundException;
-void update(Product product) throws ProductNotFoundException;
+   void update(Product product,String oldName) throws ProductNotFoundException;
     void actualizarpricePorCategory(ProductCategory Category, double porcentaje);
     boolean existsByname(String name);
 }

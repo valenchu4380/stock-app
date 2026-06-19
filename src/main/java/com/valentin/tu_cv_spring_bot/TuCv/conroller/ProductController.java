@@ -85,11 +85,12 @@ public String index(Model model) {
         return "form";
     }
 
-    @PostMapping("/editar")
-    public String actualizar(@ModelAttribute Product product,
-                             RedirectAttributes ra) {
+@PostMapping("/editar")
+public String actualizar(@ModelAttribute Product product,
+                         @RequestParam String oldName,
+                         RedirectAttributes ra) {
         try {
-            productService.update(product);
+            productService.update(product, oldName);
             ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
         } catch (ProductNotFoundException | InvalidProductException e) {
             ra.addFlashAttribute("error", e.getMessage());
