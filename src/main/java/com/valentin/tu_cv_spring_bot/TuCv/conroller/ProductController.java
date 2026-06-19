@@ -89,14 +89,14 @@ public String index(Model model) {
 public String actualizar(@ModelAttribute Product product,
                          @RequestParam String oldName,
                          RedirectAttributes ra) {
-        try {
-            productService.update(product, oldName);
-            ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
-        } catch (ProductNotFoundException | InvalidProductException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/productos";
+    try {
+        productService.update(product, oldName);
+        ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
+    } catch (ProductNotFoundException | InvalidProductException e) {
+        ra.addFlashAttribute("error", e.getMessage());
     }
+    return "redirect:/productos";
+}
 
     // ── Eliminar ────────────────────────────────────────
     @PostMapping("/eliminar/{name}")

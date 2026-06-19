@@ -46,14 +46,14 @@ public class ProductServiceImpl implements ProductService {
         productRepository.delete(name);
     }
 
-    @Override
-    public void update(Product product) throws ProductNotFoundException, InvalidProductException {
-        ProductValidator.validate(product);
-        if (!productRepository.existsByname(product.getName())) {
-            throw new ProductNotFoundException("Producto no encontrado: " + product.getName());
-        }
-        productRepository.update(product);
+@Override
+public void update(Product product, String oldName) throws ProductNotFoundException, InvalidProductException {
+    ProductValidator.validate(product);
+    if (!productRepository.existsByname(oldName)) {
+        throw new ProductNotFoundException("Producto no encontrado: " + oldName);
     }
+    productRepository.update(product, oldName);
+}
 
     @Override
     public boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException {
