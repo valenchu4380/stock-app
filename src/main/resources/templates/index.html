@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f5f7fb; }
-
+        body {
+            background: #f5f7fb;
+        }
 
         .btn-orden {
-    background: white;
-    border: 1.5px solid #dce1ec;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2563eb;
-    cursor: pointer;
-}
-.btn-orden:hover { background: #eff6ff; }
+            background: white;
+            border: 1.5px solid #dce1ec;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2563eb;
+            cursor: pointer;
+        }
 
+        .btn-orden:hover {
+            background: #eff6ff;
+        }
 
         .hero {
             background: linear-gradient(135deg, #2563eb, #1e40af);
@@ -29,8 +38,10 @@
             text-align: center;
             padding: 60px 20px;
         }
-        .hero h1 { font-size: 2.5rem; }
-        .hero p { margin-top: 10px; font-size: 1.1rem; }
+
+        .hero h1 {
+            font-size: 2.5rem;
+        }
 
         .cards {
             width: 80%;
@@ -39,20 +50,23 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
         }
+
         .card {
             background: white;
             padding: 35px;
             text-align: center;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
             cursor: pointer;
             transition: .3s;
             text-decoration: none;
             color: inherit;
             display: block;
         }
-        .card:hover { transform: translateY(-8px); }
-        .card h2 { font-size: 3rem; margin-bottom: 10px; }
+
+        .card:hover {
+            transform: translateY(-8px);
+        }
 
         .search-bar {
             width: 80%;
@@ -61,6 +75,7 @@
             gap: 10px;
             position: relative;
         }
+
         .search-bar input {
             flex: 1;
             padding: 12px 18px;
@@ -69,7 +84,7 @@
             font-size: 1rem;
             outline: none;
         }
-        .search-bar input:focus { border-color: #2563eb; }
+
         .search-bar button {
             background: #2563eb;
             color: white;
@@ -78,408 +93,99 @@
             border-radius: 10px;
             font-size: 1rem;
             cursor: pointer;
-            white-space: nowrap;
         }
-        .search-bar button:hover { background: #1e40af; }
-
-        #sugerencias {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1.5px solid #dce1ec;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,.1);
-            list-style: none;
-            z-index: 100;
-        }
-
-        .mensaje {
-            width: 80%;
-            margin: 20px auto 0;
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-size: 0.95rem;
-        }
-        .mensaje.ok  { background: #d1fae5; color: #065f46; }
-        .mensaje.err { background: #fee2e2; color: #991b1b; }
 
         .tabla-container {
             width: 80%;
             margin: 30px auto;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
             overflow: hidden;
         }
-        .tabla-container h2 {
-            padding: 20px 30px;
-            font-size: 1.3rem;
-            border-bottom: 1px solid #e5e7eb;
-            color: #1e3a8a;
-        }
-        .tabla-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        thead { background: #eff6ff; }
-        th { padding: 14px 20px; text-align: left; font-size: 0.85rem; color: #2563eb; text-transform: uppercase; letter-spacing: .05em; }
-        td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 0.95rem; }
-        tr:hover td { background: #f8faff; }
-        .sortable { cursor: pointer; user-select: none; }
-        .sortable:hover { color: #1e40af; }
 
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
+        .tabla-wrapper {
+            overflow-x: auto;
         }
-        .badge-avon     { background: #fce7f3; color: #9d174d; }
-        .badge-natura   { background: #d1fae5; color: #065f46; }
-        .badge-saphirus { background: #ede9fe; color: #4c1d95; }
 
-        .btn-editar {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
             background: #eff6ff;
             color: #2563eb;
-            border: 1px solid #bfdbfe;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-decoration: none;
-            margin-right: 6px;
-            display: inline-block;
+            text-transform: uppercase;
         }
-        .btn-editar:hover { background: #dbeafe; }
-        .btn-eliminar {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        .btn-eliminar:hover { background: #fee2e2; }
 
-        .cards-mobile { display: none; }
+        td {
+            padding: 14px 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .cards-mobile {
+            display: none;
+        }
+
         .product-card {
             background: white;
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
         }
-        .product-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .product-card-name { font-weight: 700; font-size: 1rem; color: #1e3a8a; }
-        .product-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .product-card-field { font-size: 0.85rem; color: #6b7280; }
-        .product-card-field span { display: block; font-weight: 600; color: #1f2937; font-size: 0.95rem; }
-        .product-card-actions { display: flex; gap: 8px; }
-        .product-card-actions .btn-editar,
-        .product-card-actions .btn-eliminar { flex: 1; text-align: center; padding: 8px; }
 
-        .estadisticas {
-            width: 80%;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            text-align: center;
-        }
-        .stat-item p:first-child { font-size: 2rem; font-weight: 700; color: #2563eb; }
-        .stat-item p:last-child  { font-size: 0.9rem; color: #6b7280; margin-top: 4px; }
-
-        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            .hero { padding: 30px 16px; }
-            .hero h1 { font-size: 1.6rem; }
-            .hero p { font-size: 0.95rem; }
+            .tabla-container {
+                display: none;
+            }
 
-            .cards { width: 92%; grid-template-columns: 1fr; margin: 20px auto; }
-            .card { padding: 20px; }
-            .card h2 { font-size: 2rem; }
-            .card h3 { font-size: 1rem; }
-
-            .search-bar { width: 92%; flex-direction: column; }
-            .search-bar input, .search-bar button { width: 100%; }
-
-            .mensaje { width: 92%; }
-
-            /* Ocultar tabla, mostrar tarjetas */
-            .tabla-container { display: none; }
             .cards-mobile {
                 display: block;
                 width: 92%;
                 margin: 20px auto;
             }
-            .cards-mobile h2 {
-                font-size: 1.1rem;
-                color: #1e3a8a;
-                margin-bottom: 16px;
-            }
-
-            .estadisticas {
-                width: 92%;
-                gap: 20px;
-                padding: 20px;
-            }
         }
-
-        
     </style>
-
-
-
 </head>
+
 <body>
-
-<div class="hero">
-    <h1>Sistema de Gestión de Stock</h1>
-    <p>Administra tus productos de manera rápida y eficiente</p>
-</div>
-
-
-
-<div class="cards">
-    <a class="card" th:href="@{/productos/nuevo}">
-        <h2>➕</h2>
-        <h3>Agregar Producto</h3>
-    </a>
-</div>
-
-<div style="width:80%; margin: 30px auto 0;">
-    <div class="search-bar">
-        <input type="text"
-               id="searchInput"
-               name="name"
-               placeholder="Buscar producto por nombre..."
-               autocomplete="off" />
-        <button type="button">Buscar</button>
+    <div class="hero">
+        <h1>Sistema de Gestión de Stock</h1>
+        <p>Administra tus productos de manera rápida y eficiente</p>
     </div>
-    <ul id="sugerencias"></ul>
-</div>
 
-
-
-<div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
-<div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
-
-<div class="tabla-container">
-    <h2>📋 Listado de Productos</h2>
-    <div class="tabla-wrapper">
-        <table th:if="${productos != null and !#lists.isEmpty(productos)}">
-            <thead>
-                <tr>
-                    <th class="sortable" onclick="ordenar('name')">Nombre <span id="icon-name">⇅</span></th>
-                    <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
-                    <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
-                    <th>Categoría</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="p : ${productos}">
-                    <td th:text="${p.name}">Nombre</td>
-                    <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-                    <td th:text="${p.stock}">0</td>
-                    <td>
-                        <span class="badge"
-                              th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                              th:text="${p.category}">Cat</span>
-                    </td>
-                    <td>
-                        <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                        <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
-                            <button class="btn-eliminar" type="submit"
-                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-            <tr id="no-results-tabla" style="display:none">
-    <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
-        No se encontraron productos.
-    </td>
-</tr>
-        </table>
-        <p th:if="${productos == null or #lists.isEmpty(productos)}"
-           style="padding: 30px; text-align: center; color: #9ca3af;">
-            No hay productos registrados aún.
-        </p>
-    </div>
-</div>
-
-<div class="cards-mobile">
-    <h2>📋 Listado de Productos</h2>
-    <!-- Selector de orden mobile -->
-<div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-    <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
-    <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
-    <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
-</div>
-    <div th:each="p : ${productos}" class="product-card">
-        <div class="product-card-header">
-            <span class="product-card-name" th:text="${p.name}">Nombre</span>
-            <span class="badge"
-                  th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                  th:text="${p.category}">Cat</span>
-        </div>
-        <div class="product-card-body">
-            <div class="product-card-field">
-                Precio
-                <span th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</span>
-            </div>
-            <div class="product-card-field">
-                Stock
-                <span th:text="${p.stock}">0</span>
-            </div>
-        </div>
-        <div class="product-card-actions">
-            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="flex:1">
-                <button class="btn-eliminar" type="submit" style="width:100%"
-                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
-            </form>
+    <div class="tabla-container">
+        <h2>📋 Listado de Productos</h2>
+        <div class="tabla-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${productos}">
+                        <td th:text="${p.name}">Nombre</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}"></td>
+                        <td th:text="${p.stock}"></td>
+                        <td th:text="${p.category}"></td>
+                        <td>
+                            <a th:href="@{/productos/editar/{n}(n=${p.name})}">Editar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-    <p th:if="${productos == null or #lists.isEmpty(productos)}"
-       style="text-align:center; color:#9ca3af; padding: 20px 0;">
-        No hay productos registrados aún.
-    </p>
-</div>
-
-<div class="estadisticas">
-    <div class="stat-item">
-        <p th:text="${productos != null ? #lists.size(productos) : 0}">0</p>
-        <p>Productos registrados</p>
-    </div>
-    <div class="stat-item">
-        <p th:text="${totalStock != null ? totalStock : 0}">0</p>
-        <p>Unidades en stock</p>
-    </div>
-</div>
-
-<div id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
-    No se encontraron productos.
-</div>
-
-<script>
-    // ── FILTRADO EN TIEMPO REAL ───────────────────────
-    const input = document.getElementById('searchInput');
-
-    input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
-
-        // Filtrar filas de tabla (desktop)
-        const filas = document.querySelectorAll('table tbody tr');
-        filas.forEach(fila => {
-            const nombre = fila.cells[0].textContent.trim().toLowerCase();
-            fila.style.display = nombre.includes(q) ? '' : 'none';
-        });
-
-        // Filtrar tarjetas (mobile)
-        const tarjetas = document.querySelectorAll('.product-card');
-        tarjetas.forEach(tarjeta => {
-            const nombre = tarjeta.querySelector('.product-card-name').textContent.trim().toLowerCase();
-            tarjeta.style.display = nombre.includes(q) ? '' : 'none';
-        });
-
-        // Mostrar mensaje si no hay resultados
-        const tablaVacia = [...filas].every(f => f.style.display === 'none');
-        const tarjetasVacias = [...tarjetas].every(t => t.style.display === 'none');
-
-        let msgTabla = document.getElementById('no-results-tabla');
-        let msgMobile = document.getElementById('no-results-mobile');
-
-        if (msgTabla) msgTabla.style.display = tablaVacia && q ? '' : 'none';
-        if (msgMobile) msgMobile.style.display = tarjetasVacias && q ? '' : 'none';
-    });
-
-    // ── ORDENAMIENTO DESKTOP ──────────────────────────
-    let ordenActual = null;
-    let ascendente = true;
-
-    function ordenar(campo) {
-        const tbody = document.querySelector('table tbody');
-        if (!tbody) return;
-        const filas = Array.from(tbody.querySelectorAll('tr'));
-
-        if (ordenActual === campo) { ascendente = !ascendente; }
-        else { ordenActual = campo; ascendente = true; }
-
-        document.querySelectorAll('[id^="icon-"]').forEach(el => el.textContent = '⇅');
-        const icono = document.getElementById('icon-' + campo);
-        if (icono) icono.textContent = ascendente ? '↑' : '↓';
-
-        const indices = { name: 0, price: 1, stock: 2 };
-        const col = indices[campo];
-
-        filas.sort((a, b) => {
-            let valA = a.cells[col].textContent.trim();
-            let valB = b.cells[col].textContent.trim();
-            if (campo === 'price' || campo === 'stock') {
-                valA = parseFloat(valA.replace('$', '').replace(',', '.')) || 0;
-                valB = parseFloat(valB.replace('$', '').replace(',', '.')) || 0;
-                return ascendente ? valA - valB : valB - valA;
-            }
-            return ascendente ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        });
-
-        filas.forEach(fila => tbody.appendChild(fila));
-    }
-
-    // ── ORDENAMIENTO MOBILE ───────────────────────────
-    let ordenMobile = null;
-    let ascMobile = true;
-
-    function ordenarMobile(campo) {
-        
-        const contenedor = document.querySelector('.cards-mobile');
-        const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
-
-        if (ordenMobile === campo) { ascMobile = !ascMobile; }
-        else { ordenMobile = campo; ascMobile = true; }
-
-        ['name','price','stock'].forEach(c => {
-            const el = document.getElementById('micon-' + c);
-            if (el) el.textContent = '⇅';
-        });
-        const icono = document.getElementById('micon-' + campo);
-        if (icono) icono.textContent = ascMobile ? '↑' : '↓';
-
-        tarjetas.sort((a, b) => {
-            let valA, valB;
-            if (campo === 'name') {
-                valA = a.querySelector('.product-card-name').textContent.trim();
-                valB = b.querySelector('.product-card-name').textContent.trim();
-                return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-            }
-            if (campo === 'price') {
-                valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-                valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-            }
-            if (campo === 'stock') {
-                valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-                valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            }
-            return ascMobile ? valA - valB : valB - valA;
-        });
-
-        tarjetas.forEach(t => contenedor.appendChild(t));
-    }
-</script>
 </body>
+
 </html>
