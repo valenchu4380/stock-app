@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Valentin de Stock</title>
+    <title>Gestión de Stock</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f5f7fb; }
@@ -191,59 +191,49 @@
 </div>
 
 <script>
-    // Usamos 'load' para asegurar que todo el HTML esté cargado
-    window.addEventListener('load', function() {
-        const input = document.getElementById('searchInput');
-        const lista = document.getElementById('sugerencias');
+    const input = document.getElementById('searchInput');
+    const lista = document.getElementById('sugerencias');
+    const formulario = input.closest('form'); // Seleccionamos el form que envuelve al input
 
-        if (!input) {
-            console.error("No se encontró el input con ID 'searchInput'");
+    // 1. Evitamos que el formulario se envíe solo al presionar Enter
+    formulario.addEventListener('submit', (e) => {
+        // Si el usuario presiona Enter, dejamos que se envíe normalmente
+        // pero si solo está escribiendo en el input, no debe recargar la página.
+    });
+
+    input.addEventListener('input', async (e) => {
+        const q = e.target.value.trim();
+
+        if (q.length < 1) {
+            lista.style.display = 'none';
             return;
         }
 
-        input.addEventListener('input', async (e) => {
-            const q = e.target.value.trim();
-            console.log("Escribiendo: " + q); // Deberías ver esto en consola al escribir
+        // Hacemos el fetch específicamente al endpoint de sugerencias
+        try {
+            const res = await fetch('/productos/sugerencias?q=' + encodeURIComponent(q));
+            const nombres = await res.json();
 
-            if (q.length < 1) {
+            if (nombres.length > 0) {
+                lista.innerHTML = nombres.map(nombre => `
+                    <li style="padding: 12px 18px; cursor: pointer; border-bottom: 1px solid #f1f5f9;"
+                        onclick="seleccionar('${nombre}')">
+                        🔍 ${nombre}
+                    </li>
+                `).join('');
+                lista.style.display = 'block';
+            } else {
                 lista.style.display = 'none';
-                lista.innerHTML = '';
-                return;
             }
-
-            try {
-                // Hacemos el fetch a la ruta correcta
-                const res = await fetch('/productos/sugerencias?q=' + encodeURIComponent(q));
-                
-                if (res.ok) {
-                    const nombres = await res.json();
-                    console.log("Respuesta del servidor:", nombres);
-
-                    if (nombres.length > 0) {
-                        lista.innerHTML = nombres.map(nombre => `
-                            <li style="padding: 12px 18px; cursor: pointer; border-bottom: 1px solid #f1f5f9;"
-                                onmouseover="this.style.background='#eff6ff'"
-                                onmouseout="this.style.background='white'"
-                                onclick="seleccionar('${nombre}')">
-                                🔍 ${nombre}
-                            </li>
-                        `).join('');
-                        lista.style.display = 'block';
-                    } else {
-                        lista.style.display = 'none';
-                    }
-                }
-            } catch (err) {
-                console.error("Error en fetch:", err);
-            }
-        });
+        } catch (err) {
+            console.error("Error en la petición:", err);
+        }
     });
 
     function seleccionar(nombre) {
-        const input = document.getElementById('searchInput');
         input.value = nombre;
-        document.getElementById('sugerencias').style.display = 'none';
-        input.closest('form').submit();
+        lista.style.display = 'none';
+        formulario.submit(); // Aquí sí enviamos el formulario tras seleccionar
     }
 </script>
 
