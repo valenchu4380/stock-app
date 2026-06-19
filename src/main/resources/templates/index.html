@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock</title>
     <style>
         * {
@@ -252,10 +253,50 @@
         .sortable:hover {
             color: #1e40af;
         }
+
+        /* ── MOBILE ─────────────────────────────── */
+@media (max-width: 768px) {
+
+    .hero { padding: 30px 20px; }
+    .hero h1 { font-size: 1.8rem; }
+    .hero p { font-size: 1rem; }
+
+    .cards {
+        width: 90%;
+        grid-template-columns: 1fr;
+    }
+
+    .search-bar {
+        width: 90%;
+        flex-direction: column;
+    }
+    .search-bar button { width: 100%; }
+
+    #sugerencias { right: 0; }
+
+    .mensaje { width: 90%; }
+
+    .tabla-container {
+        width: 95%;
+        overflow-x: auto; /* tabla scrolleable en horizontal */
+    }
+
+    table { min-width: 500px; } /* evita que se aplaste */
+
+    th, td { padding: 10px 12px; font-size: 0.82rem; }
+
+    .estadisticas {
+        width: 90%;
+        flex-direction: column;
+        gap: 20px;
+    }
+}
     </style>
 </head>
 
 <body>
+
+    
 
     <div class="hero">
         <h1>Sistema de Gestión de Stock</h1>
@@ -397,6 +438,8 @@
         }
 
     </script>
+
+    
 
     <div class="mensaje ok" th:if="${mensaje}" th:text="${mensaje}"></div>
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
