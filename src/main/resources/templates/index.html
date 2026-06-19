@@ -240,7 +240,21 @@
                 padding: 20px;
             }
         }
+
+        
     </style>
+
+<div style="width:80%; margin: 30px auto 0;">
+    <div class="search-bar">
+        <input type="text"
+               id="searchInput"
+               name="name"
+               placeholder="Buscar producto por nombre..."
+               autocomplete="off" />
+    </div>
+    <ul id="sugerencias"></ul>
+</div>
+
 </head>
 <body>
 
@@ -300,6 +314,11 @@
                     </td>
                 </tr>
             </tbody>
+            <tr id="no-results-tabla" style="display:none">
+    <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
+        No se encontraron productos.
+    </td>
+</tr>
         </table>
         <p th:if="${productos == null or #lists.isEmpty(productos)}"
            style="padding: 30px; text-align: center; color: #9ca3af;">
@@ -361,88 +380,38 @@
 </div>
 
 <script>
-    // ── AUTOCOMPLETE ─────────────────────────────────
+    // ── FILTRADO EN TIEMPO REAL ───────────────────────
     const input = document.getElementById('searchInput');
-    const lista = document.getElementById('sugerencias');
 
-    input.addEventListener('input', async () => {
-        const q = input.value.trim();
-        if (q.length < 1) { lista.style.display = 'none'; lista.innerHTML = ''; return; }
+    input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
 
-        const res = await fetch(`/productos/sugerencias?q=${encodeURIComponent(q)}`);
-        const nombres = await res.json();
+        // Filtrar filas de tabla (desktop)
+        const filas = document.querySelectorAll('table tbody tr');
+        filas.forEach(fila => {
+            const nombre = fila.cells[0].textContent.trim().toLowerCase();
+            fila.style.display = nombre.includes(q) ? '' : 'none';
+        });
 
-        if (nombres.length === 0) { lista.style.display = 'none'; lista.innerHTML = ''; return; }
+        // Filtrar tarjetas (mobile)
+        const tarjetas = document.querySelectorAll('.product-card');
+        tarjetas.forEach(tarjeta => {
+            const nombre = tarjeta.querySelector('.product-card-name').textContent.trim().toLowerCase();
+            tarjeta.style.display = nombre.includes(q) ? '' : 'none';
+        });
 
-        lista.innerHTML = nombres.map(nombre => `
-            <li style="padding:12px 18px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.95rem;color:#374151;"
-                onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'"
-                onclick="seleccionar('${nombre}')">🔍 ${nombre}</li>
-        `).join('');
-        lista.style.display = 'block';
+        // Mostrar mensaje si no hay resultados
+        const tablaVacia = [...filas].every(f => f.style.display === 'none');
+        const tarjetasVacias = [...tarjetas].every(t => t.style.display === 'none');
+
+        let msgTabla = document.getElementById('no-results-tabla');
+        let msgMobile = document.getElementById('no-results-mobile');
+
+        if (msgTabla) msgTabla.style.display = tablaVacia && q ? '' : 'none';
+        if (msgMobile) msgMobile.style.display = tarjetasVacias && q ? '' : 'none';
     });
 
-    // ── ORDENAMIENTO MOBILE ───────────────────────────
-let ordenMobile = null;
-let ascMobile = true;
-
-function ordenarMobile(campo) {
-    const contenedor = document.querySelector('.cards-mobile');
-    const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
-
-    if (ordenMobile === campo) { ascMobile = !ascMobile; }
-    else { ordenMobile = campo; ascMobile = true; }
-
-    // Actualizar íconos
-    ['name','price','stock'].forEach(c => {
-        const el = document.getElementById('micon-' + c);
-        if (el) el.textContent = '⇅';
-    });
-    const icono = document.getElementById('micon-' + campo);
-    if (icono) icono.textContent = ascMobile ? '↑' : '↓';
-
-    tarjetas.sort((a, b) => {
-        let valA, valB;
-
-        if (campo === 'name') {
-            valA = a.querySelector('.product-card-name').textContent.trim();
-            valB = b.querySelector('.product-card-name').textContent.trim();
-            return ascMobile
-                ? valA.localeCompare(valB, 'es')
-                : valB.localeCompare(valA, 'es');
-        }
-
-        if (campo === 'price') {
-            // El precio está en el primer product-card-field span
-            valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-            valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-        }
-
-        if (campo === 'stock') {
-            valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-        }
-
-        return ascMobile ? valA - valB : valB - valA;
-    });
-
-    // Reinsertar tarjetas ordenadas (solo las tarjetas, no el selector)
-    tarjetas.forEach(t => contenedor.appendChild(t));
-}
-
-    function seleccionar(nombre) {
-        input.value = nombre;
-        lista.style.display = 'none';
-        input.closest('form').submit();
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !lista.contains(e.target)) {
-            lista.style.display = 'none';
-        }
-    });
-
-    // ── ORDENAMIENTO ─────────────────────────────────
+    // ── ORDENAMIENTO DESKTOP ──────────────────────────
     let ordenActual = null;
     let ascendente = true;
 
@@ -473,6 +442,48 @@ function ordenarMobile(campo) {
         });
 
         filas.forEach(fila => tbody.appendChild(fila));
+    }
+
+    // ── ORDENAMIENTO MOBILE ───────────────────────────
+    let ordenMobile = null;
+    let ascMobile = true;
+
+    function ordenarMobile(campo) {
+        const contenedor = document.querySelector('.cards-mobile');
+        <p id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
+    No se encontraron productos.
+</p>
+        const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
+
+        if (ordenMobile === campo) { ascMobile = !ascMobile; }
+        else { ordenMobile = campo; ascMobile = true; }
+
+        ['name','price','stock'].forEach(c => {
+            const el = document.getElementById('micon-' + c);
+            if (el) el.textContent = '⇅';
+        });
+        const icono = document.getElementById('micon-' + campo);
+        if (icono) icono.textContent = ascMobile ? '↑' : '↓';
+
+        tarjetas.sort((a, b) => {
+            let valA, valB;
+            if (campo === 'name') {
+                valA = a.querySelector('.product-card-name').textContent.trim();
+                valB = b.querySelector('.product-card-name').textContent.trim();
+                return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+            }
+            if (campo === 'price') {
+                valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+                valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+            }
+            if (campo === 'stock') {
+                valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+            }
+            return ascMobile ? valA - valB : valB - valA;
+        });
+
+        tarjetas.forEach(t => contenedor.appendChild(t));
     }
 </script>
 </body>
