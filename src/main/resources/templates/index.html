@@ -459,47 +459,26 @@
 </div>
 
 <script>
-    let filtroCat  = 'TODAS';
-    let filtroSub  = 'TODAS';
-    let filtroTexto = '';
-function aplicarFiltros() {
-    const mobileCat = document.getElementById('mobile-cat');
-    const mobileSub = document.getElementById('mobile-sub');
-    
-    // Obtenemos los valores. Si estamos en PC, usamos las variables globales 'filtroCat' y 'filtroSub'
-    // Si estamos en mobile, usamos el .value de los selectores.
-    const vCat = (mobileCat ? mobileCat.value : filtroCat).toLowerCase().trim();
-    const vSub = (mobileSub ? mobileSub.value : filtroSub).toLowerCase().trim();
-    const vSearch = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    let filtroCat = 'TODAS';
+let filtroSub = 'TODAS';
 
-    // 1. Filtrar Tabla PC
+function aplicarFiltros() {
+    // 1. Detectar si estamos en mobile o PC
+    const isMobile = window.innerWidth <= 768;
+    
+    // Obtenemos los valores de filtro
+    const vCat = isMobile ? document.getElementById('mobile-cat').value.toLowerCase().trim() : filtroCat.toLowerCase().trim();
+    const vSub = isMobile ? document.getElementById('mobile-sub').value.toLowerCase().trim() : filtroSub.toLowerCase().trim();
+
+    // 2. Filtrar Tabla PC (solo si no estamos en mobile, o siempre para asegurar)
     const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
     filas.forEach(fila => {
         const cat = fila.cells[3].textContent.toLowerCase().trim();
         const sub = fila.cells[4].textContent.toLowerCase().trim();
-        const nombre = fila.cells[0].textContent.toLowerCase().trim();
         
-        // Comparamos: Si el filtro es TODAS, pasa siempre. Si no, debe coincidir.
-        const catMatch = (vCat === 'todas' || cat === vCat);
-        const subMatch = (vSub === 'todas' || sub === vSub);
-        const searchMatch = (nombre.includes(vSearch));
-        
-        fila.style.display = (catMatch && subMatch && searchMatch) ? '' : 'none';
-    });
-
-    // 2. Filtrar Tarjetas Mobile (esto ya te funciona, pero unificamos la lógica)
-    const tarjetas = document.querySelectorAll('.product-card');
-    tarjetas.forEach(t => {
-        const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';
-        const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
-        const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
-        const nombre = t.querySelector('.product-card-name').textContent.toLowerCase().trim();
-        
-        const catMatch = (vCat === 'todas' || cat === vCat);
-        const subMatch = (vSub === 'todas' || sub === vSub);
-        const searchMatch = (nombre.includes(vSearch));
-        
-        t.style.display = (catMatch && subMatch && searchMatch) ? '' : 'none';
+        const ok = (vCat === 'todas' || cat === vCat) && 
+                   (vSub === 'todas' || sub === vSub);
+        fila.style.display = ok ? '' : 'none';
     });
 }
 
@@ -516,27 +495,23 @@ function aplicarFiltros() {
         if (!isOpen) drop.classList.add('open');
     }
 
-    function seleccionarCat(li, e) {
-        e.stopPropagation();
-        document.querySelectorAll('#drop-cat li').forEach(l => l.classList.remove('selected'));
-        li.classList.add('selected');
-        filtroCat = li.dataset.val;
-        const thCat = document.getElementById('th-cat');
-        thCat.classList.toggle('active-filter', filtroCat !== 'TODAS');
-        document.getElementById('drop-cat').classList.remove('open');
-        aplicarFiltros();
-    }
+   function seleccionarCat(li, e) {
+    e.stopPropagation();
+    document.querySelectorAll('#drop-cat li').forEach(l => l.classList.remove('selected'));
+    li.classList.add('selected');
+    filtroCat = li.dataset.val; // Esto actualiza la variable global
+    document.getElementById('drop-cat').classList.remove('open');
+    aplicarFiltros(); // Llamamos al filtro unificado
+}
 
-    function seleccionarSub(li, e) {
-        e.stopPropagation();
-        document.querySelectorAll('#drop-sub li').forEach(l => l.classList.remove('selected'));
-        li.classList.add('selected');
-        filtroSub = li.dataset.val;
-        const thSub = document.getElementById('th-sub');
-        thSub.classList.toggle('active-filter', filtroSub !== 'TODAS');
-        document.getElementById('drop-sub').classList.remove('open');
-        aplicarFiltros();
-    }
+function seleccionarSub(li, e) {
+    e.stopPropagation();
+    document.querySelectorAll('#drop-sub li').forEach(l => l.classList.remove('selected'));
+    li.classList.add('selected');
+    filtroSub = li.dataset.val; // Esto actualiza la variable global
+    document.getElementById('drop-sub').classList.remove('open');
+    aplicarFiltros(); // Llamamos al filtro unificado
+}
 
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
