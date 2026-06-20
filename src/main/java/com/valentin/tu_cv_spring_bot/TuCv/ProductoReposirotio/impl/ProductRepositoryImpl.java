@@ -83,15 +83,21 @@ public class ProductRepositoryImpl implements ProductRepository {
         return Optional.empty();
     }
 
-    private Product mapResult(ResultSet rs) throws SQLException {
-        return new Product(
-                rs.getString("name"),
-                rs.getDouble("price"),
-                rs.getInt("stock"),
-                ProductCategory.valueOf(rs.getString("category")),
-                SubCategory.valueOf(rs.getString("subCategory")));
-    }
+   private Product mapResult(ResultSet rs) throws SQLException {
+    String name = rs.getString("name");
+    double price = rs.getDouble("price");
+    int stock = rs.getInt("stock");
+    
+    // Obtener valores como String
+    String catStr = rs.getString("category");
+    String subCatStr = rs.getString("subCategory");
 
+    // Convertir con seguridad (si es nulo, asignamos null al Enum)
+    ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
+    SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
+
+    return new Product(name, price, stock, category, subCategory);
+}
     @Override
     public void save(Product product) {
         String sql = "INSERT INTO products(name, price, stock, Category, subCategory ) VALUES(?, ?, ?, ?, ?)";
