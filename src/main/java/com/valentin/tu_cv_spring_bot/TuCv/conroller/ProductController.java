@@ -8,6 +8,7 @@ import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -61,13 +62,13 @@ public class ProductController {
     }
 
     // ── Formulario agregar ──────────────────────────────
-    @GetMapping("/nuevo")
-    public String formNuevo(Model model) {
-        model.addAttribute("product", new Product());
-        model.addAttribute("Categorys", ProductCategory.values());
-        model.addAttribute("subCategorys", ProductCategory.values());
-        return "form";
-    }
+@GetMapping("/nuevo")
+public String formNuevo(Model model) {
+    model.addAttribute("product", new Product());
+    model.addAttribute("Categorys", ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "form";
+}
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
@@ -81,13 +82,15 @@ public class ProductController {
         return "redirect:/productos";
     }
 
-    @GetMapping("/editar/{name}")
-    public String formEditar(@PathVariable String name, Model model) {
-        productService.getByname(name).ifPresent(p -> model.addAttribute("product", p));
-        model.addAttribute("Categorys", ProductCategory.values());
-        model.addAttribute("subCategorys", ProductCategory.values());
-        return "form";
-    }
+  @GetMapping("/editar/{name}")
+public String formEditar(@PathVariable String name, Model model) {
+    productService.getByname(name).ifPresent(p ->
+        model.addAttribute("product", p));
+    model.addAttribute("Categorys", ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "form";
+}
+
 
     @PostMapping("/editar")
     public String actualizar(@ModelAttribute Product product,
