@@ -461,34 +461,41 @@
                         <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
                         <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
                         <th>Categoría</th>
+                        <th>Subcategoría</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr th:each="p : ${productos}">
-                        <td th:text="${p.name}">Nombre</td>
-                        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-                        <td th:text="${p.stock} ?: 0"
-                            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-                        </td>
-                   <td>
-    <span class="badge"
-          th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
-        <span th:text="${p.category}">Cat</span>
-        <span th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
-              th:text="' / ' + ${p.subCategory}"></span>
-    </span>
-</td>
-                        <td>
-                            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post"
-                                style="display:inline">
-                                <button class="btn-eliminar" type="submit"
-                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
+               <tbody>
+    <tr th:each="p : ${productos}">
+        <td th:text="${p.name}">Nombre</td>
+        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
+        
+        <td th:text="${p.stock} ?: 0"
+            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+        </td>
+
+        <td>
+            <span class="badge"
+                  th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
+                  th:text="${p.category}">Cat</span>
+        </td>
+
+        <td>
+            <span th:if="${p.subCategory != null}" 
+                  th:text="${p.subCategory}" 
+                  class="badge badge-sub">Subcat</span>
+            <span th:if="${p.subCategory == null}">-</span>
+        </td>
+
+        <td>
+            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
+                <button class="btn-eliminar" type="submit"
+                        onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+            </form>
+        </td>
+    </tr>
+</tbody>
                 <tr id="no-results-tabla" style="display:none">
                     <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
                         No se encontraron productos.
