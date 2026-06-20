@@ -529,9 +529,9 @@
                 <span class="product-card-name" th:text="${p.name}">Nombre</span>
                 <span class="badge"
                     th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
-                    <span class="product-card-cat" th:text="${p.category}">Cat</span>
-                    <span class="product-card-subcat" th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}" 
-          th:text="' / ' + ${p.subCategory}"></span>
+                    <span th:text="${p.category}">Cat</span>
+                    <span th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
+                        th:text="' / ' + ${p.subCategory}"></span>
                 </span>
             </div>
             <div class="product-card-body">
@@ -649,58 +649,51 @@
         let ascMobile = true;
 
         function ordenarMobile(campo) {
-    const contenedor = document.querySelector('.cards-mobile');
-    const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
 
-    if (ordenMobile === campo) { ascMobile = !ascMobile; }
-    else { ordenMobile = campo; ascMobile = true; }
+            const contenedor = document.querySelector('.cards-mobile');
+            const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
 
-    // Limpiar iconos
-    ['name', 'price', 'stock', 'category', 'subCategory'].forEach(c => {
-        const el = document.getElementById('micon-' + c);
-        if (el) el.textContent = '⇅';
-    });
-    const icono = document.getElementById('micon-' + campo);
-    if (icono) icono.textContent = ascMobile ? '↑' : '↓';
+            if (ordenMobile === campo) { ascMobile = !ascMobile; }
+            else { ordenMobile = campo; ascMobile = true; }
 
-    tarjetas.sort((a, b) => {
-        let valA, valB;
-        
-        if (campo === 'name') {
-            valA = a.querySelector('.product-card-name').textContent.trim();
-            valB = b.querySelector('.product-card-name').textContent.trim();
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
-        
-        if (campo === 'category') {
-            valA = a.querySelector('.product-card-cat').textContent.trim();
-            valB = b.querySelector('.product-card-cat').textContent.trim();
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
-        
-        if (campo === 'subCategory') {
-            // Obtenemos el texto y limpiamos el slash "/"
-            valA = a.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim() || "";
-            valB = b.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim() || "";
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
+            ['name', 'price', 'stock', 'category', 'subCategory'].forEach(c => {
+                const el = document.getElementById('micon-' + c);
+                if (el) el.textContent = '⇅';
+            });
+            const icono = document.getElementById('micon-' + campo);
+            if (icono) icono.textContent = ascMobile ? '↑' : '↓';
 
-        if (campo === 'price') {
-            valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-            valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-            return ascMobile ? valA - valB : valB - valA;
-        }
-        
-        if (campo === 'stock') {
-            valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            return ascMobile ? valA - valB : valB - valA;
-        }
-        return 0;
-    });
+            tarjetas.sort((a, b) => {
+                let valA, valB;
+                if (campo === 'name') {
+                    valA = a.querySelector('.product-card-name').textContent.trim();
+                    valB = b.querySelector('.product-card-name').textContent.trim();
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+                }
+                if (campo === 'price') {
+                    valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
+                    valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
+                }
+                if (campo === 'stock') {
+                    valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                    valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                }
+                if (campo === 'category') {
+                    valA = a.querySelector('.product-card-cat') ? a.querySelector('.product-card-cat').textContent.trim() : "";
+                    valB = b.querySelector('.product-card-cat') ? b.querySelector('.product-card-cat').textContent.trim() : "";
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+                }
 
-    tarjetas.forEach(t => contenedor.appendChild(t));
-}
+                if (campo === 'subCategory') {
+                    valA = a.querySelector('.product-card-subcat') ? a.querySelector('.product-card-subcat').textContent.trim() : "";
+                    valB = b.querySelector('.product-card-subcat') ? b.querySelector('.product-card-subcat').textContent.trim() : "";
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+                }
+                return ascMobile ? valA - valB : valB - valA;
+            });
+
+            tarjetas.forEach(t => contenedor.appendChild(t));
+        }
     </script>
 </body>
 
