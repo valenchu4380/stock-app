@@ -82,21 +82,6 @@
         }
         .search-bar button:hover { background: #1e40af; }
 
-        #sugerencias {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1.5px solid #dce1ec;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,.1);
-            list-style: none;
-            z-index: 100;
-        }
-
         .mensaje {
             width: 80%;
             margin: 20px auto 0;
@@ -369,6 +354,10 @@
     <div class="stat-item">
         <p th:text="${totalStock != null ? totalStock : 0}">0</p>
         <p>Unidades en stock</p>
+    </div>
+        <div class="stat-item">
+        <p th:text="${inventario != null ? inventario : 0}">0</p>
+        <p>Valor inventario</p>
     </div>
 </div>
 

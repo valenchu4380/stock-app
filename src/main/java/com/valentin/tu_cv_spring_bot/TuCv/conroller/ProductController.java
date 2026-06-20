@@ -13,7 +13,6 @@ import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 
 
 import org.springframework.stereotype.Controller;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 
@@ -52,6 +50,7 @@ public String index(Model model) {
         // Lista vacía → mandamos lista vacía, no rompemos la página
         model.addAttribute("productos", java.util.Collections.emptyList());
         model.addAttribute("totalStock", 0);
+        model.addAttribute("inventario",0);
     }
     model.addAttribute("Categorys", ProductCategory.values());
     return "index";
@@ -110,22 +109,6 @@ public String actualizar(@ModelAttribute Product product,
         return "redirect:/productos";
     }
 
-    @GetMapping("/sugerencias")
-@ResponseBody  // ← devuelve JSON, no una vista
-public List<String> sugerencias(@RequestParam String q) {
-    if (q == null || q.trim().length() < 1) {
-        return java.util.Collections.emptyList();
-    }
-    try {
-        return productService.getAll().stream()
-            .map(Product::getName)
-            .filter(name -> name.toLowerCase().contains(q.trim().toLowerCase()))
-            .limit(5)
-            .collect(java.util.stream.Collectors.toList());
-    } catch (InvalidProductException e) {
-        return java.util.Collections.emptyList();
-    }
-}
 
     // ── Buscar por name ───────────────────────────────
 @GetMapping("/buscar")
@@ -138,10 +121,12 @@ public String buscar(@RequestParam String name, Model model) {
             java.util.List<Product> resultado = java.util.List.of(p);
             model.addAttribute("productos", resultado);
             model.addAttribute("totalStock", p.getStock());
+            model.addAttribute("inventario",p.getPrice());
         },
         () -> {
             model.addAttribute("productos", java.util.Collections.emptyList());
             model.addAttribute("totalStock", 0);
+            model.addAttribute("inventario",0);
             model.addAttribute("error", "No se encontró el producto: " + name);
         }
     );
