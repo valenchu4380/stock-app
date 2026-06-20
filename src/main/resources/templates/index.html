@@ -515,13 +515,13 @@
                     Precio
                     <span th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</span>
                 </div>
-                <div class="product-card-field">
-                    Stock
-                    <span
-                    th:text="${p.stock} ?: 0"
-    th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}" 
-                    span>
-                </div>
+<div class="product-card-field">
+    Stock
+    <span th:text="${p.stock}" 
+          th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+        0
+    </span>
+</div>
             </div>
             <div class="product-card-actions">
                 <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
