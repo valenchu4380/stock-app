@@ -132,7 +132,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
-    public void update(Product product, String oldName) throws ProductNotFoundException {
+    public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
         String sql = """
                                 UPDATE products
                 SET price = ?, stock = ?, Category = ?
@@ -141,12 +141,13 @@ public class ProductRepositoryImpl implements ProductRepository {
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
-            st.setString(1, product.getName().trim());
-            st.setDouble(2, product.getPrice());
-            st.setInt(3, product.getStock());
-            st.setString(4, product.getCategory().name());
-            st.setString(5, product.getSubCategory().name());
-            st.setString(6, oldName.trim());
+        st.setDouble(1, product.getPrice());      
+        st.setInt(2, product.getStock());        
+        st.setString(3, product.getCategory().name());
+        st.setString(4, product.getSubCategory().name());
+        
+        st.setString(5, oldName.trim());          
+        st.setString(6, oldSubCategory.name());   
 
             int rows = st.executeUpdate();
             if (rows == 0) {
