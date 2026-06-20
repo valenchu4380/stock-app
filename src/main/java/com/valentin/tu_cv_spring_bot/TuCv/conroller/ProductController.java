@@ -108,6 +108,12 @@ public String formEditar(@PathVariable String name, Model model) {
     // ── Eliminar ────────────────────────────────────────
     @PostMapping("/eliminar/{name}")
     public String eliminar(@PathVariable String name,SubCategory subCategory, RedirectAttributes ra) {
+
+if (subCategory == null) {
+        ra.addFlashAttribute("error", "Error: La subcategoría no es válida.");
+        return "redirect:/productos";
+    }
+
         try {
             productService.delete(name , subCategory);
             ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");

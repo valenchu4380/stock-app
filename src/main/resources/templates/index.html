@@ -594,8 +594,8 @@
                         <td th:text="${p.subCategory} ?: '-'">Sub</td>
                         <td>
                             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                            <form th:action="@{/productos/eliminar/{n}/{s}(n=${p.name}, s=${p.subCategory})}" method="post"
-                                style="display:inline">
+                            <form th:action="@{/productos/eliminar/{n}/{s}(n=${p.name}, s=${p.subCategory.name()})}"
+                                method="post" style="display:inline">
                                 <button class="btn-eliminar" type="submit"
                                     onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
                             </form>
@@ -706,64 +706,64 @@
         let filtroCat = 'TODAS';
         let filtroSub = 'TODAS';
 
-       function aplicarFiltros() {
-    // 1. Obtener los valores de los filtros
-    const mobileCat = document.getElementById('mobile-cat');
-    const mobileSub = document.getElementById('mobile-sub');
-    
-    // Priorizamos mobile si está visible; si no, usamos las variables globales
-    const vCat = (mobileCat && mobileCat.offsetParent !== null) ? mobileCat.value : filtroCat;
-    const vSub = (mobileSub && mobileSub.offsetParent !== null) ? mobileSub.value : filtroSub;
+        function aplicarFiltros() {
+            // 1. Obtener los valores de los filtros
+            const mobileCat = document.getElementById('mobile-cat');
+            const mobileSub = document.getElementById('mobile-sub');
 
-    const valCat = vCat.toLowerCase().trim();
-    const valSub = vSub.toLowerCase().trim();
-    const vSearch = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            // Priorizamos mobile si está visible; si no, usamos las variables globales
+            const vCat = (mobileCat && mobileCat.offsetParent !== null) ? mobileCat.value : filtroCat;
+            const vSub = (mobileSub && mobileSub.offsetParent !== null) ? mobileSub.value : filtroSub;
 
-    // 2. Filtrar Tabla PC
-    let hayResultados = false;
-    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
-    const msgTabla = document.getElementById('no-results-tabla');
+            const valCat = vCat.toLowerCase().trim();
+            const valSub = vSub.toLowerCase().trim();
+            const vSearch = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
 
-    filas.forEach(fila => {
-        const cat = fila.cells[3].textContent.toLowerCase().trim();
-        const sub = fila.cells[4].textContent.toLowerCase().trim();
-        const nombre = fila.cells[0].textContent.toLowerCase().trim();
-        
-        const ok = (valCat === 'todas' || cat === valCat) && 
-                   (valSub === 'todas' || sub.includes(valSub)) &&
-                   (nombre.includes(vSearch));
-        
-        fila.style.display = ok ? '' : 'none';
-        if (ok) hayResultados = true;
-    });
+            // 2. Filtrar Tabla PC
+            let hayResultados = false;
+            const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
+            const msgTabla = document.getElementById('no-results-tabla');
 
-    if (msgTabla) {
-        msgTabla.style.display = hayResultados ? 'none' : '';
-    }
+            filas.forEach(fila => {
+                const cat = fila.cells[3].textContent.toLowerCase().trim();
+                const sub = fila.cells[4].textContent.toLowerCase().trim();
+                const nombre = fila.cells[0].textContent.toLowerCase().trim();
 
-    // 3. Filtrar Tarjetas Mobile
-    let hayResultadosMobile = false;
-    const tarjetas = document.querySelectorAll('.product-card');
-    const msgMobile = document.getElementById('no-results-mobile'); // Asegúrate de tener este id
+                const ok = (valCat === 'todas' || cat === valCat) &&
+                    (valSub === 'todas' || sub.includes(valSub)) &&
+                    (nombre.includes(vSearch));
 
-    tarjetas.forEach(t => {
-        const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';
-        const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
-        const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
-        const nombre = t.querySelector('.product-card-name').textContent.toLowerCase().trim();
-        
-        const ok = (valCat === 'todas' || cat === valCat) && 
-                   (valSub === 'todas' || sub.includes(valSub)) &&
-                   (nombre.includes(vSearch));
-        
-        t.style.display = ok ? '' : 'none';
-        if (ok) hayResultadosMobile = true;
-    });
+                fila.style.display = ok ? '' : 'none';
+                if (ok) hayResultados = true;
+            });
 
-    if (msgMobile) {
-        msgMobile.style.display = hayResultadosMobile ? 'none' : '';
-    }
-}
+            if (msgTabla) {
+                msgTabla.style.display = hayResultados ? 'none' : '';
+            }
+
+            // 3. Filtrar Tarjetas Mobile
+            let hayResultadosMobile = false;
+            const tarjetas = document.querySelectorAll('.product-card');
+            const msgMobile = document.getElementById('no-results-mobile'); // Asegúrate de tener este id
+
+            tarjetas.forEach(t => {
+                const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';
+                const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
+                const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
+                const nombre = t.querySelector('.product-card-name').textContent.toLowerCase().trim();
+
+                const ok = (valCat === 'todas' || cat === valCat) &&
+                    (valSub === 'todas' || sub.includes(valSub)) &&
+                    (nombre.includes(vSearch));
+
+                t.style.display = ok ? '' : 'none';
+                if (ok) hayResultadosMobile = true;
+            });
+
+            if (msgMobile) {
+                msgMobile.style.display = hayResultadosMobile ? 'none' : '';
+            }
+        }
 
         document.getElementById('searchInput').addEventListener('input', e => {
             filtroTexto = e.target.value.trim().toLowerCase();
