@@ -668,7 +668,7 @@
             </div>
             <div class="product-card-actions">
                 <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="flex:1">
+                <form th:action="@{/productos/eliminar/{n}/{s}(n=${p.name}, s=${p.subCategory.name()})}" method="post" style="flex:1">
                     <button class="btn-eliminar" type="submit" style="width:100%"
                         onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
                 </form>
