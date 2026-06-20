@@ -103,7 +103,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         String sql = "INSERT INTO products(name, price, stock, Category, subCategory ) VALUES(?, ?, ?, ?, ?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, product.getName());
+            st.setString(1, product.getName().trim());
             st.setDouble(2, product.getPrice());
             st.setInt(3, product.getStock());
             st.setString(4, product.getCategory().name());
@@ -139,12 +139,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
-            st.setString(1, product.getName());
+            st.setString(1, product.getName().trim());
             st.setDouble(2, product.getPrice());
             st.setInt(3, product.getStock());
             st.setString(4, product.getCategory().name());
             st.setString(5, product.getSubCategory().name());
-            st.setString(6, oldName);
+            st.setString(6, oldName.trim());
 
             int rows = st.executeUpdate();
             if (rows == 0) {
