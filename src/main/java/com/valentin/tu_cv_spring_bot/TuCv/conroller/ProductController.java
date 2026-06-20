@@ -107,9 +107,9 @@ public String formEditar(@PathVariable String name, Model model) {
 
     // ── Eliminar ────────────────────────────────────────
     @PostMapping("/eliminar/{name}")
-    public String eliminar(@PathVariable String name, RedirectAttributes ra) {
+    public String eliminar(@PathVariable String name,SubCategory subCategory, RedirectAttributes ra) {
         try {
-            productService.delete(name);
+            productService.delete(name , subCategory);
             ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");
         } catch (ProductNotFoundException e) {
             ra.addFlashAttribute("error", e.getMessage());

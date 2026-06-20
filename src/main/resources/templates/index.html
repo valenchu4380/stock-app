@@ -594,7 +594,7 @@
                         <td th:text="${p.subCategory} ?: '-'">Sub</td>
                         <td>
                             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post"
+                            <form th:action="@{/productos/eliminar/{n}/{s}(n=${p.name}, s=${p.subCategory})}" method="post"
                                 style="display:inline">
                                 <button class="btn-eliminar" type="submit"
                                     onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>

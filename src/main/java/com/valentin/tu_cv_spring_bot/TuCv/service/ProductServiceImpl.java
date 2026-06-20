@@ -10,6 +10,7 @@ import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,11 +49,11 @@ public void save(Product product) throws InvalidProductException {
 }
 
     @Override
-    public void delete(String name) throws ProductNotFoundException {
+    public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
         if (!productRepository.existsByname(name)) {
             throw new ProductNotFoundException("Producto no encontrado: " + name);
         }
-        productRepository.delete(name);
+        productRepository.delete(name,subCategory);
     }
 
 @Override

@@ -116,12 +116,13 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public void delete(String name) throws ProductNotFoundException {
-        String sql = "DELETE FROM WHERE name = ? AND subCategory = ?";
+    public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
+        String sql = "DELETE FROM products WHERE name = ? AND subCategory = ?";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
             st.setString(1, name);
+            st.setString(2, subCategory.name());
             int rows = st.executeUpdate();
             if (rows == 0) {
                 throw new ProductNotFoundException("Producto no encontrado: " + name);
