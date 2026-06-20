@@ -12,10 +12,13 @@ import lombok.NoArgsConstructor;
  *
  * @author User
  */
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
+    
     private String name;
     private double price;
     private int stock;

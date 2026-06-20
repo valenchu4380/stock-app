@@ -173,6 +173,26 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+public boolean existsBynameAndSubCategory(String name, SubCategory subCategory) {
+    // Buscamos si existe la combinación exacta de nombre + subcategoría
+    String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?) AND subCategory = ?";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql)) {
+
+        st.setString(1, name.trim().toLowerCase());
+        st.setString(2, subCategory.name()); // Convertimos el Enum a String
+        
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) {
+        System.out.println("Error en existsBynameAndSubCategory: " + e.getMessage());
+    }
+    return false;
+}
+
+    @Override
     public void actualizarpricePorCategory(ProductCategory Category, double porcentaje) {
 
         // Calculamos el multiplicador (ej: 1.10 para un aumento del 10%)

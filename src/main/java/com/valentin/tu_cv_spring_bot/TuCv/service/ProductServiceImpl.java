@@ -29,14 +29,23 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByname(name);
     }
 
-    @Override
-    public void save(Product product) throws InvalidProductException {
-        ProductValidator.validate(product);
-        if (productRepository.existsByname(product.getName())) {
-            throw new InvalidProductException("Ya existe un producto con ese name");
-        }
-        productRepository.save(product);
+ @Override
+public void save(Product product) throws InvalidProductException {
+    ProductValidator.validate(product);
+
+    // Verificamos si existe un producto con el mismo nombre Y la misma subcategoría
+    boolean existe = productRepository.existsBynameAndSubCategory(
+        product.getName(), 
+        product.getSubCategory()
+    );
+
+    if (existe) {
+        throw new InvalidProductException("Ya existe un producto con el nombre '" + 
+            product.getName() + "' en la subcategoría " + product.getSubCategory());
     }
+
+    productRepository.save(product);
+}
 
     @Override
     public void delete(String name) throws ProductNotFoundException {
