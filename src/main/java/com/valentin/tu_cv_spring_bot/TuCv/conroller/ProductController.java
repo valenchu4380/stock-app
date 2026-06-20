@@ -106,7 +106,7 @@ public String formEditar(@PathVariable String name, Model model) {
     }
 
     // ── Eliminar ────────────────────────────────────────
-    @PostMapping("/eliminar/{name}")
+    @PostMapping("/eliminar/{name}/{subCategory}")
     public String eliminar(@PathVariable String name,SubCategory subCategory, RedirectAttributes ra) {
 
 if (subCategory == null) {
