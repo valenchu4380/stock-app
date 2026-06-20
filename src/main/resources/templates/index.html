@@ -461,7 +461,7 @@
                         <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
                         <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
                         <th>Categoría</th>
-                        <th>Subcategoría</th>
+                        <th class="sortable" onclick="ordenar('subCategory')">categoria <span id="icon-subCategoria">⇅</span></th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -516,6 +516,8 @@
             <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
             <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
             <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
+            <button class="sortable" onclick="ordenar('subCategory')">categoria <span id="icon-subCategoria">⇅</span></th>
+
         </div>
         <div th:each="p : ${productos}" class="product-card">
             <div class="product-card-header">
