@@ -19,6 +19,6 @@ public class Product {
     private String name;
     private double price;
     private int stock;
-    private ProductCategory Category;
+    private ProductCategory category;
     private SubCategory subCategory;
 }
