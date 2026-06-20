@@ -387,7 +387,7 @@
             <option value="CABELLO">Cabello</option>
             <option value="CREMA">Crema</option>
             <option value="CUIDADO_DIARIO">Cuidado diario</option>
-            <option value="TEXIL">Textil</option>
+            <option value="TEXTIL">Textil</option>
             <option value="AEROSOL">Aerosol</option>
             <option value="DIFUSOR">Difusor</option>
             <option value="JABON">Jabón</option>
@@ -466,32 +466,36 @@ function aplicarFiltros() {
     const mobileCat = document.getElementById('mobile-cat');
     const mobileSub = document.getElementById('mobile-sub');
     
-    // Convertimos los filtros a minúsculas
     const fCat = (mobileCat ? mobileCat.value : filtroCat).toLowerCase();
     const fSub = (mobileSub ? mobileSub.value : filtroSub).toLowerCase();
+    const fText = filtroTexto; // Tu variable global de búsqueda
 
     // 1. Tabla PC
-    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
-    filas.forEach(fila => {
+    document.querySelectorAll('table tbody tr:not(#no-results-tabla)').forEach(fila => {
         const cat = fila.cells[3].textContent.trim().toLowerCase();
         const sub = fila.cells[4].textContent.trim().toLowerCase();
+        const nombre = fila.cells[0].textContent.trim().toLowerCase();
         
-        const ok = (fCat === 'todas' || cat === fCat) && 
-                   (fSub === 'todas' || sub === fSub);
-        fila.style.display = ok ? '' : 'none';
+        const coincide = (fCat === 'todas' || cat === fCat) && 
+                         (fSub === 'todas' || sub === fSub) &&
+                         (nombre.includes(fText));
+        
+        fila.style.display = coincide ? '' : 'none';
     });
 
     // 2. Tarjetas Mobile
-    const tarjetas = document.querySelectorAll('.product-card');
-    tarjetas.forEach(t => {
+    document.querySelectorAll('.product-card').forEach(t => {
         const cat = t.querySelector('.product-card-cat')?.textContent.trim().toLowerCase() || '';
-        const badge = t.querySelector('.badge').textContent.toLowerCase();
-        // Asumimos que la subcategoría es lo que está después de la '/'
-        const sub = badge.includes('/') ? badge.split('/')[1].trim() : '-';
+        const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
+        // Extraemos la parte después de la /
+        const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
+        const nombre = t.querySelector('.product-card-name').textContent.trim().toLowerCase();
         
-        const ok = (fCat === 'todas' || cat === fCat) && 
-                   (fSub === 'todas' || sub === fSub);
-        t.style.display = ok ? '' : 'none';
+        const coincide = (fCat === 'todas' || cat === fCat) && 
+                         (fSub === 'todas' || sub === fSub) &&
+                         (nombre.includes(fText));
+        
+        t.style.display = coincide ? '' : 'none';
     });
 }
 
