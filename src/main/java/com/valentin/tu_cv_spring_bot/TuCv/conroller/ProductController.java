@@ -4,7 +4,6 @@
  */
 package com.valentin.tu_cv_spring_bot.TuCv.conroller;
 
-
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
@@ -12,8 +11,6 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
-
-
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,37 +33,40 @@ public class ProductController {
 
     private final ProductService productService;
 
-
-
     // ── Pantalla principal ──────────────────────────────
-@GetMapping
-public String index(Model model) {
-    try {
-        java.util.List<Product> listaProductos = productService.getAll();
-        int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
-        model.addAttribute("productos", listaProductos);
-        model.addAttribute("totalStock", totalStock);
-    } catch (InvalidProductException e) {
-        // Lista vacía → mandamos lista vacía, no rompemos la página
-        model.addAttribute("productos", java.util.Collections.emptyList());
-        model.addAttribute("totalStock", 0);
-        model.addAttribute("inventario",0);
+    @GetMapping
+    public String index(Model model) {
+        try {
+            java.util.List<Product> listaProductos = productService.getAll();
+            int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
+            double totalInventario = listaProductos.stream()
+                    .mapToDouble(p -> p.getPrice() * p.getStock())
+                    .sum();
+            model.addAttribute("productos", listaProductos);
+            model.addAttribute("totalStock", totalStock);
+            model.addAttribute("inventario", totalInventario);
+
+        } catch (InvalidProductException e) {
+            // Lista vacía → mandamos lista vacía, no rompemos la página
+            model.addAttribute("productos", java.util.Collections.emptyList());
+            model.addAttribute("totalStock", 0);
+            model.addAttribute("inventario", 0);
+        }
+        model.addAttribute("Categorys", ProductCategory.values());
+        return "index";
     }
-    model.addAttribute("Categorys", ProductCategory.values());
-    return "index";
-}
 
     // ── Formulario agregar ──────────────────────────────
     @GetMapping("/nuevo")
     public String formNuevo(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("Categorys", ProductCategory.values());
-        return "form";  
+        return "form";
     }
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
-                          RedirectAttributes ra) {
+            RedirectAttributes ra) {
         try {
             productService.save(product);
             ra.addFlashAttribute("mensaje", "Producto agregado correctamente");
@@ -78,24 +78,23 @@ public String index(Model model) {
 
     @GetMapping("/editar/{name}")
     public String formEditar(@PathVariable String name, Model model) {
-        productService.getByname(name).ifPresent(p ->
-            model.addAttribute("product", p));
+        productService.getByname(name).ifPresent(p -> model.addAttribute("product", p));
         model.addAttribute("Categorys", ProductCategory.values());
         return "form";
     }
 
-@PostMapping("/editar")
-public String actualizar(@ModelAttribute Product product,
-                         @RequestParam String oldName,
-                         RedirectAttributes ra) {
-    try {
-        productService.update(product, oldName);
-        ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
-    } catch (ProductNotFoundException | InvalidProductException e) {
-        ra.addFlashAttribute("error", e.getMessage());
+    @PostMapping("/editar")
+    public String actualizar(@ModelAttribute Product product,
+            @RequestParam String oldName,
+            RedirectAttributes ra) {
+        try {
+            productService.update(product, oldName);
+            ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
+        } catch (ProductNotFoundException | InvalidProductException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/productos";
     }
-    return "redirect:/productos";
-}
 
     // ── Eliminar ────────────────────────────────────────
     @PostMapping("/eliminar/{name}")
@@ -109,29 +108,27 @@ public String actualizar(@ModelAttribute Product product,
         return "redirect:/productos";
     }
 
-
     // ── Buscar por name ───────────────────────────────
-@GetMapping("/buscar")
-public String buscar(@RequestParam String name, Model model) {
+    @GetMapping("/buscar")
+    public String buscar(@RequestParam String name, Model model) {
 
-    String nameBuscado = name.trim().toLowerCase();
+        String nameBuscado = name.trim().toLowerCase();
 
-    productService.getByname(nameBuscado).ifPresentOrElse(
-        p -> {
-            java.util.List<Product> resultado = java.util.List.of(p);
-            model.addAttribute("productos", resultado);
-            model.addAttribute("totalStock", p.getStock());
-            model.addAttribute("inventario",p.getPrice());
-        },
-        () -> {
-            model.addAttribute("productos", java.util.Collections.emptyList());
-            model.addAttribute("totalStock", 0);
-            model.addAttribute("inventario",0);
-            model.addAttribute("error", "No se encontró el producto: " + name);
-        }
-    );
+        productService.getByname(nameBuscado).ifPresentOrElse(
+                p -> {
+                    java.util.List<Product> resultado = java.util.List.of(p);
+                    model.addAttribute("productos", resultado);
+                    model.addAttribute("totalStock", p.getStock());
+                    model.addAttribute("inventario", p.getPrice());
+                },
+                () -> {
+                    model.addAttribute("productos", java.util.Collections.emptyList());
+                    model.addAttribute("totalStock", 0);
+                    model.addAttribute("inventario", 0);
+                    model.addAttribute("error", "No se encontró el producto: " + name);
+                });
 
-    model.addAttribute("Categorys", ProductCategory.values());
-    return "index";
-}
+        model.addAttribute("Categorys", ProductCategory.values());
+        return "index";
+    }
 }
