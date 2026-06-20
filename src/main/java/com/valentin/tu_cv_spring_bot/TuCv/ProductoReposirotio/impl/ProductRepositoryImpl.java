@@ -83,21 +83,22 @@ public class ProductRepositoryImpl implements ProductRepository {
         return Optional.empty();
     }
 
-   private Product mapResult(ResultSet rs) throws SQLException {
-    String name = rs.getString("name");
-    double price = rs.getDouble("price");
-    int stock = rs.getInt("stock");
-    
-    // Obtener valores como String
-    String catStr = rs.getString("category");
-    String subCatStr = rs.getString("subCategory");
+    private Product mapResult(ResultSet rs) throws SQLException {
+        String name = rs.getString("name");
+        double price = rs.getDouble("price");
+        int stock = rs.getInt("stock");
 
-    // Convertir con seguridad (si es nulo, asignamos null al Enum)
-    ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
-    SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
+        // Obtener valores como String
+        String catStr = rs.getString("category");
+        String subCatStr = rs.getString("subCategory");
 
-    return new Product(name, price, stock, category, subCategory);
-}
+        // Convertir con seguridad (si es nulo, asignamos null al Enum)
+        ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
+        SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
+
+        return new Product(name, price, stock, category, subCategory);
+    }
+
     @Override
     public void save(Product product) {
         String sql = "INSERT INTO products(name, price, stock, Category, subCategory ) VALUES(?, ?, ?, ?, ?)";
@@ -107,7 +108,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setDouble(2, product.getPrice());
             st.setInt(3, product.getStock());
             st.setString(4, product.getCategory().name());
-            st.setString(5,product.getSubCategory().name());
+            st.setString(5, product.getSubCategory().name());
             st.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -116,7 +117,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public void delete(String name) throws ProductNotFoundException {
-        String sql = "DELETE FROM products WHERE name = ?";
+        String sql = "DELETE FROM WHERE name = ? AND subCategory = ?";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
@@ -132,10 +133,10 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     public void update(Product product, String oldName) throws ProductNotFoundException {
         String sql = """
-                UPDATE products
-                SET name=?, price=?, stock=?, Category=?, subCategory=?
-                WHERE name=?
-                """;
+                                UPDATE products
+                SET price = ?, stock = ?, Category = ?
+                WHERE name = ? AND subCategory = ?
+                                """;
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
@@ -173,24 +174,24 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-public boolean existsBynameAndSubCategory(String name, SubCategory subCategory) {
-    // Buscamos si existe la combinación exacta de nombre + subcategoría
-    String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?) AND subCategory = ?";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
+    public boolean existsBynameAndSubCategory(String name, SubCategory subCategory) {
+        // Buscamos si existe la combinación exacta de nombre + subcategoría
+        String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?) AND subCategory = ?";
+        try (Connection con = getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.setString(1, name.trim().toLowerCase());
-        st.setString(2, subCategory.name()); // Convertimos el Enum a String
-        
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1) > 0;
+            st.setString(1, name.trim().toLowerCase());
+            st.setString(2, subCategory.name()); // Convertimos el Enum a String
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en existsBynameAndSubCategory: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println("Error en existsBynameAndSubCategory: " + e.getMessage());
+        return false;
     }
-    return false;
-}
 
     @Override
     public void actualizarpricePorCategory(ProductCategory Category, double porcentaje) {
