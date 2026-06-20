@@ -65,6 +65,7 @@ public class ProductController {
     public String formNuevo(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("Categorys", ProductCategory.values());
+        model.addAttribute("subCategorys", ProductCategory.values());
         return "form";
     }
 
@@ -84,6 +85,7 @@ public class ProductController {
     public String formEditar(@PathVariable String name, Model model) {
         productService.getByname(name).ifPresent(p -> model.addAttribute("product", p));
         model.addAttribute("Categorys", ProductCategory.values());
+        model.addAttribute("subCategorys", ProductCategory.values());
         return "form";
     }
 

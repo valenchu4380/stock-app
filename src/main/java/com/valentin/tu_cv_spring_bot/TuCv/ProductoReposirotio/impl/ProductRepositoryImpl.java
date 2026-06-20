@@ -127,7 +127,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public void update(Product product, String oldName) throws ProductNotFoundException {
         String sql = """
                 UPDATE products
-                SET name=?, price=?, stock=?, Category=? subCategory=?
+                SET name=?, price=?, stock=?, Category=?, subCategory=?
                 WHERE name=?
                 """;
         try (Connection con = getConnection();

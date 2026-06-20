@@ -191,11 +191,11 @@
         <div class="form-group">
     <label for="subCategory">Subcategoría</label>
     <div class="select-wrapper">    
-        <select id="subCategory" th:field="{subCategory}">
+        <select id="subCategory" th:field="*{subCategory}">
             <option value="">-- Seleccioná una subcategoría --</option>
-                               <option th:each="cat : ${Categorys}"
-                            th:value="${cat}"
-                            th:text="${cat}">SubCategoria</option>
+                               <option th:each="sub : ${subCategorys}"
+                            th:value="${sub}"
+                            th:text="${sub}">SubCategoria</option>
         </select>
     </div>
 </div>
@@ -207,6 +207,34 @@
 
     </form>
 </div>
+
+<script>
+const subcategorias = {
+    AVON:     ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
+    NATURA:   ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
+    SAPHIRUS: ['TEXIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO']
+};
+
+const selectCat = document.getElementById('category');
+const selectSub = document.getElementById('subCategory');
+const subActual = selectSub.value;
+
+function actualizarSubs() {
+    const cat = selectCat.value;
+    const opciones = subcategorias[cat] || [];
+    selectSub.innerHTML = '<option value="">-- Seleccioná una subcategoría --</option>';
+    opciones.forEach(op => {
+        const opt = document.createElement('option');
+        opt.value = op;
+        opt.textContent = op.replace(/_/g, ' ');
+        if (op === subActual) opt.selected = true;
+        selectSub.appendChild(opt);
+    });
+}
+
+selectCat.addEventListener('change', actualizarSubs);
+actualizarSubs();
+</script>
 
 </body>
 </html>
