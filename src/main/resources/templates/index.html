@@ -328,20 +328,23 @@
             margin-top: 4px;
         }
 
-                    .text-red {
-                color: red;
-                font-weight: bold;
-            }
+        .product-card-field .text-red,
+        .text-red {
+            color: red !important;
+            font-weight: bold;
+        }
 
-            .text-yellow {
-                color: #e6b800;
-                font-weight: bold;
-            }
+        .product-card-field .text-yellow,
+        .text-yellow {
+            color: #e6b800 !important;
+            font-weight: bold;
+        }
 
-            .text-green {
-                color: green;
-                font-weight: bold;
-            }
+        .product-card-field .text-green,
+        .text-green {
+            color: green !important;
+            font-weight: bold;
+        }
 
         @media (max-width: 768px) {
             .hero {
@@ -465,9 +468,10 @@
                     <tr th:each="p : ${productos}">
                         <td th:text="${p.name}">Nombre</td>
                         <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-<td th:text="${p.stock} ?: 0"
-    th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-</td>                        <td>
+                        <td th:text="${p.stock} ?: 0"
+                            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+                        </td>
+                        <td>
                             <span class="badge"
                                 th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
                                 th:text="${p.category}">Cat</span>
@@ -518,7 +522,7 @@
 <div class="product-card-field">
     Stock
     <span th:text="${p.stock}" 
-          th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+          th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
         0
     </span>
 </div>
