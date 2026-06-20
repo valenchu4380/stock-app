@@ -1,38 +1,12 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        body {
-            background: #f5f7fb;
-        }
-
-
-        .btn-orden {
-            background: white;
-            border: 1.5px solid #dce1ec;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #2563eb;
-            cursor: pointer;
-        }
-
-        .btn-orden:hover {
-            background: #eff6ff;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f7fb; }
 
         .hero {
             background: linear-gradient(135deg, #2563eb, #1e40af);
@@ -40,15 +14,8 @@
             text-align: center;
             padding: 60px 20px;
         }
-
-        .hero h1 {
-            font-size: 2.5rem;
-        }
-
-        .hero p {
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
+        .hero h1 { font-size: 2.5rem; }
+        .hero p { margin-top: 10px; font-size: 1.1rem; }
 
         .cards {
             width: 80%;
@@ -57,37 +24,27 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
         }
-
         .card {
             background: white;
             padding: 35px;
             text-align: center;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
             cursor: pointer;
             transition: .3s;
             text-decoration: none;
             color: inherit;
             display: block;
         }
-
-        .card:hover {
-            transform: translateY(-8px);
-        }
-
-        .card h2 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
+        .card:hover { transform: translateY(-8px); }
+        .card h2 { font-size: 3rem; margin-bottom: 10px; }
 
         .search-bar {
             width: 80%;
             margin: 30px auto 0;
             display: flex;
             gap: 10px;
-            position: relative;
         }
-
         .search-bar input {
             flex: 1;
             padding: 12px 18px;
@@ -96,25 +53,7 @@
             font-size: 1rem;
             outline: none;
         }
-
-        .search-bar input:focus {
-            border-color: #2563eb;
-        }
-
-        .search-bar button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .search-bar button:hover {
-            background: #1e40af;
-        }
+        .search-bar input:focus { border-color: #2563eb; }
 
         .mensaje {
             width: 80%;
@@ -123,47 +62,26 @@
             border-radius: 10px;
             font-size: 0.95rem;
         }
-
-        .mensaje.ok {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .mensaje.err {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+        .mensaje.ok  { background: #d1fae5; color: #065f46; }
+        .mensaje.err { background: #fee2e2; color: #991b1b; }
 
         .tabla-container {
             width: 80%;
-            margin: 30px auto;
+            margin: 20px auto;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
             overflow: hidden;
         }
-
         .tabla-container h2 {
             padding: 20px 30px;
             font-size: 1.3rem;
             border-bottom: 1px solid #e5e7eb;
             color: #1e3a8a;
         }
-
-        .tabla-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        thead {
-            background: #eff6ff;
-        }
-
+        .tabla-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        thead { background: #eff6ff; }
         th {
             padding: 14px 20px;
             text-align: left;
@@ -171,26 +89,59 @@
             color: #2563eb;
             text-transform: uppercase;
             letter-spacing: .05em;
+            position: relative;
         }
+        td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 0.95rem; }
+        tr:hover td { background: #f8faff; }
+        .sortable { cursor: pointer; user-select: none; }
+        .sortable:hover { color: #1e40af; }
 
-        td {
-            padding: 14px 20px;
-            border-top: 1px solid #f1f5f9;
-            font-size: 0.95rem;
-        }
-
-        tr:hover td {
-            background: #f8faff;
-        }
-
-        .sortable {
+        .th-filter {
             cursor: pointer;
             user-select: none;
+            white-space: nowrap;
         }
+        .th-filter:hover { color: #1e40af; }
+        .th-filter .filter-icon {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 0.75rem;
+            transition: .2s;
+        }
+        .th-filter.active-filter { color: #1e40af; }
+        .th-filter.active-filter .filter-icon { color: #2563eb; }
 
-        .sortable:hover {
-            color: #1e40af;
+        .dropdown-filter {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            z-index: 200;
+            min-width: 160px;
+            overflow: hidden;
         }
+        .dropdown-filter.open { display: block; }
+        .dropdown-filter ul { list-style: none; padding: 6px 0; }
+        .dropdown-filter ul li {
+            padding: 10px 16px;
+            font-size: 0.88rem;
+            color: #374151;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dropdown-filter ul li:hover { background: #eff6ff; color: #2563eb; }
+        .dropdown-filter ul li.selected { background: #eff6ff; color: #2563eb; font-weight: 700; }
+        .dropdown-filter ul li.selected::before { content: '✓'; font-size: 0.8rem; }
+        .dropdown-filter ul li:not(.selected)::before { content: ''; display: inline-block; width: 14px; }
 
         .badge {
             display: inline-block;
@@ -199,21 +150,9 @@
             font-size: 0.78rem;
             font-weight: 600;
         }
-
-        .badge-avon {
-            background: #fce7f3;
-            color: #9d174d;
-        }
-
-        .badge-natura {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-saphirus {
-            background: #ede9fe;
-            color: #4c1d95;
-        }
+        .badge-avon     { background: #fce7f3; color: #9d174d; }
+        .badge-natura   { background: #d1fae5; color: #065f46; }
+        .badge-saphirus { background: #ede9fe; color: #4c1d95; }
 
         .btn-editar {
             background: #eff6ff;
@@ -227,11 +166,7 @@
             margin-right: 6px;
             display: inline-block;
         }
-
-        .btn-editar:hover {
-            background: #dbeafe;
-        }
-
+        .btn-editar:hover { background: #dbeafe; }
         .btn-eliminar {
             background: #fef2f2;
             color: #dc2626;
@@ -241,67 +176,65 @@
             font-size: 0.85rem;
             cursor: pointer;
         }
+        .btn-eliminar:hover { background: #fee2e2; }
 
-        .btn-eliminar:hover {
-            background: #fee2e2;
-        }
+        .text-red    { color: red !important; font-weight: bold; }
+        .text-yellow { color: #e6b800 !important; font-weight: bold; }
+        .text-green  { color: green !important; font-weight: bold; }
 
-
-        .cards-mobile {
-            display: none;
-        }
-
+        .cards-mobile { display: none; }
         .product-card {
             background: white;
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
         }
-
         .product-card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 10px;
+            gap: 8px;
         }
+        .product-card-name { font-weight: 700; font-size: 1rem; color: #1e3a8a; }
+        .product-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .product-card-field { font-size: 0.85rem; color: #6b7280; }
+        .product-card-field span { display: block; font-weight: 600; color: #1f2937; font-size: 0.95rem; }
+        .product-card-actions { display: flex; gap: 8px; }
+        .product-card-actions .btn-editar,
+        .product-card-actions .btn-eliminar { flex: 1; text-align: center; padding: 8px; }
 
-        .product-card-name {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #1e3a8a;
+        .btn-orden {
+            background: white;
+            border: 1.5px solid #dce1ec;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2563eb;
+            cursor: pointer;
         }
+        .btn-orden:hover { background: #eff6ff; }
 
-        .product-card-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .mobile-filtros {
+            display: none;
             gap: 8px;
             margin-bottom: 12px;
+            flex-wrap: wrap;
         }
-
-        .product-card-field {
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-
-        .product-card-field span {
-            display: block;
-            font-weight: 600;
-            color: #1f2937;
-            font-size: 0.95rem;
-        }
-
-        .product-card-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .product-card-actions .btn-editar,
-        .product-card-actions .btn-eliminar {
+        .mobile-filtro-select {
             flex: 1;
-            text-align: center;
-            padding: 8px;
+            min-width: 120px;
+            padding: 8px 12px;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            color: #374151;
+            background: white;
+            outline: none;
         }
+        .mobile-filtro-select:focus { border-color: #2563eb; }
 
         .estadisticas {
             width: 80%;
@@ -309,487 +242,365 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
             display: flex;
             justify-content: center;
-            gap: 60px;
+            gap: 40px;
             text-align: center;
+            flex-wrap: wrap;
         }
-
-        .stat-item p:first-child {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .stat-item p:last-child {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-
-        .product-card-field .text-red,
-        .text-red {
-            color: red !important;
-            font-weight: bold;
-        }
-
-        .product-card-field .text-yellow,
-        .text-yellow {
-            color: #e6b800 !important;
-            font-weight: bold;
-        }
-
-        .product-card-field .text-green,
-        .text-green {
-            color: green !important;
-            font-weight: bold;
-        }
+        .stat-item p:first-child { font-size: 2rem; font-weight: 700; color: #2563eb; }
+        .stat-item p:last-child  { font-size: 0.9rem; color: #6b7280; margin-top: 4px; }
 
         @media (max-width: 768px) {
-            .hero {
-                padding: 30px 16px;
-            }
-
-            .hero h1 {
-                font-size: 1.6rem;
-            }
-
-            .hero p {
-                font-size: 0.95rem;
-            }
-
-            .cards {
-                width: 92%;
-                grid-template-columns: 1fr;
-                margin: 20px auto;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .card h2 {
-                font-size: 2rem;
-            }
-
-            .card h3 {
-                font-size: 1rem;
-            }
-
-            .search-bar {
-                width: 92%;
-                flex-direction: column;
-            }
-
-            .search-bar input,
-            .search-bar button {
-                width: 100%;
-            }
-
-            .mensaje {
-                width: 92%;
-            }
-
-
-            .tabla-container {
-                display: none;
-            }
-
+            .hero { padding: 30px 16px; }
+            .hero h1 { font-size: 1.6rem; }
+            .hero p { font-size: 0.95rem; }
+            .cards { width: 92%; grid-template-columns: 1fr; margin: 20px auto; }
+            .card { padding: 20px; }
+            .card h2 { font-size: 2rem; }
+            .search-bar { width: 92%; }
+            .mensaje { width: 92%; }
+            .tabla-container { display: none; }
             .cards-mobile {
                 display: block;
                 width: 92%;
                 margin: 20px auto;
             }
-
-            .cards-mobile h2 {
-                font-size: 1.1rem;
-                color: #1e3a8a;
-                margin-bottom: 16px;
-            }
-
-            .estadisticas {
-                width: 92%;
-                gap: 20px;
-                padding: 20px;
-            }
-
-        }
-
-        .filter-menu {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropbtn {
-            background: #2563eb;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            z-index: 10;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background: #f1f1f1;
-        }
-
-        .show {
-            display: block;
+            .cards-mobile h2 { font-size: 1.1rem; color: #1e3a8a; margin-bottom: 12px; }
+            .mobile-filtros { display: flex; }
+            .estadisticas { width: 92%; gap: 20px; padding: 20px; }
         }
     </style>
-
-
-
 </head>
-
 <body>
 
-    <div class="hero">
-        <h1>Sistema de Gestión de Stock</h1>
-        <p>Administra tus productos de manera rápida y eficiente</p>
+<div class="hero">
+    <h1>Sistema de Gestión de Stock</h1>
+    <p>Administra tus productos de manera rápida y eficiente</p>
+</div>
+
+<div class="cards">
+    <a class="card" th:href="@{/productos/nuevo}">
+        <h2>➕</h2>
+        <h3>Agregar Producto</h3>
+    </a>
+</div>
+
+<div style="width:80%; margin: 30px auto 0;">
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar producto por nombre..." autocomplete="off"/>
     </div>
+</div>
 
+<div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
+<div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
 
-
-    <div class="cards">
-        <a class="card" th:href="@{/productos/nuevo}">
-            <h2>➕</h2>
-            <h3>Agregar Producto</h3>
-        </a>
-    </div>
-
-    <div style="width:80%; margin: 30px auto 0;">
-        <div class="search-bar">
-            <input type="text" id="searchInput" name="name" placeholder="Buscar producto por nombre..."
-                autocomplete="off" />
-            <button type="button">Buscar</button>
-        </div>
-        <ul id="sugerencias"></ul>
-    </div>
-
-    <div class="filter-menu">
-        <div class="dropdown">
-            <button class="dropbtn" onclick="toggleMenu('catMenu')">Filtrar por Categoría ▾</button>
-            <div id="catMenu" class="dropdown-content">
-                <a href="#" onclick="filtrar('category', 'TODAS')">Todas</a>
-                <a href="#" onclick="filtrar('category', 'AVON')">AVON</a>
-                <a href="#" onclick="filtrar('category', 'NATURA')">NATURA</a>
-                <a href="#" onclick="filtrar('category', 'SAPHIRUS')">SAPHIRUS</a>
-            </div>
-        </div>
-
-        <div class="dropdown">
-            <button class="dropbtn" onclick="toggleMenu('subMenu')">Filtrar por Subcategoría ▾</button>
-            <div id="subMenu" class="dropdown-content">
-                <a href="#" onclick="filtrar('subCategory', 'TODAS')">Todas</a>
-                <a href="#" onclick="filtrar('subCategory', 'TEXTIL')">Textil</a>
-                <a href="#" onclick="filtrar('subCategory', 'AEROSOL')">Aerosol</a>
-                <a href="#" onclick="filtrar('subCategory', 'DIFUSOR')">Difusor</a>
-            </div>
-        </div>
-    </div>
-
-
-
-    <div class="mensaje ok" th:if="${mensaje}" th:text="${mensaje}"></div>
-    <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
-
-    <div class="tabla-container">
-        <h2>📋 Listado de Productos</h2>
-        <div class="tabla-wrapper">
-            <table th:if="${productos != null and !#lists.isEmpty(productos)}">
-                <thead>
-                    <tr>
-                        <th class="sortable" onclick="ordenar('name')">Nombre <span id="icon-name">⇅</span></th>
-                        <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
-                        <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
-                        <th class="sortable" onclick="ordenar('category')">Categoría <span id="icon-category">⇅</span>
-                        </th>
-                        <th class="sortable" onclick="ordenar('subCategory')">Subcategoría <span
-                                id="icon-subCategory">⇅</span></th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="p : ${productos}">
-                        <td th:text="${p.name}">Nombre</td>
-                        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-
-                        <td th:text="${p.stock} ?: 0"
-                            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-                        </td>
-
-                        <td>
-                            <span class="badge"
-                                th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                                th:text="${p.category}">Cat</span>
-                        </td>
-
-                        <td>
-                            <span th:if="${p.subCategory != null}" th:text="${p.subCategory}"
-                                class="badge badge-sub">Subcat</span>
-                            <span th:if="${p.subCategory == null}">-</span>
-                        </td>
-
-                        <td>
-                            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post"
-                                style="display:inline">
-                                <button class="btn-eliminar" type="submit"
+<div class="tabla-container">
+    <h2>📋 Listado de Productos</h2>
+    <div class="tabla-wrapper">
+        <table th:if="${productos != null and !#lists.isEmpty(productos)}">
+            <thead>
+                <tr>
+                    <th class="sortable" onclick="ordenar('name')">Nombre <span id="icon-name">⇅</span></th>
+                    <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
+                    <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
+                    <th class="th-filter" id="th-cat" onclick="toggleDropdown('drop-cat', event)">
+                        Categoría <span class="filter-icon">▾</span>
+                        <div class="dropdown-filter" id="drop-cat">
+                            <ul>
+                                <li class="selected" data-val="TODAS" onclick="seleccionarCat(this, event)">Todas</li>
+                                <li data-val="AVON"     onclick="seleccionarCat(this, event)">AVON</li>
+                                <li data-val="NATURA"   onclick="seleccionarCat(this, event)">NATURA</li>
+                                <li data-val="SAPHIRUS" onclick="seleccionarCat(this, event)">SAPHIRUS</li>
+                            </ul>
+                        </div>
+                    </th>
+                    <th class="th-filter" id="th-sub" onclick="toggleDropdown('drop-sub', event)">
+                        Subcategoría <span class="filter-icon">▾</span>
+                        <div class="dropdown-filter" id="drop-sub">
+                            <ul>
+                                <li class="selected" data-val="TODAS"         onclick="seleccionarSub(this, event)">Todas</li>
+                                <li data-val="PERFUME"       onclick="seleccionarSub(this, event)">Perfume</li>
+                                <li data-val="MAQUILLAJE"    onclick="seleccionarSub(this, event)">Maquillaje</li>
+                                <li data-val="CABELLO"       onclick="seleccionarSub(this, event)">Cabello</li>
+                                <li data-val="CREMA"         onclick="seleccionarSub(this, event)">Crema</li>
+                                <li data-val="CUIDADO_DIARIO" onclick="seleccionarSub(this, event)">Cuidado diario</li>
+                                <li data-val="TEXIL"         onclick="seleccionarSub(this, event)">Textil</li>
+                                <li data-val="AEROSOL"       onclick="seleccionarSub(this, event)">Aerosol</li>
+                                <li data-val="DIFUSOR"       onclick="seleccionarSub(this, event)">Difusor</li>
+                                <li data-val="JABON"         onclick="seleccionarSub(this, event)">Jabón</li>
+                                <li data-val="PERFUME_PISO"  onclick="seleccionarSub(this, event)">Perfume para piso</li>
+                                <li data-val="SAHUMERIO"     onclick="seleccionarSub(this, event)">Sahumerio</li>
+                            </ul>
+                        </div>
+                    </th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${productos}">
+                    <td th:text="${p.name}">Nombre</td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
+                    <td th:text="${p.stock} ?: 0"
+                        th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
+                              th:text="${p.category}">Cat</span>
+                    </td>
+                    <td th:text="${p.subCategory} ?: '-'">Sub</td>
+                    <td>
+                        <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+                        <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
+                            <button class="btn-eliminar" type="submit"
                                     onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-                <tr id="no-results-tabla" style="display:none">
-                    <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
-                        No se encontraron productos.
+                        </form>
                     </td>
                 </tr>
-            </table>
-            <p th:if="${productos == null or #lists.isEmpty(productos)}"
-                style="padding: 30px; text-align: center; color: #9ca3af;">
-                No hay productos registrados aún.
-            </p>
-        </div>
-    </div>
-
-    <div class="cards-mobile">
-        <h2>📋 Listado de Productos</h2>
-
-        <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-            <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
-            <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
-            <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
-            <button class="btn-orden" onclick="ordenarMobile('category')"> Categoria <span
-                    id="micon-category">⇅</span></button>
-            <button class="btn-orden" onclick="ordenarMobile('subCategory')"> SubCategoria <span
-                    id="micon-subCategoria">⇅</span></button>
-
-        </div>
-        <div th:each="p : ${productos}" class="product-card">
-            <div class="product-card-header">
-                <span class="product-card-name" th:text="${p.name}">Nombre</span>
-                <span class="badge"
-                    th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
-                    <span class="product-card-cat" th:text="${p.category}">Cat</span>
-                    <span class="product-card-subcat"
-                        th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
-                        th:text="' / ' + ${p.subCategory}"></span>
-                </span>
-            </div>
-            <div class="product-card-body">
-                <div class="product-card-field">
-                    Precio
-                    <span th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</span>
-                </div>
-                <div class="product-card-field">
-                    Stock
-                    <span th:text="${p.stock}"
-                        th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-                        0
-                    </span>
-                </div>
-            </div>
-            <div class="product-card-actions">
-                <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="flex:1">
-                    <button class="btn-eliminar" type="submit" style="width:100%"
-                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
-                </form>
-            </div>
-        </div>
+            </tbody>
+            <tr id="no-results-tabla" style="display:none">
+                <td colspan="6" style="text-align:center; padding:30px; color:#9ca3af;">No se encontraron productos.</td>
+            </tr>
+        </table>
         <p th:if="${productos == null or #lists.isEmpty(productos)}"
-            style="text-align:center; color:#9ca3af; padding: 20px 0;">
+           style="padding: 30px; text-align: center; color: #9ca3af;">
             No hay productos registrados aún.
         </p>
     </div>
+</div>
 
-    <div class="estadisticas">
-        <div class="stat-item">
-            <p th:text="${productos != null ? #lists.size(productos) : 0}">0</p>
-            <p>Productos registrados</p>
-        </div>
-        <div class="stat-item">
-            <p th:text="${totalStock != null ? totalStock : 0}">0</p>
-            <p>Unidades en stock</p>
-        </div>
-        <div class="stat-item">
-            <p th:text="${inventario != null ? inventario : 0}">0</p>
-            <p>Valor inventario</p>
-        </div>
-        <div class="stat-item">
-            <p th:text="${stockNull != null ? stockNull : 0}">0</p>
-            <p>Productos sin Stock</p>
-        </div>
+<div class="cards-mobile">
+    <h2>📋 Listado de Productos</h2>
+
+    <div class="mobile-filtros">
+        <select class="mobile-filtro-select" id="mobile-cat" onchange="aplicarFiltros()">
+            <option value="TODAS">Todas las categorías</option>
+            <option value="AVON">AVON</option>
+            <option value="NATURA">NATURA</option>
+            <option value="SAPHIRUS">SAPHIRUS</option>
+        </select>
+        <select class="mobile-filtro-select" id="mobile-sub" onchange="aplicarFiltros()">
+            <option value="TODAS">Todas las subcategorías</option>
+            <option value="PERFUME">Perfume</option>
+            <option value="MAQUILLAJE">Maquillaje</option>
+            <option value="CABELLO">Cabello</option>
+            <option value="CREMA">Crema</option>
+            <option value="CUIDADO_DIARIO">Cuidado diario</option>
+            <option value="TEXIL">Textil</option>
+            <option value="AEROSOL">Aerosol</option>
+            <option value="DIFUSOR">Difusor</option>
+            <option value="JABON">Jabón</option>
+            <option value="PERFUME_PISO">Perfume para piso</option>
+            <option value="SAHUMERIO">Sahumerio</option>
+        </select>
     </div>
 
-    <div id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
+    <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
+        <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
+        <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
+    </div>
+
+    <div th:each="p : ${productos}" class="product-card">
+        <div class="product-card-header">
+            <span class="product-card-name" th:text="${p.name}">Nombre</span>
+            <span class="badge"
+                  th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
+                <span class="product-card-cat" th:text="${p.category}">Cat</span>
+                <span th:if="${p.subCategory != null}" th:text="' / ' + ${p.subCategory}"></span>
+            </span>
+        </div>
+        <div class="product-card-body">
+            <div class="product-card-field">
+                Precio
+                <span th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</span>
+            </div>
+            <div class="product-card-field">
+                Stock
+                <span th:text="${p.stock}"
+                      th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}">0</span>
+            </div>
+        </div>
+        <div class="product-card-actions">
+            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="flex:1">
+                <button class="btn-eliminar" type="submit" style="width:100%"
+                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
+            </form>
+        </div>
+    </div>
+    <p th:if="${productos == null or #lists.isEmpty(productos)}"
+       style="text-align:center; color:#9ca3af; padding: 20px 0;">
+        No hay productos registrados aún.
+    </p>
+    <p id="no-results-mobile" style="display:none; text-align:center; color:#9ca3af; padding:20px 0;">
         No se encontraron productos.
+    </p>
+</div>
+
+<div class="estadisticas">
+    <div class="stat-item">
+        <p th:text="${productos != null ? #lists.size(productos) : 0}">0</p>
+        <p>Productos registrados</p>
     </div>
+    <div class="stat-item">
+        <p th:text="${totalStock != null ? totalStock : 0}">0</p>
+        <p>Unidades en stock</p>
+    </div>
+    <div class="stat-item">
+        <p th:text="${inventario != null ? inventario : 0}">$0</p>
+        <p>Valor inventario</p>
+    </div>
+    <div class="stat-item">
+        <p th:text="${stockNull != null ? stockNull : 0}">0</p>
+        <p>Productos sin stock</p>
+    </div>
+</div>
 
-    <script>
-        const input = document.getElementById('searchInput');
+<script>
+    let filtroCat  = 'TODAS';
+    let filtroSub  = 'TODAS';
+    let filtroTexto = '';
 
-        input.addEventListener('input', () => {
-            const q = input.value.trim().toLowerCase();
+    function aplicarFiltros() {
+        const mobileCat = document.getElementById('mobile-cat');
+        const mobileSub = document.getElementById('mobile-sub');
+        if (mobileCat) filtroCat = mobileCat.value;
+        if (mobileSub) filtroSub = mobileSub.value;
 
-            const filas = document.querySelectorAll('table tbody tr');
-            filas.forEach(fila => {
-                const nombre = fila.cells[0].textContent.trim().toLowerCase();
-                fila.style.display = nombre.includes(q) ? '' : 'none';
-            });
-
-            const tarjetas = document.querySelectorAll('.product-card');
-            tarjetas.forEach(tarjeta => {
-                const nombre = tarjeta.querySelector('.product-card-name').textContent.trim().toLowerCase();
-                tarjeta.style.display = nombre.includes(q) ? '' : 'none';
-            });
-
-            const tablaVacia = [...filas].every(f => f.style.display === 'none');
-            const tarjetasVacias = [...tarjetas].every(t => t.style.display === 'none');
-
-            let msgTabla = document.getElementById('no-results-tabla');
-            let msgMobile = document.getElementById('no-results-mobile');
-
-            if (msgTabla) msgTabla.style.display = tablaVacia && q ? '' : 'none';
-            if (msgMobile) msgMobile.style.display = tarjetasVacias && q ? '' : 'none';
+        const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
+        let tablaVacia = true;
+        filas.forEach(fila => {
+            const nombre = fila.cells[0].textContent.trim().toLowerCase();
+            const cat    = fila.cells[3].textContent.trim();
+            const sub    = fila.cells[4].textContent.trim();
+            const ok = nombre.includes(filtroTexto)
+                    && (filtroCat === 'TODAS' || cat === filtroCat)
+                    && (filtroSub === 'TODAS' || sub === filtroSub);
+            fila.style.display = ok ? '' : 'none';
+            if (ok) tablaVacia = false;
         });
 
-        let ordenActual = null;
-        let ascendente = true;
+        const tarjetas = document.querySelectorAll('.product-card');
+        let mobileVacia = true;
+        tarjetas.forEach(t => {
+            const nombre = t.querySelector('.product-card-name').textContent.trim().toLowerCase();
+            const cat    = t.querySelector('.product-card-cat')?.textContent.trim() || '';
+            const subSpans = t.querySelectorAll('.badge span');
+            const sub = subSpans.length > 1 ? subSpans[1].textContent.replace('/','').trim() : '';
+            const ok = nombre.includes(filtroTexto)
+                    && (filtroCat === 'TODAS' || cat === filtroCat)
+                    && (filtroSub === 'TODAS' || sub === filtroSub);
+            t.style.display = ok ? '' : 'none';
+            if (ok) mobileVacia = false;
+        });
 
-        function ordenar(campo) {
-            const tbody = document.querySelector('table tbody');
-            if (!tbody) return;
-            const filas = Array.from(tbody.querySelectorAll('tr'));
-
-            if (ordenActual === campo) { ascendente = !ascendente; }
-            else { ordenActual = campo; ascendente = true; }
-
-            document.querySelectorAll('[id^="icon-"]').forEach(el => el.textContent = '⇅');
-            const icono = document.getElementById('icon-' + campo);
-            if (icono) icono.textContent = ascendente ? '↑' : '↓';
-
-            const indices = { name: 0, price: 1, stock: 2 };
-            const col = indices[campo];
-
-            filas.sort((a, b) => {
-                let valA = a.cells[col].textContent.trim();
-                let valB = b.cells[col].textContent.trim();
-                if (campo === 'price' || campo === 'stock') {
-                    valA = parseFloat(valA.replace('$', '').replace(',', '.')) || 0;
-                    valB = parseFloat(valB.replace('$', '').replace(',', '.')) || 0;
-                    return ascendente ? valA - valB : valB - valA;
-                }
-                return ascendente ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-            });
-
-            filas.forEach(fila => tbody.appendChild(fila));
-        }
-
-
-        let ordenMobile = null;
-        let ascMobile = true;
-
-        function ordenarMobile(campo) {
-            const contenedor = document.querySelector('.cards-mobile');
-            const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
-
-            if (ordenMobile === campo) { ascMobile = !ascMobile; }
-            else { ordenMobile = campo; ascMobile = true; }
-
-            // Limpiar iconos
-            ['name', 'price', 'stock'].forEach(c => {
-                const el = document.getElementById('micon-' + c);
-                if (el) el.textContent = '⇅';
-            });
-            const icono = document.getElementById('micon-' + campo);
-            if (icono) icono.textContent = ascMobile ? '↑' : '↓';
-
-            tarjetas.sort((a, b) => {
-                let valA, valB;
-
-                if (campo === 'name') {
-                    valA = a.querySelector('.product-card-name').textContent.trim();
-                    valB = b.querySelector('.product-card-name').textContent.trim();
-                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-                }
-
-                if (campo === 'price') {
-                    valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-                    valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-                    return ascMobile ? valA - valB : valB - valA;
-                }
-
-                if (campo === 'stock') {
-                    valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-                    valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-                    return ascMobile ? valA - valB : valB - valA;
-                }
-                return 0;
-            });
-
-            tarjetas.forEach(t => contenedor.appendChild(t));
-        }
-function toggleMenu(id) {
-    document.getElementById(id).classList.toggle("show");
-}
-
-// Cerrar menús si haces clic fuera
-window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn')) {
-        document.querySelectorAll('.dropdown-content').forEach(m => m.classList.remove('show'));
+        const msgT = document.getElementById('no-results-tabla');
+        const msgM = document.getElementById('no-results-mobile');
+        if (msgT) msgT.style.display = tablaVacia ? '' : 'none';
+        if (msgM) msgM.style.display = mobileVacia ? '' : 'none';
     }
-}
 
-function filtrar(tipo, valor) {
-    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
-    const tarjetas = document.querySelectorAll('.product-card');
-
-    [...filas, ...tarjetas].forEach(el => {
-        let textoEnElemento = "";
-        
-        if (tipo === 'category') {
-            textoEnElemento = el.querySelector('.product-card-cat, td:nth-child(4)')?.textContent.trim() || "";
-        } else {
-            textoEnElemento = el.querySelector('.product-card-subcat, td:nth-child(5)')?.textContent.replace('/', '').trim() || "";
-        }
-
-        if (valor === 'TODAS' || textoEnElemento === valor) {
-            el.style.display = '';
-        } else {
-            el.style.display = 'none';
-        }
+    document.getElementById('searchInput').addEventListener('input', e => {
+        filtroTexto = e.target.value.trim().toLowerCase();
+        aplicarFiltros();
     });
-}
 
-    </script>
+    function toggleDropdown(id, e) {
+        e.stopPropagation();
+        const drop = document.getElementById(id);
+        const isOpen = drop.classList.contains('open');
+        document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
+        if (!isOpen) drop.classList.add('open');
+    }
+
+    function seleccionarCat(li, e) {
+        e.stopPropagation();
+        document.querySelectorAll('#drop-cat li').forEach(l => l.classList.remove('selected'));
+        li.classList.add('selected');
+        filtroCat = li.dataset.val;
+        const thCat = document.getElementById('th-cat');
+        thCat.classList.toggle('active-filter', filtroCat !== 'TODAS');
+        document.getElementById('drop-cat').classList.remove('open');
+        aplicarFiltros();
+    }
+
+    function seleccionarSub(li, e) {
+        e.stopPropagation();
+        document.querySelectorAll('#drop-sub li').forEach(l => l.classList.remove('selected'));
+        li.classList.add('selected');
+        filtroSub = li.dataset.val;
+        const thSub = document.getElementById('th-sub');
+        thSub.classList.toggle('active-filter', filtroSub !== 'TODAS');
+        document.getElementById('drop-sub').classList.remove('open');
+        aplicarFiltros();
+    }
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
+    });
+
+    let ordenActual = null;
+    let ascendente = true;
+
+    function ordenar(campo) {
+        const tbody = document.querySelector('table tbody');
+        if (!tbody) return;
+        const filas = Array.from(tbody.querySelectorAll('tr:not(#no-results-tabla)'));
+        if (ordenActual === campo) { ascendente = !ascendente; }
+        else { ordenActual = campo; ascendente = true; }
+        document.querySelectorAll('[id^="icon-"]').forEach(el => el.textContent = '⇅');
+        const icono = document.getElementById('icon-' + campo);
+        if (icono) icono.textContent = ascendente ? '↑' : '↓';
+        const indices = { name: 0, price: 1, stock: 2 };
+        const col = indices[campo];
+        filas.sort((a, b) => {
+            let valA = a.cells[col].textContent.trim();
+            let valB = b.cells[col].textContent.trim();
+            if (campo === 'price' || campo === 'stock') {
+                valA = parseFloat(valA.replace('$','').replace(',','.')) || 0;
+                valB = parseFloat(valB.replace('$','').replace(',','.')) || 0;
+                return ascendente ? valA - valB : valB - valA;
+            }
+            return ascendente ? valA.localeCompare(valB,'es') : valB.localeCompare(valA,'es');
+        });
+        filas.forEach(f => tbody.appendChild(f));
+    }
+
+    let ordenMobile = null;
+    let ascMobile = true;
+
+    function ordenarMobile(campo) {
+        const contenedor = document.querySelector('.cards-mobile');
+        const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
+        if (ordenMobile === campo) { ascMobile = !ascMobile; }
+        else { ordenMobile = campo; ascMobile = true; }
+        ['name','price','stock'].forEach(c => {
+            const el = document.getElementById('micon-' + c);
+            if (el) el.textContent = '⇅';
+        });
+        const icono = document.getElementById('micon-' + campo);
+        if (icono) icono.textContent = ascMobile ? '↑' : '↓';
+        tarjetas.sort((a, b) => {
+            let valA, valB;
+            if (campo === 'name') {
+                valA = a.querySelector('.product-card-name').textContent.trim();
+                valB = b.querySelector('.product-card-name').textContent.trim();
+                return ascMobile ? valA.localeCompare(valB,'es') : valB.localeCompare(valA,'es');
+            }
+            if (campo === 'price') {
+                valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+                valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
+            }
+            if (campo === 'stock') {
+                valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+            }
+            return ascMobile ? valA - valB : valB - valA;
+        });
+        tarjetas.forEach(t => contenedor.appendChild(t));
+    }
+</script>
 </body>
-
 </html>
