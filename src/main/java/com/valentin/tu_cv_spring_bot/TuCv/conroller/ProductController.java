@@ -106,22 +106,25 @@ public String formEditar(@PathVariable String name, Model model) {
     }
 
     // ── Eliminar ────────────────────────────────────────
-    @PostMapping("/eliminar/{name}/{subCategory}")
-    public String eliminar(@PathVariable String name,SubCategory subCategory, RedirectAttributes ra) {
+@PostMapping("/eliminar/{name}/{subCategory}")
+public String eliminar(@PathVariable String name, 
+                       @PathVariable("subCategory") String subCategoryStr, // Recíbelo como String primero
+                       RedirectAttributes ra) {
+    
+    System.out.println("DEBUG: Intentando borrar nombre: " + name);
+    System.out.println("DEBUG: Intentando borrar subcat: " + subCategoryStr);
 
-if (subCategory == null) {
-        ra.addFlashAttribute("error", "Error: La subcategoría no es válida.");
-        return "redirect:/productos";
+    try {
+        // Convertimos aquí manualmente
+        SubCategory subCategory = SubCategory.valueOf(subCategoryStr);
+        productService.delete(name, subCategory);
+        ra.addFlashAttribute("mensaje", "Borrado con éxito");
+    } catch (Exception e) {
+        System.out.println("DEBUG: ERROR EN EL BORRADO: " + e.getMessage());
+        ra.addFlashAttribute("error", "Error: " + e.getMessage());
     }
-
-        try {
-            productService.delete(name , subCategory);
-            ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");
-        } catch (ProductNotFoundException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/productos";
-    }
+    return "redirect:/productos";
+}
 
     // ── Buscar por name ───────────────────────────────
     @GetMapping("/buscar")
