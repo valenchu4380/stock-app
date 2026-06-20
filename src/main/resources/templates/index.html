@@ -466,37 +466,32 @@ function aplicarFiltros() {
     const mobileCat = document.getElementById('mobile-cat');
     const mobileSub = document.getElementById('mobile-sub');
     
-    // Usamos los valores actuales de tus filtros (ya sea web o mobile)
-    filtroCat = mobileCat ? mobileCat.value : filtroCat;
-    filtroSub = mobileSub ? mobileSub.value : filtroSub;
+    // Convertimos los filtros a minúsculas
+    const fCat = (mobileCat ? mobileCat.value : filtroCat).toLowerCase();
+    const fSub = (mobileSub ? mobileSub.value : filtroSub).toLowerCase();
 
-    // 1. Filtrar Tabla PC
+    // 1. Tabla PC
     const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
     filas.forEach(fila => {
-        // Categoria está en la celda 3 (index 3), Subcat en celda 4 (index 4)
-        const cat = fila.cells[3].textContent.trim();
-        const sub = fila.cells[4].textContent.trim();
+        const cat = fila.cells[3].textContent.trim().toLowerCase();
+        const sub = fila.cells[4].textContent.trim().toLowerCase();
         
-        const coincide = (filtroCat === 'TODAS' || cat === filtroCat) && 
-                         (filtroSub === 'TODAS' || sub === filtroSub);
-        
-        fila.style.display = coincide ? '' : 'none';
+        const ok = (fCat === 'todas' || cat === fCat) && 
+                   (fSub === 'todas' || sub === fSub);
+        fila.style.display = ok ? '' : 'none';
     });
 
-    // 2. Filtrar Tarjetas Mobile
+    // 2. Tarjetas Mobile
     const tarjetas = document.querySelectorAll('.product-card');
     tarjetas.forEach(t => {
-        // Obtenemos el texto del badge de categoria y subcategoria
-        const cat = t.querySelector('.product-card-cat')?.textContent.trim() || '';
-        // Buscamos el texto del span de subcategoría (el que viene después de la barra /)
-        const subTexto = t.querySelector('.badge').textContent; 
-        // Extraemos la parte después de la /
-        const sub = subTexto.includes('/') ? subTexto.split('/')[1].trim() : '-';
+        const cat = t.querySelector('.product-card-cat')?.textContent.trim().toLowerCase() || '';
+        const badge = t.querySelector('.badge').textContent.toLowerCase();
+        // Asumimos que la subcategoría es lo que está después de la '/'
+        const sub = badge.includes('/') ? badge.split('/')[1].trim() : '-';
         
-        const coincide = (filtroCat === 'TODAS' || cat === filtroCat) && 
-                         (filtroSub === 'TODAS' || sub === filtroSub);
-        
-        t.style.display = coincide ? '' : 'none';
+        const ok = (fCat === 'todas' || cat === fCat) && 
+                   (fSub === 'todas' || sub === fSub);
+        t.style.display = ok ? '' : 'none';
     });
 }
 
