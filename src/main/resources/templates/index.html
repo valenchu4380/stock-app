@@ -466,36 +466,40 @@ function aplicarFiltros() {
     const mobileCat = document.getElementById('mobile-cat');
     const mobileSub = document.getElementById('mobile-sub');
     
-    const fCat = (mobileCat ? mobileCat.value : filtroCat).toLowerCase();
-    const fSub = (mobileSub ? mobileSub.value : filtroSub).toLowerCase();
-    const fText = filtroTexto; // Tu variable global de búsqueda
+    // Obtenemos los valores. Si estamos en PC, usamos las variables globales 'filtroCat' y 'filtroSub'
+    // Si estamos en mobile, usamos el .value de los selectores.
+    const vCat = (mobileCat ? mobileCat.value : filtroCat).toLowerCase().trim();
+    const vSub = (mobileSub ? mobileSub.value : filtroSub).toLowerCase().trim();
+    const vSearch = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
 
-    // 1. Tabla PC
-    document.querySelectorAll('table tbody tr:not(#no-results-tabla)').forEach(fila => {
-        const cat = fila.cells[3].textContent.trim().toLowerCase();
-        const sub = fila.cells[4].textContent.trim().toLowerCase();
-        const nombre = fila.cells[0].textContent.trim().toLowerCase();
+    // 1. Filtrar Tabla PC
+    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
+    filas.forEach(fila => {
+        const cat = fila.cells[3].textContent.toLowerCase().trim();
+        const sub = fila.cells[4].textContent.toLowerCase().trim();
+        const nombre = fila.cells[0].textContent.toLowerCase().trim();
         
-        const coincide = (fCat === 'todas' || cat === fCat) && 
-                         (fSub === 'todas' || sub === fSub) &&
-                         (nombre.includes(fText));
+        // Comparamos: Si el filtro es TODAS, pasa siempre. Si no, debe coincidir.
+        const catMatch = (vCat === 'todas' || cat === vCat);
+        const subMatch = (vSub === 'todas' || sub === vSub);
+        const searchMatch = (nombre.includes(vSearch));
         
-        fila.style.display = coincide ? '' : 'none';
+        fila.style.display = (catMatch && subMatch && searchMatch) ? '' : 'none';
     });
 
-    // 2. Tarjetas Mobile
-    document.querySelectorAll('.product-card').forEach(t => {
-        const cat = t.querySelector('.product-card-cat')?.textContent.trim().toLowerCase() || '';
+    // 2. Filtrar Tarjetas Mobile (esto ya te funciona, pero unificamos la lógica)
+    const tarjetas = document.querySelectorAll('.product-card');
+    tarjetas.forEach(t => {
+        const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';
         const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
-        // Extraemos la parte después de la /
         const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
-        const nombre = t.querySelector('.product-card-name').textContent.trim().toLowerCase();
+        const nombre = t.querySelector('.product-card-name').textContent.toLowerCase().trim();
         
-        const coincide = (fCat === 'todas' || cat === fCat) && 
-                         (fSub === 'todas' || sub === fSub) &&
-                         (nombre.includes(fText));
+        const catMatch = (vCat === 'todas' || cat === vCat);
+        const subMatch = (vSub === 'todas' || sub === vSub);
+        const searchMatch = (nombre.includes(vSearch));
         
-        t.style.display = coincide ? '' : 'none';
+        t.style.display = (catMatch && subMatch && searchMatch) ? '' : 'none';
     });
 }
 
