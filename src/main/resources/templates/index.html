@@ -415,6 +415,52 @@
             }
 
         }
+
+        .filter-menu {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background: #f1f1f1;
+        }
+
+        .show {
+            display: block;
+        }
     </style>
 
 
@@ -446,20 +492,27 @@
         <ul id="sugerencias"></ul>
     </div>
 
-    <div class="filtros" style="display: flex; gap: 15px; margin: 20px auto; width: 80%; justify-content: center;">
-    <select id="filtroCat" onchange="aplicarFiltros()">
-        <option value="TODAS">Todas las Categorías</option>
-        <option value="AVON">AVON</option>
-        <option value="NATURA">NATURA</option>
-        <option value="SAPHIRUS">SAPHIRUS</option>
-    </select>
+    <div class="filter-menu">
+        <div class="dropdown">
+            <button class="dropbtn" onclick="toggleMenu('catMenu')">Filtrar por Categoría ▾</button>
+            <div id="catMenu" class="dropdown-content">
+                <a href="#" onclick="filtrar('category', 'TODAS')">Todas</a>
+                <a href="#" onclick="filtrar('category', 'AVON')">AVON</a>
+                <a href="#" onclick="filtrar('category', 'NATURA')">NATURA</a>
+                <a href="#" onclick="filtrar('category', 'SAPHIRUS')">SAPHIRUS</a>
+            </div>
+        </div>
 
-    <select id="filtroSub" onchange="aplicarFiltros()">
-        <option value="TODAS">Todas las Subcategorías</option>
-        <option value="TEXTIL">Textil</option>
-        <option value="AEROSOL">Aerosol</option>
-        </select>
-</div>
+        <div class="dropdown">
+            <button class="dropbtn" onclick="toggleMenu('subMenu')">Filtrar por Subcategoría ▾</button>
+            <div id="subMenu" class="dropdown-content">
+                <a href="#" onclick="filtrar('subCategory', 'TODAS')">Todas</a>
+                <a href="#" onclick="filtrar('subCategory', 'TEXTIL')">Textil</a>
+                <a href="#" onclick="filtrar('subCategory', 'AEROSOL')">Aerosol</a>
+                <a href="#" onclick="filtrar('subCategory', 'DIFUSOR')">Difusor</a>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -545,8 +598,9 @@
                 <span class="badge"
                     th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
                     <span class="product-card-cat" th:text="${p.category}">Cat</span>
-                    <span class="product-card-subcat" th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}" 
-          th:text="' / ' + ${p.subCategory}"></span>
+                    <span class="product-card-subcat"
+                        th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
+                        th:text="' / ' + ${p.subCategory}"></span>
                 </span>
             </div>
             <div class="product-card-body">
@@ -642,7 +696,7 @@
             const icono = document.getElementById('icon-' + campo);
             if (icono) icono.textContent = ascendente ? '↑' : '↓';
 
-            const indices = { name: 0, price: 1, stock: 2, category: 3, subCategory: 4 };
+            const indices = { name: 0, price: 1, stock: 2 };
             const col = indices[campo];
 
             filas.sort((a, b) => {
@@ -663,86 +717,75 @@
         let ordenMobile = null;
         let ascMobile = true;
 
-       function ordenarMobile(campo) {
-    const contenedor = document.querySelector('.cards-mobile');
-    const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
+        function ordenarMobile(campo) {
+            const contenedor = document.querySelector('.cards-mobile');
+            const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
 
-    if (ordenMobile === campo) { ascMobile = !ascMobile; }
-    else { ordenMobile = campo; ascMobile = true; }
+            if (ordenMobile === campo) { ascMobile = !ascMobile; }
+            else { ordenMobile = campo; ascMobile = true; }
 
-    // Limpiar iconos
-    ['name', 'price', 'stock', 'category', 'subCategory'].forEach(c => {
-        const el = document.getElementById('micon-' + c);
-        if (el) el.textContent = '⇅';
-    });
-    const icono = document.getElementById('micon-' + campo);
-    if (icono) icono.textContent = ascMobile ? '↑' : '↓';
+            // Limpiar iconos
+            ['name', 'price', 'stock'].forEach(c => {
+                const el = document.getElementById('micon-' + c);
+                if (el) el.textContent = '⇅';
+            });
+            const icono = document.getElementById('micon-' + campo);
+            if (icono) icono.textContent = ascMobile ? '↑' : '↓';
 
-    tarjetas.sort((a, b) => {
-        let valA, valB;
-        
-        if (campo === 'name') {
-            valA = a.querySelector('.product-card-name').textContent.trim();
-            valB = b.querySelector('.product-card-name').textContent.trim();
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
-        
-        if (campo === 'category') {
-            valA = a.querySelector('.product-card-cat').textContent.trim();
-            valB = b.querySelector('.product-card-cat').textContent.trim();
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
-        
-        if (campo === 'subCategory') {
-            // Obtenemos el texto y limpiamos el slash "/"
-            valA = a.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim() || "";
-            valB = b.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim() || "";
-            return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
-        }
+            tarjetas.sort((a, b) => {
+                let valA, valB;
 
-        if (campo === 'price') {
-            valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-            valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
-            return ascMobile ? valA - valB : valB - valA;
-        }
-        
-        if (campo === 'stock') {
-            valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            return ascMobile ? valA - valB : valB - valA;
-        }
-        return 0;
-    });
+                if (campo === 'name') {
+                    valA = a.querySelector('.product-card-name').textContent.trim();
+                    valB = b.querySelector('.product-card-name').textContent.trim();
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+                }
 
-    tarjetas.forEach(t => contenedor.appendChild(t));
+                if (campo === 'price') {
+                    valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
+                    valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$', '').replace(',', '.')) || 0;
+                    return ascMobile ? valA - valB : valB - valA;
+                }
+
+                if (campo === 'stock') {
+                    valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                    valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                    return ascMobile ? valA - valB : valB - valA;
+                }
+                return 0;
+            });
+
+            tarjetas.forEach(t => contenedor.appendChild(t));
+        }
+function toggleMenu(id) {
+    document.getElementById(id).classList.toggle("show");
 }
 
-function aplicarFiltros() {
-    const catSeleccionada = document.getElementById('filtroCat').value;
-    const subSeleccionada = document.getElementById('filtroSub').value;
+// Cerrar menús si haces clic fuera
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn')) {
+        document.querySelectorAll('.dropdown-content').forEach(m => m.classList.remove('show'));
+    }
+}
 
-    // Filtrar Tabla (PC)
+function filtrar(tipo, valor) {
     const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
-    filas.forEach(fila => {
-        const catTexto = fila.cells[3].textContent.trim();
-        const subTexto = fila.cells[4].textContent.trim().replace('-', '').trim();
-        
-        const coincideCat = (catSeleccionada === 'TODAS' || catTexto === catSeleccionada);
-        const coincideSub = (subSeleccionada === 'TODAS' || subTexto === subSeleccionada);
-        
-        fila.style.display = (coincideCat && coincideSub) ? '' : 'none';
-    });
-
-    // Filtrar Tarjetas (Mobile)
     const tarjetas = document.querySelectorAll('.product-card');
-    tarjetas.forEach(tarjeta => {
-        const catTexto = tarjeta.querySelector('.product-card-cat')?.textContent.trim();
-        const subTexto = tarjeta.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim();
+
+    [...filas, ...tarjetas].forEach(el => {
+        let textoEnElemento = "";
         
-        const coincideCat = (catSeleccionada === 'TODAS' || catTexto === catSeleccionada);
-        const coincideSub = (subSeleccionada === 'TODAS' || subTexto === subSeleccionada);
-        
-        tarjeta.style.display = (coincideCat && coincideSub) ? '' : 'none';
+        if (tipo === 'category') {
+            textoEnElemento = el.querySelector('.product-card-cat, td:nth-child(4)')?.textContent.trim() || "";
+        } else {
+            textoEnElemento = el.querySelector('.product-card-subcat, td:nth-child(5)')?.textContent.replace('/', '').trim() || "";
+        }
+
+        if (valor === 'TODAS' || textoEnElemento === valor) {
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
     });
 }
 
