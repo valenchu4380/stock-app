@@ -57,14 +57,16 @@ public void save(Product product) throws InvalidProductException {
     }
 
 @Override
-public void update(Product product, String oldName) throws ProductNotFoundException, InvalidProductException {
+public void update(Product product, String oldName, SubCategory oldSubCategory) 
+        throws ProductNotFoundException, InvalidProductException {
+    
     ProductValidator.validate(product);
-    if (!productRepository.existsByname(oldName)) {
-        throw new ProductNotFoundException("Producto no encontrado: " + oldName);
-    }
-    productRepository.update(product, oldName);
-}
 
+    if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
+        throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
+    }
+    productRepository.update(product, oldName, oldSubCategory);
+}
     @Override
     public boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException {
         // Lo implementás directo en el repo con SQL

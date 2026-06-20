@@ -92,18 +92,22 @@ public String formEditar(@PathVariable String name, Model model) {
 }
 
 
-    @PostMapping("/editar")
-    public String actualizar(@ModelAttribute Product product,
-            @RequestParam String oldName,
-            RedirectAttributes ra) {
-        try {
-            productService.update(product, oldName);
-            ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
-        } catch (ProductNotFoundException | InvalidProductException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/productos";
+@PostMapping("/editar")
+public String actualizar(@ModelAttribute Product product,
+                         @RequestParam String oldName,
+                         @RequestParam String oldSubCategory, 
+                         RedirectAttributes ra) {
+    try {
+        SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
+        
+        productService.update(product, oldName, oldSubCat);
+        
+        ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
+    } catch (Exception e) {
+        ra.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
     }
+    return "redirect:/productos";
+}
 
     // ── Eliminar ────────────────────────────────────────
 @PostMapping("/eliminar/{name}/{subCategory}")

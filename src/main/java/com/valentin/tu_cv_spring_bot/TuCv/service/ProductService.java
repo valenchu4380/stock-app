@@ -14,9 +14,9 @@ public interface ProductService {
     List<Product> getAll() throws InvalidProductException;
     Optional<Product> getByname(String name);
     void save(Product product) throws InvalidProductException;
-void update(Product product, String oldName)
-        throws ProductNotFoundException, InvalidProductException;
     boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException;
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
+    void update(Product product, String oldName, SubCategory oldSubCategory)
+            throws ProductNotFoundException, InvalidProductException;
 
 }
