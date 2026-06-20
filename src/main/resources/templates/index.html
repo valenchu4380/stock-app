@@ -517,7 +517,10 @@
                 </div>
                 <div class="product-card-field">
                     Stock
-                    <span th:text="${p.stock}">0</span>
+                    <span
+                    th:text="${p.stock} ?: 0"
+    th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}" 
+                    span>
                 </div>
             </div>
             <div class="product-card-actions">
