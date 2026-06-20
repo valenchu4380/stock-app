@@ -132,6 +132,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+@Override
     public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
         String sql = """
                                 UPDATE products
