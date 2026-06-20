@@ -475,8 +475,8 @@
     <span class="badge"
           th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
         <span th:text="${p.category}">Cat</span>
-        <span th:if="${p.subcategory != null and !#strings.isEmpty(p.subcategory)}"
-              th:text="' / ' + ${p.subcategory}"></span>
+        <span th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
+              th:text="' / ' + ${p.subCategory}"></span>
     </span>
 </td>
                         <td>
