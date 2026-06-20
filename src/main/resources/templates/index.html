@@ -460,42 +460,44 @@
                         <th class="sortable" onclick="ordenar('name')">Nombre <span id="icon-name">⇅</span></th>
                         <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
                         <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
-                        <th>Categoría</th>
-                        <th class="sortable" onclick="ordenar('subCategory')">categoria <span id="icon-subCategoria">⇅</span></th>
+                        <th class="sortable" onclick="ordenar('category')">Categoría <span id="icon-category">⇅</span>
+                        </th>
+                        <th class="sortable" onclick="ordenar('subCategory')">Subcategoría <span
+                                id="icon-subCategory">⇅</span></th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-               <tbody>
-    <tr th:each="p : ${productos}">
-        <td th:text="${p.name}">Nombre</td>
-        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-        
-        <td th:text="${p.stock} ?: 0"
-            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-        </td>
+                <tbody>
+                    <tr th:each="p : ${productos}">
+                        <td th:text="${p.name}">Nombre</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
 
-        <td>
-            <span class="badge"
-                  th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                  th:text="${p.category}">Cat</span>
-        </td>
+                        <td th:text="${p.stock} ?: 0"
+                            th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+                        </td>
 
-        <td>
-            <span th:if="${p.subCategory != null}" 
-                  th:text="${p.subCategory}" 
-                  class="badge badge-sub">Subcat</span>
-            <span th:if="${p.subCategory == null}">-</span>
-        </td>
+                        <td>
+                            <span class="badge"
+                                th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
+                                th:text="${p.category}">Cat</span>
+                        </td>
 
-        <td>
-            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
-                <button class="btn-eliminar" type="submit"
-                        onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-            </form>
-        </td>
-    </tr>
-</tbody>
+                        <td>
+                            <span th:if="${p.subCategory != null}" th:text="${p.subCategory}"
+                                class="badge badge-sub">Subcat</span>
+                            <span th:if="${p.subCategory == null}">-</span>
+                        </td>
+
+                        <td>
+                            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+                            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post"
+                                style="display:inline">
+                                <button class="btn-eliminar" type="submit"
+                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
                 <tr id="no-results-tabla" style="display:none">
                     <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
                         No se encontraron productos.
@@ -516,31 +518,34 @@
             <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
             <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
             <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
-            <button class="sortable" onclick="ordenar('subCategory')">categoria <span id="icon-subCategoria">⇅</span></th>
+            <button class="btn-orden" onclick="ordenarMobile('category')"> Categoria <span
+                    id="icon-category">⇅</span></button>
+            <button class="btn-orden" onclick="ordenarMobile('subCategory')"> SubCategoria <span
+                    id="icon-subCategoria">⇅</span></button>
 
         </div>
         <div th:each="p : ${productos}" class="product-card">
             <div class="product-card-header">
                 <span class="product-card-name" th:text="${p.name}">Nombre</span>
-              <span class="badge"
-      th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
-    <span th:text="${p.category}">Cat</span>
-    <span th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
-          th:text="' / ' + ${p.subCategory}"></span>
-</span>
+                <span class="badge"
+                    th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
+                    <span th:text="${p.category}">Cat</span>
+                    <span th:if="${p.subCategory != null and !#strings.isEmpty(p.subCategory)}"
+                        th:text="' / ' + ${p.subCategory}"></span>
+                </span>
             </div>
             <div class="product-card-body">
                 <div class="product-card-field">
                     Precio
                     <span th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</span>
                 </div>
-<div class="product-card-field">
-    Stock
-    <span th:text="${p.stock}" 
-          th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
-        0
-    </span>
-</div>
+                <div class="product-card-field">
+                    Stock
+                    <span th:text="${p.stock}"
+                        th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+                        0
+                    </span>
+                </div>
             </div>
             <div class="product-card-actions">
                 <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
@@ -622,7 +627,7 @@
             const icono = document.getElementById('icon-' + campo);
             if (icono) icono.textContent = ascendente ? '↑' : '↓';
 
-            const indices = { name: 0, price: 1, stock: 2 };
+            const indices = { name: 0, price: 1, stock: 2, category: 3, subCategory: 4 };
             const col = indices[campo];
 
             filas.sort((a, b) => {
@@ -651,7 +656,7 @@
             if (ordenMobile === campo) { ascMobile = !ascMobile; }
             else { ordenMobile = campo; ascMobile = true; }
 
-            ['name', 'price', 'stock'].forEach(c => {
+            ['name', 'price', 'stock', 'category', 'subCategory'].forEach(c => {
                 const el = document.getElementById('micon-' + c);
                 if (el) el.textContent = '⇅';
             });
@@ -672,6 +677,17 @@
                 if (campo === 'stock') {
                     valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
                     valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
+                }
+                if (campo === 'category') {
+                    valA = a.querySelector('.product-card-cat') ? a.querySelector('.product-card-cat').textContent.trim() : "";
+                    valB = b.querySelector('.product-card-cat') ? b.querySelector('.product-card-cat').textContent.trim() : "";
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
+                }
+
+                if (campo === 'subCategory') {
+                    valA = a.querySelector('.product-card-subcat') ? a.querySelector('.product-card-subcat').textContent.trim() : "";
+                    valB = b.querySelector('.product-card-subcat') ? b.querySelector('.product-card-subcat').textContent.trim() : "";
+                    return ascMobile ? valA.localeCompare(valB, 'es') : valB.localeCompare(valA, 'es');
                 }
                 return ascMobile ? valA - valB : valB - valA;
             });
