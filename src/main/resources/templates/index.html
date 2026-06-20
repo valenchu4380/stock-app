@@ -446,6 +446,21 @@
         <ul id="sugerencias"></ul>
     </div>
 
+    <div class="filtros" style="display: flex; gap: 15px; margin: 20px auto; width: 80%; justify-content: center;">
+    <select id="filtroCat" onchange="aplicarFiltros()">
+        <option value="TODAS">Todas las Categorías</option>
+        <option value="AVON">AVON</option>
+        <option value="NATURA">NATURA</option>
+        <option value="SAPHIRUS">SAPHIRUS</option>
+    </select>
+
+    <select id="filtroSub" onchange="aplicarFiltros()">
+        <option value="TODAS">Todas las Subcategorías</option>
+        <option value="TEXTIL">Textil</option>
+        <option value="AEROSOL">Aerosol</option>
+        </select>
+</div>
+
 
 
     <div class="mensaje ok" th:if="${mensaje}" th:text="${mensaje}"></div>
@@ -701,6 +716,36 @@
 
     tarjetas.forEach(t => contenedor.appendChild(t));
 }
+
+function aplicarFiltros() {
+    const catSeleccionada = document.getElementById('filtroCat').value;
+    const subSeleccionada = document.getElementById('filtroSub').value;
+
+    // Filtrar Tabla (PC)
+    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
+    filas.forEach(fila => {
+        const catTexto = fila.cells[3].textContent.trim();
+        const subTexto = fila.cells[4].textContent.trim().replace('-', '').trim();
+        
+        const coincideCat = (catSeleccionada === 'TODAS' || catTexto === catSeleccionada);
+        const coincideSub = (subSeleccionada === 'TODAS' || subTexto === subSeleccionada);
+        
+        fila.style.display = (coincideCat && coincideSub) ? '' : 'none';
+    });
+
+    // Filtrar Tarjetas (Mobile)
+    const tarjetas = document.querySelectorAll('.product-card');
+    tarjetas.forEach(tarjeta => {
+        const catTexto = tarjeta.querySelector('.product-card-cat')?.textContent.trim();
+        const subTexto = tarjeta.querySelector('.product-card-subcat')?.textContent.replace('/', '').trim();
+        
+        const coincideCat = (catSeleccionada === 'TODAS' || catTexto === catSeleccionada);
+        const coincideSub = (subSeleccionada === 'TODAS' || subTexto === subSeleccionada);
+        
+        tarjeta.style.display = (coincideCat && coincideSub) ? '' : 'none';
+    });
+}
+
     </script>
 </body>
 
