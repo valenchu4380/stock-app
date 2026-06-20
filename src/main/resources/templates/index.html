@@ -522,7 +522,7 @@
 <div class="product-card-field">
     Stock
     <span th:text="${p.stock}" 
-          th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 3 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
+          th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
         0
     </span>
 </div>
