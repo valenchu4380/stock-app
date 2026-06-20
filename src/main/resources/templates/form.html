@@ -188,6 +188,18 @@
             </div>
         </div>
 
+        <div class="form-group">
+    <label for="subCategory">Subcategoría</label>
+    <div class="select-wrapper">    
+        <select id="subCategory" th:field="{subCategory}">
+            <option value="">-- Seleccioná una subcategoría --</option>
+                               <option th:each="cat : ${Categorys}"
+                            th:value="${cat}"
+                            th:text="${cat}">SubCategoria</option>
+        </select>
+    </div>
+</div>
+
         <div class="btn-row">
             <button class="btn-guardar" type="submit">Guardar</button>
             <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>

@@ -471,11 +471,14 @@
                         <td th:text="${p.stock} ?: 0"
                             th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : (p.stock >= 6 ? 'text-green' : ''))}">
                         </td>
-                        <td>
-                            <span class="badge"
-                                th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                                th:text="${p.category}">Cat</span>
-                        </td>
+                   <td>
+    <span class="badge"
+          th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
+        <span th:text="${p.category}">Cat</span>
+        <span th:if="${p.subcategory != null and !#strings.isEmpty(p.subcategory)}"
+              th:text="' / ' + ${p.subcategory}"></span>
+    </span>
+</td>
                         <td>
                             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
                             <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post"
@@ -510,9 +513,12 @@
         <div th:each="p : ${productos}" class="product-card">
             <div class="product-card-header">
                 <span class="product-card-name" th:text="${p.name}">Nombre</span>
-                <span class="badge"
-                    th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
-                    th:text="${p.category}">Cat</span>
+              <span class="badge"
+      th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
+    <span th:text="${p.category}">Cat</span>
+    <span th:if="${p.subcategory != null and !#strings.isEmpty(p.subcategory)}"
+          th:text="' / ' + ${p.subcategory}"></span>
+</span>
             </div>
             <div class="product-card-body">
                 <div class="product-card-field">

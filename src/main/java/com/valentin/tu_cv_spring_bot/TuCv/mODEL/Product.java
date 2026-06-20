@@ -20,4 +20,5 @@ public class Product {
     private double price;
     private int stock;
     private ProductCategory Category;
+    private SubCategory subCategory;
 }

@@ -9,6 +9,7 @@ import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 
 import java.util.List;
 
@@ -87,19 +88,20 @@ public class ProductRepositoryImpl implements ProductRepository {
                 rs.getString("name"),
                 rs.getDouble("price"),
                 rs.getInt("stock"),
-                ProductCategory.valueOf(rs.getString("category")));
+                ProductCategory.valueOf(rs.getString("category")),
+                SubCategory.valueOf(rs.getString("subCategory")));
     }
 
     @Override
     public void save(Product product) {
-        String sql = "INSERT INTO products(name, price, stock, Category) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO products(name, price, stock, Category, subCategory ) VALUES(?, ?, ?, ?, ?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
-
             st.setString(1, product.getName());
             st.setDouble(2, product.getPrice());
             st.setInt(3, product.getStock());
             st.setString(4, product.getCategory().name());
+            st.setString(5,product.getSubCategory().name());
             st.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -125,7 +127,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public void update(Product product, String oldName) throws ProductNotFoundException {
         String sql = """
                 UPDATE products
-                SET name=?, price=?, stock=?, Category=?
+                SET name=?, price=?, stock=?, Category=? subCategory=?
                 WHERE name=?
                 """;
         try (Connection con = getConnection();
@@ -135,7 +137,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setDouble(2, product.getPrice());
             st.setInt(3, product.getStock());
             st.setString(4, product.getCategory().name());
-            st.setString(5, oldName);
+            st.setString(5, product.getSubCategory().name());
+            st.setString(6, oldName);
 
             int rows = st.executeUpdate();
             if (rows == 0) {
