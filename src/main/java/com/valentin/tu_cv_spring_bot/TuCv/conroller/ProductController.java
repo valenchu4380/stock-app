@@ -39,18 +39,22 @@ public class ProductController {
         try {
             java.util.List<Product> listaProductos = productService.getAll();
             int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
+            long stockNull = listaProductos.stream().filter(p -> p.getStock() == 0).count();
             double totalInventario = listaProductos.stream()
                     .mapToDouble(p -> p.getPrice() * p.getStock())
                     .sum();
             model.addAttribute("productos", listaProductos);
             model.addAttribute("totalStock", totalStock);
             model.addAttribute("inventario", totalInventario);
+            model.addAttribute("stockNull", stockNull);
 
         } catch (InvalidProductException e) {
             // Lista vacía → mandamos lista vacía, no rompemos la página
             model.addAttribute("productos", java.util.Collections.emptyList());
             model.addAttribute("totalStock", 0);
             model.addAttribute("inventario", 0);
+            model.addAttribute("stockNull", 0);
+
         }
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
@@ -119,12 +123,10 @@ public class ProductController {
                     java.util.List<Product> resultado = java.util.List.of(p);
                     model.addAttribute("productos", resultado);
                     model.addAttribute("totalStock", p.getStock());
-                    model.addAttribute("inventario", p.getPrice());
                 },
                 () -> {
                     model.addAttribute("productos", java.util.Collections.emptyList());
                     model.addAttribute("totalStock", 0);
-                    model.addAttribute("inventario", 0);
                     model.addAttribute("error", "No se encontró el producto: " + name);
                 });
 
