@@ -459,26 +459,38 @@
 </div>
 
 <script>
-    let filtroCat = 'TODAS';
+let filtroCat = 'TODAS';
 let filtroSub = 'TODAS';
 
 function aplicarFiltros() {
-    // 1. Detectar si estamos en mobile o PC
-    const isMobile = window.innerWidth <= 768;
+    // 1. Obtener valores: Prioriza mobile si existe y está visible, si no, usa variables globales
+    const mobileCat = document.getElementById('mobile-cat');
+    const mobileSub = document.getElementById('mobile-sub');
     
-    // Obtenemos los valores de filtro
-    const vCat = isMobile ? document.getElementById('mobile-cat').value.toLowerCase().trim() : filtroCat.toLowerCase().trim();
-    const vSub = isMobile ? document.getElementById('mobile-sub').value.toLowerCase().trim() : filtroSub.toLowerCase().trim();
+    // Si mobile está visible, tomamos su valor, si no, usamos las globales
+    const vCat = (mobileCat && mobileCat.offsetParent !== null) ? mobileCat.value : filtroCat;
+    const vSub = (mobileSub && mobileSub.offsetParent !== null) ? mobileSub.value : filtroSub;
 
-    // 2. Filtrar Tabla PC (solo si no estamos en mobile, o siempre para asegurar)
-    const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
-    filas.forEach(fila => {
+    const valCat = vCat.toLowerCase().trim();
+    const valSub = vSub.toLowerCase().trim();
+
+    // 2. Filtrar Tabla PC
+    document.querySelectorAll('table tbody tr:not(#no-results-tabla)').forEach(fila => {
         const cat = fila.cells[3].textContent.toLowerCase().trim();
         const sub = fila.cells[4].textContent.toLowerCase().trim();
         
-        const ok = (vCat === 'todas' || cat === vCat) && 
-                   (vSub === 'todas' || sub === vSub);
+        const ok = (valCat === 'todas' || cat === valCat) && (valSub === 'todas' || sub.includes(valSub));
         fila.style.display = ok ? '' : 'none';
+    });
+
+    // 3. Filtrar Tarjetas Mobile
+    document.querySelectorAll('.product-card').forEach(t => {
+        const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';
+        const badgeTexto = t.querySelector('.badge').textContent.toLowerCase();
+        const sub = badgeTexto.includes('/') ? badgeTexto.split('/')[1].trim() : '-';
+        
+        const ok = (valCat === 'todas' || cat === valCat) && (valSub === 'todas' || sub.includes(valSub));
+        t.style.display = ok ? '' : 'none';
     });
 }
 
@@ -494,23 +506,22 @@ function aplicarFiltros() {
         document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
         if (!isOpen) drop.classList.add('open');
     }
-
-   function seleccionarCat(li, e) {
+function seleccionarCat(li, e) {
     e.stopPropagation();
     document.querySelectorAll('#drop-cat li').forEach(l => l.classList.remove('selected'));
     li.classList.add('selected');
-    filtroCat = li.dataset.val; // Esto actualiza la variable global
+    filtroCat = li.dataset.val;
     document.getElementById('drop-cat').classList.remove('open');
-    aplicarFiltros(); // Llamamos al filtro unificado
+    aplicarFiltros();
 }
 
 function seleccionarSub(li, e) {
     e.stopPropagation();
     document.querySelectorAll('#drop-sub li').forEach(l => l.classList.remove('selected'));
     li.classList.add('selected');
-    filtroSub = li.dataset.val; // Esto actualiza la variable global
+    filtroSub = li.dataset.val;
     document.getElementById('drop-sub').classList.remove('open');
-    aplicarFiltros(); // Llamamos al filtro unificado
+    aplicarFiltros();
 }
 
     document.addEventListener('click', () => {
