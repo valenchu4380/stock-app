@@ -133,31 +133,31 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
 @Override
-    public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-        String sql = """
-                                UPDATE products
-                SET price = ?, stock = ?, Category = ?
-                WHERE name = ? AND subCategory = ?
-                                """;
-        try (Connection con = getConnection();
-                PreparedStatement st = con.prepareStatement(sql)) {
+public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
+    // 1. Contamos los ? : 1(name), 2(price), 3(stock), 4(category), 5(subCategory)
+    // 6(WHERE name), 7(WHERE subCategory)
+    String sql = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, subCategory = ? WHERE name = ? AND subCategory = ?";
+                 
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.setDouble(1, product.getPrice());      
-        st.setInt(2, product.getStock());        
-        st.setString(3, product.getCategory().name());
-        st.setString(4, product.getSubCategory().name());
+        // SET (5 parámetros)
+        st.setString(1, product.getName().trim());
+        st.setDouble(2, product.getPrice());
+        st.setInt(3, product.getStock());
+        st.setString(4, product.getCategory().name());
+        st.setString(5, product.getSubCategory().name());
         
-        st.setString(5, oldName.trim());          
-        st.setString(6, oldSubCategory.name());   
+        // WHERE (2 parámetros)
+        st.setString(6, oldName.trim());
+        st.setString(7, oldSubCategory.name()); // Aquí debe ir el 7
 
-            int rows = st.executeUpdate();
-            if (rows == 0) {
-                throw new ProductNotFoundException("Producto no encontrado: " + product.getName());
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        int rows = st.executeUpdate();
+        // ... resto del código
+    } catch (SQLException e) {
+        System.out.println("Error SQL: " + e.getMessage());
     }
+}
 
     @Override
     public boolean existsByname(String name) {
