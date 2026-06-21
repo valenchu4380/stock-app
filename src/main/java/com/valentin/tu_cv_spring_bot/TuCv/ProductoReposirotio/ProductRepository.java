@@ -29,6 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByNameAndSubCategory(String name, SubCategory subCategory);
 
+    
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Product p WHERE p.name = :name AND p.subCategory = :subSubCategory")

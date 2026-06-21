@@ -4,6 +4,11 @@
  */
 package com.valentin.tu_cv_spring_bot.TuCv.mODEL;
 
+import java.io.Serializable;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,11 +22,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
-    
+@Entity 
+public class Product  implements Serializable{
+    @Id
     private String name;
     private double price;
     private int stock;
     private ProductCategory category;
+    @Id
     private SubCategory subCategory;
 }
