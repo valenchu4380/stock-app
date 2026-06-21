@@ -45,7 +45,6 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<Product> findAll() throws InvalidProductException {
-        System.out.println("Entrando a findAll()");
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products";
 
@@ -59,9 +58,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Productos encontrados: " + products.size());
-        // Ya no tiramos excepción si está vacía
         return products;
     }
 
