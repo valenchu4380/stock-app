@@ -7,234 +7,122 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f5f7fb; min-height: 100vh; }
-
-        .hero {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        .hero h1 { font-size: 2rem; }
-        .hero p  { margin-top: 8px; font-size: 1rem; }
-
-        .form-container {
-            width: 50%;
-            margin: 50px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
-        }
-        .form-container h2 {
-            font-size: 1.5rem;
-            color: #1e3a8a;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eff6ff;
-        }
+        .hero { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; text-align: center; padding: 40px 20px; }
+        .form-container { width: 50%; margin: 50px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,.1); }
         .form-group { margin-bottom: 22px; }
-        .form-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #dce1ec;
-            border-radius: 10px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color .2s;
-            background: #fafafa;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .form-group input:focus,
-        .form-group select:focus { border-color: #2563eb; background: white; }
-        .form-group input[readonly] { background: #f1f5f9; color: #6b7280; cursor: not-allowed; }
-
-        .select-wrapper { position: relative; }
-        .select-wrapper::after {
-            content: '▾';
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            pointer-events: none;
-        }
-
-        .mensaje { padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 20px; }
-        .mensaje.err { background: #fee2e2; color: #991b1b; }
-
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 1.5px solid #dce1ec; border-radius: 10px; font-size: 1rem; background: #fafafa; }
         .btn-row { display: flex; gap: 15px; margin-top: 30px; }
-        .btn-guardar {
-            flex: 1;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s;
-        }
-        .btn-guardar:hover { background: #1e40af; }
-        .btn-cancelar {
-            flex: 1;
-            background: white;
-            color: #374151;
-            border: 1.5px solid #dce1ec;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: background .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-cancelar:hover { background: #f1f5f9; }
-
-        @media (max-width: 768px) {
-            .hero { padding: 25px 16px; }
-            .hero h1 { font-size: 1.5rem; }
-
-            .form-container {
-                width: 92%;
-                margin: 20px auto 40px;
-                padding: 24px 20px;
-                border-radius: 12px;
-            }
-            .form-container h2 { font-size: 1.2rem; }
-
-            .form-group input,
-            .form-group select { font-size: 16px; /* evita zoom en iOS */ }
-
-            .btn-row { flex-direction: column; }
-            .btn-guardar, .btn-cancelar { padding: 16px; font-size: 1rem; }
-        }
+        .btn-guardar { flex: 1; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; }
+        .btn-cancelar { flex: 1; background: white; color: #374151; border: 1.5px solid #dce1ec; padding: 14px; border-radius: 10px; text-decoration: none; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="hero">
     <h1>Sistema de Gestión de Stock</h1>
-    <p>Administra tus productos de manera rápida y eficiente</p>
 </div>
 
 <div class="form-container">
-    <h2 th:text="${product.name != null and !#strings.isEmpty(product.name)}
-                  ? '✏️ Modificar Producto'
-                  : '➕ Agregar Producto'">Formulario</h2>
+    <h2 th:text="${product.name != null and !#strings.isEmpty(product.name)} ? '✏️ Modificar Producto' : '➕ Agregar Producto'">Formulario</h2>
 
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
 
-    <form th:action="${product.name != null and !#strings.isEmpty(product.name)}
-                      ? @{/productos/editar}
-                      : @{/productos/nuevo}"
-          method="post"
+    <form th:action="${product.name != null and !#strings.isEmpty(product.name)} 
+                  ? @{/productos/editar} : @{/productos/nuevo}"
+          method="post" 
           th:object="${product}">
 
-        <!-- Campo oculto con nombre original para edición -->
         <input type="hidden" name="oldName" th:value="${product.name}" />
         <input type="hidden" name="oldSubCategory" th:value="${product.subCategory}" />
 
         <div class="form-group">
             <label for="name">Nombre del producto</label>
-            <input type="text"
-                   id="name"
-                   th:field="*{name}"
-                   placeholder="Ej: Perfume Musk 50ml" />
+            <input type="text" id="name" th:field="*{name}" placeholder="Ej: Perfume Musk 50ml" />
         </div>
 
         <div class="form-group">
             <label for="price">Precio ($)</label>
-            <input type="number"
-                   id="price"
-                   name="price"
-                   th:value="${product.price != 0 ? product.price : ''}"
-                   step="0.01"
-                   min="0"
-                   placeholder="Ej: 1500.00" />
+            <input type="number" id="price" th:field="*{price}" step="0.01" min="0" placeholder="Ej: 1500.00" />
         </div>
 
         <div class="form-group">
             <label for="stock">Stock (unidades)</label>
-            <input type="number"
-                   id="stock"
-                   name="stock"
-                   th:value="${product.stock != 0 ? product.stock : ''}"
-                   min="0"
-                   placeholder="Ej: 50" />
+            <input type="number" id="stock" th:field="*{stock}" min="0" placeholder="Ej: 50" />
         </div>
 
         <div class="form-group">
             <label for="category">Categoría</label>
-            <div class="select-wrapper">
-                <select id="category" th:field="*{category}">
-                    <option value="">-- Seleccioná una categoría --</option>
-                    <option th:each="cat : ${Categorys}"
-                            th:value="${cat}"
-                            th:text="${cat}">Categoría</option>
-                </select>
-            </div>
+            <select id="category" th:field="*{category}">
+                <option value="">-- Seleccioná una categoría --</option>
+                <option th:each="cat : ${Categorys}" th:value="${cat}" th:text="${cat}">Categoría</option>
+            </select>
         </div>
 
-<div class="form-group">
-    <label for="subCategory">Subcategoría</label>
-    <div class="select-wrapper">
-        <select id="subCategory" th:field="*{subCategory}">
-            <option value="">-- Seleccioná una subcategoría --</option>
-            <option th:each="sub : ${SubCategorys}"
-                    th:value="${sub}"
-                    th:text="${sub}">SubCategoría</option>
-        </select>
-    </div>
-</div>
-</div>
+        <div class="form-group">
+            <label for="subCategory">Subcategoría</label>
+            <select id="subCategory" th:field="*{subCategory}">
+                <option value="">-- Seleccioná una subcategoría --</option>
+                <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub}">SubCategoría</option>
+            </select>
+        </div>
 
         <div class="btn-row">
             <button class="btn-guardar" type="submit">Guardar</button>
             <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>
         </div>
-
     </form>
 </div>
 
 <script>
-const subcategorias = {
+    const subcategorias = {
+
     AVON:     ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
+
     NATURA:   ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
+
     SAPHIRUS: ['TEXTIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO']
+
 };
 
+
+
 const selectCat = document.getElementById('category');
+
 const selectSub = document.getElementById('subCategory');
+
 const subActual = selectSub.value;
 
+
+
 function actualizarSubs() {
+
     const cat = selectCat.value;
+
     const opciones = subcategorias[cat] || [];
+
     selectSub.innerHTML = '<option value="">-- Seleccioná una subcategoría --</option>';
+
     opciones.forEach(op => {
+
         const opt = document.createElement('option');
+
         opt.value = op;
+
         opt.textContent = op.replace(/_/g, ' ');
+
         if (op === subActual) opt.selected = true;
+
         selectSub.appendChild(opt);
+
     });
+
 }
 
+
+
 selectCat.addEventListener('change', actualizarSubs);
+
 actualizarSubs();
 </script>
 
