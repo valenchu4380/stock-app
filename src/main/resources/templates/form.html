@@ -142,7 +142,7 @@
     <input type="number" 
            id="price" 
            th:field="*{price}" 
-           th:value="${product.price != null and product.price != 0.0 ? product.price : ''}"
+       th:value="${product.price}"
            step="0.01" 
            min="0" 
            placeholder="Ej: 1500.00" />
@@ -153,7 +153,7 @@
     <input type="number" 
            id="stock" 
            th:field="*{stock}" 
-           th:value="${product.stock != null and product.stock != 0 ? product.stock : ''}"
+       th:value="${product.stock}"
            min="0" 
            placeholder="Ej: 50" />
 </div>
@@ -231,6 +231,15 @@
         selectCat.addEventListener('change', actualizarSubs);
 
         actualizarSubs();
+
+            window.addEventListener('DOMContentLoaded', () => {
+        const precio = document.getElementById('price');
+        const stock  = document.getElementById('stock');
+
+        if (precio && parseFloat(precio.value) === 0) precio.value = '';
+        if (stock  && parseInt(stock.value)    === 0) stock.value  = '';
+    });
+
     </script>
 
 </body>
