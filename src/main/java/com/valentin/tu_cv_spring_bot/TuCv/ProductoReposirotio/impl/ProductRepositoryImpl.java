@@ -203,4 +203,35 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             System.out.println("Error en SQL: " + e.getMessage());
         }
     }
+
+    @Override
+public List<Product> findAllPaged(int offset, int limit) throws InvalidProductException {
+    List<Product> products = new ArrayList<>();
+    String sql = "SELECT * FROM products ORDER BY name LIMIT ? OFFSET ?";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql)) {
+        st.setInt(1, limit);
+        st.setInt(2, offset);
+        ResultSet rs = st.executeQuery();
+        while (rs.next()) {
+            products.add(mapResult(rs));
+        }
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return products;
+}
+
+@Override
+public int countAll() {
+    String sql = "SELECT COUNT(*) FROM products";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
+}
 }

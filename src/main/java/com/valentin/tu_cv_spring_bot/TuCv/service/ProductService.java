@@ -18,5 +18,7 @@ public interface ProductService {
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
     void update(Product product, String oldName, SubCategory oldSubCategory)
             throws ProductNotFoundException, InvalidProductException;
+            List<Product> getAllPaged(int page, int size) throws InvalidProductException;
+int getTotalPages(int size);
 
 }

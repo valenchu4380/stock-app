@@ -12,6 +12,8 @@ import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -146,4 +148,34 @@ public String eliminar(@PathVariable String name,
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
     }
+
+    @GetMapping
+public String index(@RequestParam(defaultValue = "0") int page, Model model) {
+    int size = 15;
+    try {
+        List<Product> listaProductos = productService.getAllPaged(page, size);
+        int totalPages = productService.getTotalPages(size);
+
+        int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
+        double totalInventario = listaProductos.stream()
+            .mapToDouble(p -> p.getPrice() * p.getStock()).sum();
+        int sinStock = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
+
+        model.addAttribute("productos", listaProductos);
+        model.addAttribute("totalStock", totalStock);
+        model.addAttribute("inventario", totalInventario);
+        model.addAttribute("stockNull", sinStock);
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("totalPaginas", totalPages);
+    } catch (InvalidProductException e) {
+        model.addAttribute("productos", java.util.Collections.emptyList());
+        model.addAttribute("totalStock", 0);
+        model.addAttribute("inventario", 0.0);
+        model.addAttribute("stockNull", 0);
+        model.addAttribute("paginaActual", 0);
+        model.addAttribute("totalPaginas", 0);
+    }
+    model.addAttribute("Categorys", ProductCategory.values());
+    return "index";
+}
 }

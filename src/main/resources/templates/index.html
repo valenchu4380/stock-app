@@ -447,6 +447,35 @@
             color: #6b7280;
         }
 
+        .paginacion {
+    width: 80%;
+    margin: 10px auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.pag-btn {
+    background: white;
+    border: 1.5px solid #dce1ec;
+    color: #374151;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s;
+}
+.pag-btn:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+.pag-btn.active { background: #2563eb; border-color: #2563eb; color: white; cursor: default; }
+.pag-btn.disabled { opacity: .4; pointer-events: none; }
+
+@media (max-width: 768px) {
+    .paginacion { width: 92%; }
+}
+
         @media (max-width: 768px) {
             .hero {
                 padding: 30px 16px;
@@ -615,6 +644,23 @@
         </div>
     </div>
 
+    
+    <div class="paginacion" th:if="${totalPaginas > 1}">
+    <a class="pag-btn"
+       th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual - 1})}">← Anterior</a>
+
+    <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+       class="pag-btn"
+       th:classappend="${i == paginaActual ? ' active' : ''}"
+       th:href="@{/productos(page=${i})}"
+       th:text="${i + 1}">1</a>
+
+    <a class="pag-btn"
+       th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual + 1})}">Siguiente →</a>
+</div>
+
     <div class="cards-mobile">
         <h2>📋 Listado de Productos</h2>
 
@@ -683,6 +729,22 @@
             No se encontraron productos.
         </p>
     </div>
+
+    <div class="paginacion" th:if="${totalPaginas > 1}">
+    <a class="pag-btn"
+       th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual - 1})}">← Anterior</a>
+
+    <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+       class="pag-btn"
+       th:classappend="${i == paginaActual ? ' active' : ''}"
+       th:href="@{/productos(page=${i})}"
+       th:text="${i + 1}">1</a>
+
+    <a class="pag-btn"
+       th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual + 1})}">Siguiente →</a>
+</div>
 
     <div class="estadisticas">
         <div class="stat-item">
