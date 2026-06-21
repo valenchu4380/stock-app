@@ -301,7 +301,6 @@
     </a>
 </div>
 
-<!-- FORMULARIO DE BÚSQUEDA Y FILTROS (todo va al backend) -->
 <form id="filtroForm" th:action="@{/productos}" method="get" style="width:80%; margin: 30px auto 0;">
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenCategory" name="category" th:value="${filtroCategory}"/>
@@ -317,7 +316,7 @@
     </div>
 </form>
 
-<!-- FORMULARIO MOBILE -->
+
 <form id="filtroFormMobile" th:action="@{/productos}" method="get" style="display:none;">
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenNameMobile" name="name" th:value="${filtroName}"/>
@@ -327,7 +326,6 @@
 <div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
 <div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
 
-<!-- TABLA DESKTOP -->
 <div class="tabla-container">
     <h2>📋 Listado de Productos</h2>
     <div class="tabla-wrapper">
@@ -420,7 +418,6 @@
     </div>
 </div>
 
-<!-- PAGINACIÓN DESKTOP -->
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
@@ -437,7 +434,6 @@
        th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}">Siguiente →</a>
 </div>
 
-<!-- TARJETAS MOBILE -->
 <div class="cards-mobile">
     <h2>📋 Listado de Productos</h2>
 
@@ -504,23 +500,6 @@
     </p>
 </div>
 
-<!-- PAGINACIÓN MOBILE -->
-<div class="paginacion" th:if="${totalPaginas > 1}">
-    <a class="pag-btn"
-       th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}">← Anterior</a>
-
-    <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
-       class="pag-btn"
-       th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}"
-       th:text="${i + 1}">1</a>
-
-    <a class="pag-btn"
-       th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}">Siguiente →</a>
-</div>
-
 <div class="estadisticas">
     <div class="stat-item">
         <p th:text="${totalRegistros != null ? totalRegistros : 0}">0</p>
@@ -543,7 +522,7 @@
 <script>
     let searchTimer;
 
-    // Búsqueda con delay para no mandar request por cada letra
+   
     document.getElementById('searchInput').addEventListener('input', () => {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
@@ -552,7 +531,7 @@
         }, 400);
     });
 
-    // ── DROPDOWN DESKTOP ─────────────────────────────────
+
 
     const subsPorCat = {
         AVON:     ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
@@ -621,7 +600,6 @@
         document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
     });
 
-    // ── FILTROS MOBILE ────────────────────────────────────
 
     function cambiarCatMobile(sel) {
         const cat = sel.value;
@@ -648,7 +626,7 @@
         form.submit();
     }
 
-    // ── ORDENAMIENTO DESKTOP (solo dentro de la página actual) ──
+
     let ordenActual = null;
     let ascendente  = true;
 
@@ -676,7 +654,6 @@
         filas.forEach(f => tbody.appendChild(f));
     }
 
-    // ── ORDENAMIENTO MOBILE ───────────────────────────────
     let ordenMobile = null;
     let ascMobile   = true;
 
@@ -711,7 +688,6 @@
         tarjetas.forEach(t => contenedor.appendChild(t));
     }
 
-    // Aplicar filtro visual de subcats al cargar según categoría activa
     window.addEventListener('DOMContentLoaded', () => {
         const cat = document.getElementById('hiddenCategory')?.value || '';
         filtrarOpcionesSub(cat);
