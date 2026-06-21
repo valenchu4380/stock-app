@@ -138,17 +138,25 @@
             </div>
 
             <div class="form-group">
-                <label for="price">Precio ($)</label>
-                <input type="number" id="price" th:field="*{price}"
-                    th:value="${product.price == 0 ? '' : product.price}" step="0.01" min="0"
-                    placeholder="Ej: 1500.00" />
-            </div>
+    <label for="price">Precio ($)</label>
+    <input type="number" 
+           id="price" 
+           th:field="*{price}" 
+           th:value="${product.price == 0 ? '' : product.price}" 
+           step="0.01" 
+           min="0" 
+           placeholder="Ej: 1500.00" />
+</div>
 
             <div class="form-group">
-                <label for="stock">Stock (unidades)</label>
-                <input type="number" id="stock" th:field="*{stock}"
-                    th:value="${product.stock == 0 ? '' : product.stock}" min="0" placeholder="Ej: 50" />
-            </div>
+    <label for="stock">Stock (unidades)</label>
+    <input type="number" 
+           id="stock" 
+           th:field="*{stock}" 
+           th:value="${product.stock == 0 ? '' : product.stock}" 
+           min="0" 
+           placeholder="Ej: 50" />
+</div>
 
             <div class="form-group">
                 <label for="category">Categoría</label>
