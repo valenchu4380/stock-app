@@ -9,6 +9,7 @@ import java.io.Serializable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity 
+@Entity
+@Table(name = "products", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "subCategory"})
+})
 public class Product  implements Serializable{
     @Id
     private String name;
