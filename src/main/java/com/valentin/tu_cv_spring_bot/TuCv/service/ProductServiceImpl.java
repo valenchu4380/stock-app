@@ -3,6 +3,7 @@ package com.valentin.tu_cv_spring_bot.TuCv.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
@@ -27,14 +28,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Product> getByname(String name) {
-        return productRepository.findByname(name);
+        return productRepository.findByNameIgnoreCase(name);
     }
 
  @Override
 public void save(Product product) throws InvalidProductException {
     ProductValidator.validate(product);
 
-    boolean existe = productRepository.existsBynameAndSubCategory(
+    boolean existe = productRepository.existsByNameAndSubCategory(
         product.getName(), 
         product.getSubCategory()
     );
@@ -49,10 +50,10 @@ public void save(Product product) throws InvalidProductException {
 
     @Override
     public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
-        if (!productRepository.existsByname(name)) {
+        if (!productRepository.existsByNameAndSubCategory(name, subCategory)) {
             throw new ProductNotFoundException("Producto no encontrado: " + name);
         }
-        productRepository.delete(name,subCategory);
+        productRepository.deleteByNameAndSubCategory(name, subCategory);
     }
 
 @Override
@@ -61,7 +62,7 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
     
     ProductValidator.validate(product);
 
-    if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
+    if (!productRepository.existsByNameAndSubCategory(oldName, oldSubCategory)) {
         throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
     }
     productRepository.update(product, oldName, oldSubCategory);
@@ -78,18 +79,43 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
 
 
 @Override
-public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) throws InvalidProductException {
-    int offset = page * size;
-    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory);
+public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) {
+    PageRequest pageable = PageRequest.of(page, size);
+    return productRepository.findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
+        name, category, subCategory, pageable).getContent(); // .getContent() convierte Page a List
 }
 
 @Override
 public int getTotalPages(int size, String name, String category, String subCategory) {
-    int total = productRepository.countFiltered(name, category, subCategory);
+    ProductCategory catEnum = (category == null || category.equals("TODAS")) ? null : ProductCategory.valueOf(category);
+    SubCategory subCatEnum = (subCategory == null || subCategory.equals("TODAS")) ? null : SubCategory.valueOf(subCategory);
+
+    long total = productRepository.countByFilters(name, catEnum, subCatEnum);
+    
+    if (size <= 0) return 1; 
     return (int) Math.ceil((double) total / size);
 }
+
 @Override
 public int countFiltered(String name, String category, String subCategory) {
-    return productRepository.countFiltered(name, category, subCategory);
+    ProductCategory catEnum = (category == null || category.equals("TODAS")) ? null : ProductCategory.valueOf(category);
+    SubCategory subCatEnum = (subCategory == null || subCategory.equals("TODAS")) ? null : SubCategory.valueOf(subCategory);
+    
+    return (int) productRepository.countByFilters(name, catEnum, subCatEnum);
 }
+
+@Override
+    public int getStockTotal() {
+        return productRepository.sumarStockTotal() != null ? productRepository.sumarStockTotal() : 0;
+    }
+
+    @Override
+    public double getInventarioTotal() {
+        return productRepository.calcularValorTotalInventario() != null ? productRepository.calcularValorTotalInventario() : 0.0;
+    }
+
+    @Override
+    public int getSinStockCount() {
+        return productRepository.contarProductosSinStock();
+    }
 }

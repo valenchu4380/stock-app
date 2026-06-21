@@ -9,28 +9,51 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 
-public interface ProductRepository {
-    List<Product> findAll() throws InvalidProductException;
+import jakarta.transaction.Transactional;
 
-    Optional<Product> findByname(String name);
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Modifying;
 
-    void save(Product product);
+public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    void actualizarpricePorCategory(ProductCategory Category, double porcentaje);
+    Optional<Product> findByNameIgnoreCase(String name);
 
-    boolean existsByname(String name);
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.price = p.price * (1 + :porcentaje / 100.0) WHERE p.category = :category")
+    void actualizarPrecioPorCategoria(ProductCategory category, double porcentaje);
 
-    boolean existsBynameAndSubCategory(String name, SubCategory subCategory);
+    boolean existsByNameAndSubCategory(String name, SubCategory subCategory);
 
-    void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Product p WHERE p.name = :name AND p.subCategory = :subSubCategory")
+    void deleteByNameAndSubCategory(String name, SubCategory subSubCategory);
 
     void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
 
-    List<Product> findAllPaged(int offset, int limit) throws InvalidProductException;
+    // Este método reemplaza a findAllPaged y findAllPagedFiltered
+    Page<Product> findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
+            String name, String category, String subCategory, Pageable pageable);
 
-    int countAll();
+    @Query("SELECT SUM(p.stock) FROM Product p")
+    Integer sumarStockTotal();
 
-    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory) throws InvalidProductException;
-int countFiltered(String name, String category, String subCategory);
+    @Query("SELECT SUM(p.price * p.stock) FROM Product p")
+    Double calcularValorTotalInventario();
 
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.stock = 0")
+    int contarProductosSinStock();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE " +
+       "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+       "(:category IS NULL OR p.category = :category) AND " +
+       "(:subCategory IS NULL OR p.subCategory = :subCategory)")
+long countByFilters(@Param("name") String name, 
+                    @Param("category") ProductCategory category, 
+                    @Param("subCategory") SubCategory subCategory);
 }

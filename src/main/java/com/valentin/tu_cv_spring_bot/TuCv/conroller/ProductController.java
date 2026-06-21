@@ -50,11 +50,11 @@ public String index(
     try {
 
         List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
-        int totalPages   = productService.getTotalPages(size, name, category, subCategory);
-        int totalStock   = listaProductos.stream().mapToInt(Product::getStock).sum();
-        double inventario = listaProductos.stream().mapToDouble(p -> p.getPrice() * p.getStock()).sum();
-        int sinStock     = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
-int totalRegistros = productService.countFiltered(name, category, subCategory);
+        int totalPages = productService.getTotalPages(size, name, category, subCategory);
+ int totalStock = productService.getStockTotal();
+        double inventario = productService.getInventarioTotal();
+        int sinStock = productService.getSinStockCount();
+        int totalRegistros = productService.countFiltered(name, category, subCategory);
 model.addAttribute("totalRegistros", totalRegistros);
 
         model.addAttribute("productos",     listaProductos);
@@ -169,6 +169,8 @@ public String eliminar(@PathVariable String name,
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
     }
+
+    
 
 
 
