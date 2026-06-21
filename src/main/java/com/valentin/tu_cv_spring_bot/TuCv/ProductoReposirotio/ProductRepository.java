@@ -1,5 +1,6 @@
 package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
@@ -16,7 +17,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Modifying;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, String> {
 
     Optional<Product> findByNameIgnoreCase(String name);
 
@@ -27,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByNameAndSubCategory(String name, SubCategory subCategory);
 
-    
+    List<Product> findByNameAndSubCategory(String name, Integer subCategory);
 
     @Modifying
     @Transactional
