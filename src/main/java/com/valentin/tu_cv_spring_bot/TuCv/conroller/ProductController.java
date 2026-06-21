@@ -35,31 +35,52 @@ public class ProductController {
 
     private final ProductService productService;
 
+
+
     // ── Pantalla principal ──────────────────────────────
-    @GetMapping
-    public String index(Model model) {
-        try {
-            java.util.List<Product> listaProductos = productService.getAll();
-            int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
-            long stockNull = listaProductos.stream().filter(p -> p.getStock() == 0).count();
-            double totalInventario = listaProductos.stream()
-                    .mapToDouble(p -> p.getPrice() * p.getStock())
-                    .sum();
-            model.addAttribute("productos", listaProductos);
-            model.addAttribute("totalStock", totalStock);
-            model.addAttribute("inventario", totalInventario);
-            model.addAttribute("stockNull", stockNull);
+@GetMapping
+public String index(
+        @RequestParam(defaultValue = "0")  int page,
+        @RequestParam(defaultValue = "")   String name,
+        @RequestParam(defaultValue = "")   String category,
+        @RequestParam(defaultValue = "")   String subCategory,
+        Model model) {
 
-        } catch (InvalidProductException e) {
-            model.addAttribute("productos", java.util.Collections.emptyList());
-            model.addAttribute("totalStock", 0);
-            model.addAttribute("inventario", 0);
-            model.addAttribute("stockNull", 0);
+    int size = 15;
+    try {
 
-        }
-        model.addAttribute("Categorys", ProductCategory.values());
-        return "index";
+        List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
+        int totalPages   = productService.getTotalPages(size, name, category, subCategory);
+        int totalStock   = listaProductos.stream().mapToInt(Product::getStock).sum();
+        double inventario = listaProductos.stream().mapToDouble(p -> p.getPrice() * p.getStock()).sum();
+        int sinStock     = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
+int totalRegistros = productService.countFiltered(name, category, subCategory);
+model.addAttribute("totalRegistros", totalRegistros);
+
+        model.addAttribute("productos",     listaProductos);
+        model.addAttribute("totalStock",    totalStock);
+        model.addAttribute("inventario",    inventario);
+        model.addAttribute("stockNull",     sinStock);
+        model.addAttribute("paginaActual",  page);
+        model.addAttribute("totalPaginas",  totalPages);
+        model.addAttribute("filtroName",     name);
+        model.addAttribute("filtroCategory", category);
+        model.addAttribute("filtroSub",      subCategory);
+    } catch (InvalidProductException e) {
+        model.addAttribute("productos",    java.util.Collections.emptyList());
+        model.addAttribute("totalStock",   0);
+        model.addAttribute("inventario",   0.0);
+        model.addAttribute("stockNull",    0);
+        model.addAttribute("paginaActual", 0);
+        model.addAttribute("totalPaginas", 0);
+        model.addAttribute("filtroName",   "");
+        model.addAttribute("filtroCategory","");
+        model.addAttribute("filtroSub",    "");
     }
+    model.addAttribute("Categorys",    ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "index";
+}
 
     // ── Formulario agregar ──────────────────────────────
 @GetMapping("/nuevo")
@@ -149,33 +170,7 @@ public String eliminar(@PathVariable String name,
         return "index";
     }
 
-    @GetMapping
-public String index(@RequestParam(defaultValue = "0") int page, Model model) {
-    int size = 15;
-    try {
-        List<Product> listaProductos = productService.getAllPaged(page, size);
-        int totalPages = productService.getTotalPages(size);
 
-        int totalStock = listaProductos.stream().mapToInt(Product::getStock).sum();
-        double totalInventario = listaProductos.stream()
-            .mapToDouble(p -> p.getPrice() * p.getStock()).sum();
-        int sinStock = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
 
-        model.addAttribute("productos", listaProductos);
-        model.addAttribute("totalStock", totalStock);
-        model.addAttribute("inventario", totalInventario);
-        model.addAttribute("stockNull", sinStock);
-        model.addAttribute("paginaActual", page);
-        model.addAttribute("totalPaginas", totalPages);
-    } catch (InvalidProductException e) {
-        model.addAttribute("productos", java.util.Collections.emptyList());
-        model.addAttribute("totalStock", 0);
-        model.addAttribute("inventario", 0.0);
-        model.addAttribute("stockNull", 0);
-        model.addAttribute("paginaActual", 0);
-        model.addAttribute("totalPaginas", 0);
-    }
-    model.addAttribute("Categorys", ProductCategory.values());
-    return "index";
-}
+
 }

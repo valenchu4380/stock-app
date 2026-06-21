@@ -142,7 +142,6 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
         st.setString(6, oldName.trim());
         st.setString(7, oldSubCategory.name()); 
 
-        int rows = st.executeUpdate();
     } catch (SQLException e) {
         System.out.println("Error SQL: " + e.getMessage());
     }
@@ -234,4 +233,74 @@ public int countAll() {
     }
     return 0;
 }
+
+@Override
+public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory) throws InvalidProductException {
+    List<Product> products = new ArrayList<>();
+    StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
+    List<Object> params = new ArrayList<>();
+
+    if (name != null && !name.isBlank()) {
+        sql.append(" AND LOWER(name) LIKE ?");
+        params.add("%" + name.trim().toLowerCase() + "%");
+    }
+    if (category != null && !category.isBlank() && !category.equals("TODAS")) {
+        sql.append(" AND category = ?");
+        params.add(category);
+    }
+    if (subCategory != null && !subCategory.isBlank() && !subCategory.equals("TODAS")) {
+        sql.append(" AND subcategory = ?");
+        params.add(subCategory);
+    }
+
+    sql.append(" ORDER BY name LIMIT ? OFFSET ?");
+    params.add(limit);
+    params.add(offset);
+
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+        ResultSet rs = st.executeQuery();
+        while (rs.next()) {
+            products.add(mapResult(rs));
+        }
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return products;
+}
+
+@Override
+public int countFiltered(String name, String category, String subCategory) {
+    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");
+    List<Object> params = new ArrayList<>();
+
+    if (name != null && !name.isBlank()) {
+        sql.append(" AND LOWER(name) LIKE ?");
+        params.add("%" + name.trim().toLowerCase() + "%");
+    }
+    if (category != null && !category.isBlank() && !category.equals("TODAS")) {
+        sql.append(" AND category = ?");
+        params.add(category);
+    }
+    if (subCategory != null && !subCategory.isBlank() && !subCategory.equals("TODAS")) {
+        sql.append(" AND subcategory = ?");
+        params.add(subCategory);
+    }
+
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
+}
+
 }

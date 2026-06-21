@@ -29,4 +29,8 @@ public interface ProductRepository {
     List<Product> findAllPaged(int offset, int limit) throws InvalidProductException;
 
     int countAll();
+
+    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory) throws InvalidProductException;
+int countFiltered(String name, String category, String subCategory);
+
 }

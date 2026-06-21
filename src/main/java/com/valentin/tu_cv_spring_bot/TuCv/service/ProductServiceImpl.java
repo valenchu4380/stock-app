@@ -75,15 +75,21 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
         return true;
     }
 
-    @Override
-public List<Product> getAllPaged(int page, int size) throws InvalidProductException {
+
+
+@Override
+public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) throws InvalidProductException {
     int offset = page * size;
-    return productRepository.findAllPaged(offset, size);
+    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory);
 }
 
 @Override
-public int getTotalPages(int size) {
-    int total = productRepository.countAll();
+public int getTotalPages(int size, String name, String category, String subCategory) {
+    int total = productRepository.countFiltered(name, category, subCategory);
     return (int) Math.ceil((double) total / size);
+}
+@Override
+public int countFiltered(String name, String category, String subCategory) {
+    return productRepository.countFiltered(name, category, subCategory);
 }
 }
