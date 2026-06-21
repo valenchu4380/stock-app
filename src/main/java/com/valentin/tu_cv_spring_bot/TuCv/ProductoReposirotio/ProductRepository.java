@@ -40,6 +40,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
             String name, String category, String subCategory, Pageable pageable);
 
+long countByNameContainingIgnoreCaseAndCategoryAndSubCategory(String name, String category, String subCategory);
+
     @Query("SELECT SUM(p.stock) FROM Product p")
     Integer sumarStockTotal();
 

@@ -98,10 +98,7 @@ public int getTotalPages(int size, String name, String category, String subCateg
 
 @Override
 public int countFiltered(String name, String category, String subCategory) {
-    ProductCategory catEnum = (category == null || category.equals("TODAS")) ? null : ProductCategory.valueOf(category);
-    SubCategory subCatEnum = (subCategory == null || subCategory.equals("TODAS")) ? null : SubCategory.valueOf(subCategory);
-    
-    return (int) productRepository.countByFilters(name, catEnum, subCatEnum);
+    return (int) productRepository.countByNameContainingIgnoreCaseAndCategoryAndSubCategory(name, category, subCategory);
 }
 
 @Override
