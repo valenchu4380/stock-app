@@ -5,7 +5,6 @@
 package com.valentin.tu_cv_spring_bot.TuCv.conroller;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
-import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
@@ -50,7 +49,6 @@ public class ProductController {
             model.addAttribute("stockNull", stockNull);
 
         } catch (InvalidProductException e) {
-            // Lista vacía → mandamos lista vacía, no rompemos la página
             model.addAttribute("productos", java.util.Collections.emptyList());
             model.addAttribute("totalStock", 0);
             model.addAttribute("inventario", 0);
@@ -112,14 +110,11 @@ public String actualizar(@ModelAttribute Product product,
     // ── Eliminar ────────────────────────────────────────
 @PostMapping("/eliminar/{name}/{subCategory}")
 public String eliminar(@PathVariable String name, 
-                       @PathVariable("subCategory") String subCategoryStr, // Recíbelo como String primero
+                       @PathVariable("subCategory") String subCategoryStr,
                        RedirectAttributes ra) {
     
-    System.out.println("DEBUG: Intentando borrar nombre: " + name);
-    System.out.println("DEBUG: Intentando borrar subcat: " + subCategoryStr);
 
     try {
-        // Convertimos aquí manualmente
         SubCategory subCategory = SubCategory.valueOf(subCategoryStr);
         productService.delete(name, subCategory);
         ra.addFlashAttribute("mensaje", "Borrado con éxito");

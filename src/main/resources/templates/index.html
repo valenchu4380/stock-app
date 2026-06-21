@@ -707,11 +707,9 @@
         let filtroSub = 'TODAS';
 
         function aplicarFiltros() {
-            // 1. Obtener los valores de los filtros
             const mobileCat = document.getElementById('mobile-cat');
             const mobileSub = document.getElementById('mobile-sub');
 
-            // Priorizamos mobile si está visible; si no, usamos las variables globales
             const vCat = (mobileCat && mobileCat.offsetParent !== null) ? mobileCat.value : filtroCat;
             const vSub = (mobileSub && mobileSub.offsetParent !== null) ? mobileSub.value : filtroSub;
 
@@ -719,7 +717,6 @@
             const valSub = vSub.toLowerCase().trim();
             const vSearch = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
 
-            // 2. Filtrar Tabla PC
             let hayResultados = false;
             const filas = document.querySelectorAll('table tbody tr:not(#no-results-tabla)');
             const msgTabla = document.getElementById('no-results-tabla');
@@ -741,10 +738,9 @@
                 msgTabla.style.display = hayResultados ? 'none' : '';
             }
 
-            // 3. Filtrar Tarjetas Mobile
             let hayResultadosMobile = false;
             const tarjetas = document.querySelectorAll('.product-card');
-            const msgMobile = document.getElementById('no-results-mobile'); // Asegúrate de tener este id
+            const msgMobile = document.getElementById('no-results-mobile'); 
 
             tarjetas.forEach(t => {
                 const cat = t.querySelector('.product-card-cat')?.textContent.toLowerCase().trim() || '';

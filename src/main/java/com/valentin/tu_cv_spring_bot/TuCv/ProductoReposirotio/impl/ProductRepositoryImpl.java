@@ -67,7 +67,6 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Optional<Product> findByname(String name) {
-        // LOWER() en ambos lados para que coincida sin importar mayúsculas
         String sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
@@ -88,11 +87,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         double price = rs.getDouble("price");
         int stock = rs.getInt("stock");
 
-        // Obtener valores como String
         String catStr = rs.getString("category");
         String subCatStr = rs.getString("subCategory");
 
-        // Convertir con seguridad (si es nulo, asignamos null al Enum)
         ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
         SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
 
@@ -134,26 +131,22 @@ public class ProductRepositoryImpl implements ProductRepository {
 
 @Override
 public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-    // 1. Contamos los ? : 1(name), 2(price), 3(stock), 4(category), 5(subCategory)
-    // 6(WHERE name), 7(WHERE subCategory)
+   
     String sql = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, subCategory = ? WHERE name = ? AND subCategory = ?";
                  
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql)) {
 
-        // SET (5 parámetros)
         st.setString(1, product.getName().trim());
         st.setDouble(2, product.getPrice());
         st.setInt(3, product.getStock());
         st.setString(4, product.getCategory().name());
         st.setString(5, product.getSubCategory().name());
         
-        // WHERE (2 parámetros)
         st.setString(6, oldName.trim());
-        st.setString(7, oldSubCategory.name()); // Aquí debe ir el 7
+        st.setString(7, oldSubCategory.name()); 
 
         int rows = st.executeUpdate();
-        // ... resto del código
     } catch (SQLException e) {
         System.out.println("Error SQL: " + e.getMessage());
     }
@@ -199,7 +192,6 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
     @Override
     public void actualizarpricePorCategory(ProductCategory Category, double porcentaje) {
 
-        // Calculamos el multiplicador (ej: 1.10 para un aumento del 10%)
         double factor = 1.0 + (porcentaje / 100.0);
         String sql = "UPDATE products SET price = price * ? WHERE Category = ?";
 
@@ -211,8 +203,7 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             st.executeUpdate();
 
         } catch (SQLException e) {
-            // En un entorno real, usa un Logger: log.error("Error al actualizar prices",
-            // e);
+           
             System.out.println("Error en SQL: " + e.getMessage());
         }
     }

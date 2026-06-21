@@ -34,7 +34,6 @@ public class ProductServiceImpl implements ProductService {
 public void save(Product product) throws InvalidProductException {
     ProductValidator.validate(product);
 
-    // Verificamos si existe un producto con el mismo nombre Y la misma subcategoría
     boolean existe = productRepository.existsBynameAndSubCategory(
         product.getName(), 
         product.getSubCategory()
@@ -69,12 +68,10 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
 }
     @Override
     public boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException {
-        // Lo implementás directo en el repo con SQL
-        // Por ahora lanza excepcion si la categoria es null
+
         if (categoria == null) {
             throw new ProductNotFoundException("Categoría inválida");
         }
-        // Delegamos al repo (ver paso siguiente)
         return true;
     }
 }
