@@ -51,12 +51,12 @@ public String index(
 
         
 
-double inventario = productService.sumInventario();
+double inventario = productService.sumInventario(name, category, subCategory);
 
         List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
         int totalPages   = productService.getTotalPages(size, name, category, subCategory);
-        int totalStock   = listaProductos.stream().mapToInt(Product::getStock).sum();
-        int sinStock     = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
+int totalStock    = productService.sumStock(name, category, subCategory);
+int sinStock      = productService.countSinStock(name, category, subCategory);
 int totalRegistros = productService.countFiltered(name, category, subCategory);
 model.addAttribute("totalRegistros", totalRegistros);
 

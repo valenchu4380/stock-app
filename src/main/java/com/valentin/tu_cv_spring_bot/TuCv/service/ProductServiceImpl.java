@@ -93,9 +93,22 @@ public int countFiltered(String name, String category, String subCategory) {
     return productRepository.countFiltered(name, category, subCategory);
 }
 
-
+@Override
+public double sumInventario(String name, String category, String subCategory) {
+    return productRepository.sumInventario(name, category, subCategory);
+}
 
 @Override
-public double sumInventario() { return productRepository.sumInventario(); }
+public int sumStock(String name, String category, String subCategory) {
+    return productRepository.sumStock(name, category, subCategory);
+}
+
+@Override
+public int countSinStock(String name, String category, String subCategory) {
+    return productRepository.countSinStock(name, category, subCategory);
+}
+
+
+
 
 }

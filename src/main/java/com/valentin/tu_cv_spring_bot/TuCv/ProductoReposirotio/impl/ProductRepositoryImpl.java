@@ -301,16 +301,90 @@ public int countFiltered(String name, String category, String subCategory) {
 
 
 @Override
-public double sumInventario() {
-    String sql = "SELECT COALESCE(SUM(price * stock), 0) FROM products";
+public double sumInventario(String name, String category, String subCategory) {
+    StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(price * stock), 0) FROM products WHERE 1=1");
+    List<Object> params = new ArrayList<>();
+
+    if (name != null && !name.isBlank()) {
+        sql.append(" AND LOWER(name) LIKE ?");
+        params.add("%" + name.trim().toLowerCase() + "%");
+    }
+    if (category != null && !category.isBlank()) {
+        sql.append(" AND category = ?");
+        params.add(category);
+    }
+    if (subCategory != null && !subCategory.isBlank()) {
+        sql.append(" AND subcategory = ?");
+        params.add(subCategory);
+    }
+
     try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql);
-         ResultSet rs = st.executeQuery()) {
+         PreparedStatement st = con.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+        ResultSet rs = st.executeQuery();
         if (rs.next()) return rs.getDouble(1);
     } catch (SQLException e) {
         System.out.println(e.getMessage());
     }
     return 0.0;
+}
+
+@Override
+public int sumStock(String name, String category, String subCategory) {
+    StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(stock), 0) FROM products WHERE 1=1");
+    List<Object> params = new ArrayList<>();
+
+    if (name != null && !name.isBlank()) {
+        sql.append(" AND LOWER(name) LIKE ?");
+        params.add("%" + name.trim().toLowerCase() + "%");
+    }
+    if (category != null && !category.isBlank()) {
+        sql.append(" AND category = ?");
+        params.add(category);
+    }
+    if (subCategory != null && !subCategory.isBlank()) {
+        sql.append(" AND subcategory = ?");
+        params.add(subCategory);
+    }
+
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
+}
+
+@Override
+public int countSinStock(String name, String category, String subCategory) {
+    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
+    List<Object> params = new ArrayList<>();
+
+    if (name != null && !name.isBlank()) {
+        sql.append(" AND LOWER(name) LIKE ?");
+        params.add("%" + name.trim().toLowerCase() + "%");
+    }
+    if (category != null && !category.isBlank()) {
+        sql.append(" AND category = ?");
+        params.add(category);
+    }
+    if (subCategory != null && !subCategory.isBlank()) {
+        sql.append(" AND subcategory = ?");
+        params.add(subCategory);
+    }
+
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
 }
 
 

@@ -22,7 +22,8 @@ List<Product> getAllPaged(int page, int size, String name, String category, Stri
 int getTotalPages(int size, String name, String category, String subCategory);
 int countFiltered(String name, String category, String subCategory);
 
-
-double sumInventario();
+double sumInventario(String name, String category, String subCategory);
+int sumStock(String name, String category, String subCategory);
+int countSinStock(String name, String category, String subCategory);
 
 }
