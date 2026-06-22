@@ -40,4 +40,4 @@ public class Product  implements Serializable{
     @Column(name = "subcategory") // FUERZA el nombre exacto de la columna de tu tabla
     private SubCategory subCategory;
 }
-}
+
