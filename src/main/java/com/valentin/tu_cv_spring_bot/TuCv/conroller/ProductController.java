@@ -14,9 +14,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -43,46 +40,44 @@ public class ProductController {
     // ── Pantalla principal ──────────────────────────────
 @GetMapping
 public String index(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "") String name,
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "") String subCategory,
+        @RequestParam(defaultValue = "0")  int page,
+        @RequestParam(defaultValue = "")   String name,
+        @RequestParam(defaultValue = "")   String category,
+        @RequestParam(defaultValue = "")   String subCategory,
         Model model) {
 
     int size = 15;
     try {
-        // 1. Conversión de String a Enum (Manejo seguro)
-        ProductCategory cat = (category == null || category.isEmpty()) ? null : ProductCategory.valueOf(category);
-        SubCategory sub = (subCategory == null || subCategory.isEmpty()) ? null : SubCategory.valueOf(subCategory);
 
-        // 2. Preparar paginación (ahora usamos Pageable)
-        Pageable pageable = PageRequest.of(page, size);
+        List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
+        int totalPages   = productService.getTotalPages(size, name, category, subCategory);
+        int totalStock   = listaProductos.stream().mapToInt(Product::getStock).sum();
+        double inventario = listaProductos.stream().mapToDouble(p -> p.getPrice() * p.getStock()).sum();
+        int sinStock     = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
+int totalRegistros = productService.countFiltered(name, category, subCategory);
+model.addAttribute("totalRegistros", totalRegistros);
 
-        // 3. Llamar al servicio usando los nuevos tipos (Page, Enum, Pageable)
-        Page<Product> paginaProductos = productService.getAllPaged(name, cat, sub, pageable);
-
-        // 4. Pasar los resultados al modelo
-        model.addAttribute("productos", paginaProductos.getContent());
-        model.addAttribute("totalPaginas", paginaProductos.getTotalPages());
-        model.addAttribute("paginaActual", page);
-        
-        // Mantén tus otros métodos igual, siempre que acepten los nuevos parámetros
-        model.addAttribute("totalStock", productService.getStockTotal());
-        model.addAttribute("inventario", productService.getInventarioTotal());
-        model.addAttribute("stockNull", productService.getSinStockCount());
-        model.addAttribute("totalRegistros", paginaProductos.getTotalElements());
-
-        model.addAttribute("filtroName", name);
+        model.addAttribute("productos",     listaProductos);
+        model.addAttribute("totalStock",    totalStock);
+        model.addAttribute("inventario",    inventario);
+        model.addAttribute("stockNull",     sinStock);
+        model.addAttribute("paginaActual",  page);
+        model.addAttribute("totalPaginas",  totalPages);
+        model.addAttribute("filtroName",     name);
         model.addAttribute("filtroCategory", category);
-        model.addAttribute("filtroSub", subCategory);
-
-    } catch (Exception e) {
-        // Limpieza en caso de error
-        model.addAttribute("productos", java.util.Collections.emptyList());
-        // ... (resto de atributos en 0 o vacíos)
+        model.addAttribute("filtroSub",      subCategory);
+    } catch (InvalidProductException e) {
+        model.addAttribute("productos",    java.util.Collections.emptyList());
+        model.addAttribute("totalStock",   0);
+        model.addAttribute("inventario",   0.0);
+        model.addAttribute("stockNull",    0);
+        model.addAttribute("paginaActual", 0);
+        model.addAttribute("totalPaginas", 0);
+        model.addAttribute("filtroName",   "");
+        model.addAttribute("filtroCategory","");
+        model.addAttribute("filtroSub",    "");
     }
-    
-    model.addAttribute("Categorys", ProductCategory.values());
+    model.addAttribute("Categorys",    ProductCategory.values());
     model.addAttribute("SubCategorys", SubCategory.values());
     return "index";
 }
@@ -174,8 +169,6 @@ public String eliminar(@PathVariable String name,
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
     }
-
-    
 
 
 

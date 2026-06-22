@@ -8,32 +8,17 @@ import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 
 public interface ProductService {
     List<Product> getAll() throws InvalidProductException;
-
     Optional<Product> getByname(String name);
-
     void save(Product product) throws InvalidProductException;
-
     boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException;
-
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
-
     void update(Product product, String oldName, SubCategory oldSubCategory)
             throws ProductNotFoundException, InvalidProductException;
-
-Page<Product> getAllPaged(String name, ProductCategory category, SubCategory subCategory, Pageable pageable);
-    int getTotalPages(int size, String name, String category, String subCategory);
-
-    int countFiltered(String name, String category, String subCategory);
-
-    int getStockTotal();
-
-    double getInventarioTotal();
-
-    int getSinStockCount();
-
+List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) throws InvalidProductException;
+int getTotalPages(int size, String name, String category, String subCategory);
+int countFiltered(String name, String category, String subCategory);
 }
