@@ -12,6 +12,9 @@ import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -51,6 +54,7 @@ public void save(Product product) throws InvalidProductException {
 }
 
     @Override
+    @Transactional
     public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
         if (!productRepository.existsByNameAndSubCategory(name, subCategory)) {
             throw new ProductNotFoundException("Producto no encontrado: " + name);
