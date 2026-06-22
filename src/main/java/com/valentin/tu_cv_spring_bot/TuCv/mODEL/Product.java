@@ -6,6 +6,7 @@ package com.valentin.tu_cv_spring_bot.TuCv.mODEL;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -30,5 +31,6 @@ public class Product  implements Serializable{
     private double price;
     private int stock;
     private ProductCategory category;
+    @Column(name = "subcategory")
     private SubCategory subCategory;
 }
