@@ -35,59 +35,64 @@ public class ProductController {
 
     private final ProductService productService;
 
+
+
     // ── Pantalla principal ──────────────────────────────
-    @GetMapping
-    public String index(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "") String name,
-            @RequestParam(defaultValue = "") String category,
-            @RequestParam(defaultValue = "") String subCategory,
-            Model model) {
+@GetMapping
+public String index(
+        @RequestParam(defaultValue = "0")  int page,
+        @RequestParam(defaultValue = "")   String name,
+        @RequestParam(defaultValue = "")   String category,
+        @RequestParam(defaultValue = "")   String subCategory,
+        Model model) {
 
-        int size = 15;
-        try {
+    int size = 15;
+    try {
 
-            List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
-            int totalPages = productService.getTotalPages(size, name, category, subCategory);
-            int totalStock = productService.sumStock();
-            double inventario = productService.sumInventario();
-            int sinStock = productService.countSinStock();
-            int totalRegistros = productService.countFiltered(name, category, subCategory);
-            model.addAttribute("totalRegistros", totalRegistros);
+        
 
-            model.addAttribute("productos", listaProductos);
-            model.addAttribute("totalStock", totalStock);
-            model.addAttribute("inventario", inventario);
-            model.addAttribute("stockNull", sinStock);
-            model.addAttribute("paginaActual", page);
-            model.addAttribute("totalPaginas", totalPages);
-            model.addAttribute("filtroName", name);
-            model.addAttribute("filtroCategory", category);
-            model.addAttribute("filtroSub", subCategory);
-        } catch (InvalidProductException e) {
-            model.addAttribute("productos", java.util.Collections.emptyList());
-            model.addAttribute("totalStock", 0);
-            model.addAttribute("inventario", 0.0);
-            model.addAttribute("stockNull", 0);
-            model.addAttribute("paginaActual", 0);
-            model.addAttribute("totalPaginas", 0);
-            model.addAttribute("filtroName", "");
-            model.addAttribute("filtroCategory", "");
-            model.addAttribute("filtroSub", "");
-        }
-        model.addAttribute("Categorys", ProductCategory.values());
-        model.addAttribute("SubCategorys", SubCategory.values());
-        return "index";
+double inventario = productService.sumInventario();
+
+        List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
+        int totalPages   = productService.getTotalPages(size, name, category, subCategory);
+        int totalStock   = listaProductos.stream().mapToInt(Product::getStock).sum();
+        int sinStock     = (int) listaProductos.stream().filter(p -> p.getStock() == 0).count();
+int totalRegistros = productService.countFiltered(name, category, subCategory);
+model.addAttribute("totalRegistros", totalRegistros);
+
+        model.addAttribute("productos",     listaProductos);
+        model.addAttribute("totalStock",    totalStock);
+        model.addAttribute("inventario",    inventario);
+        model.addAttribute("stockNull",     sinStock);
+        model.addAttribute("paginaActual",  page);
+        model.addAttribute("totalPaginas",  totalPages);
+        model.addAttribute("filtroName",     name);
+        model.addAttribute("filtroCategory", category);
+        model.addAttribute("filtroSub",      subCategory);
+    } catch (InvalidProductException e) {
+        model.addAttribute("productos",    java.util.Collections.emptyList());
+        model.addAttribute("totalStock",   0);
+        model.addAttribute("inventario",   0.0);
+        model.addAttribute("stockNull",    0);
+        model.addAttribute("paginaActual", 0);
+        model.addAttribute("totalPaginas", 0);
+        model.addAttribute("filtroName",   "");
+        model.addAttribute("filtroCategory","");
+        model.addAttribute("filtroSub",    "");
     }
+    model.addAttribute("Categorys",    ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "index";
+}
 
     // ── Formulario agregar ──────────────────────────────
-    @GetMapping("/nuevo")
-    public String formNuevo(Model model) {
-        model.addAttribute("product", new Product());
-        model.addAttribute("Categorys", ProductCategory.values());
-        model.addAttribute("SubCategorys", SubCategory.values());
-        return "form";
-    }
+@GetMapping("/nuevo")
+public String formNuevo(Model model) {
+    model.addAttribute("product", new Product());
+    model.addAttribute("Categorys", ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "form";
+}
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
@@ -101,45 +106,47 @@ public class ProductController {
         return "redirect:/productos";
     }
 
-    @GetMapping("/editar/{name}")
-    public String formEditar(@PathVariable String name, Model model) {
-        productService.getByname(name).ifPresent(p -> model.addAttribute("product", p));
-        model.addAttribute("Categorys", ProductCategory.values());
-        model.addAttribute("SubCategorys", SubCategory.values());
-        return "form";
+  @GetMapping("/editar/{name}")
+public String formEditar(@PathVariable String name, Model model) {
+    productService.getByname(name).ifPresent(p ->
+        model.addAttribute("product", p));
+    model.addAttribute("Categorys", ProductCategory.values());
+    model.addAttribute("SubCategorys", SubCategory.values());
+    return "form";
+}
+
+
+@PostMapping("/editar")
+public String actualizar(@ModelAttribute Product product,
+                         @RequestParam String oldName,
+                         @RequestParam String oldSubCategory, 
+                         RedirectAttributes ra) {
+    try {
+        SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
+        
+        productService.update(product, oldName, oldSubCat);
+        
+        ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
+    } catch (Exception e) {
+        ra.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
     }
-
-    @PostMapping("/editar")
-    public String actualizar(@ModelAttribute Product product,
-            @RequestParam String oldName,
-            @RequestParam String oldSubCategory,
-            RedirectAttributes ra) {
-        try {
-            SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
-
-            productService.update(product, oldName, oldSubCat);
-
-            ra.addFlashAttribute("mensaje", "Producto modificado correctamente");
-        } catch (Exception e) {
-            ra.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
-        }
-        return "redirect:/productos";
-    }
+    return "redirect:/productos";
+}
 
     // ── Eliminar ────────────────────────────────────────
-    @PostMapping("/eliminar")
-    public String eliminar(@RequestParam String name,
-            @RequestParam String subCategory,
-            RedirectAttributes ra) {
-        try {
-            SubCategory sub = SubCategory.valueOf(subCategory.trim());
-            productService.delete(name.trim(), sub);
-            ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");
-        } catch (Exception e) {
-            ra.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
-        }
-        return "redirect:/productos";
+@PostMapping("/eliminar")
+public String eliminar(@RequestParam String name,
+                       @RequestParam String subCategory,
+                       RedirectAttributes ra) {
+    try {
+        SubCategory sub = SubCategory.valueOf(subCategory.trim());
+        productService.delete(name.trim(), sub);
+        ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");
+    } catch (Exception e) {
+        ra.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
     }
+    return "redirect:/productos";
+}
 
     // ── Buscar por name ───────────────────────────────
     @GetMapping("/buscar")
@@ -162,5 +169,8 @@ public class ProductController {
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
     }
+
+
+
 
 }
