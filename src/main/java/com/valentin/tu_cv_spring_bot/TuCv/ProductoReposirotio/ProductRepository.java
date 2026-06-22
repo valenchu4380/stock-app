@@ -35,7 +35,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("DELETE FROM Product p WHERE p.name = :name AND p.subCategory = :subSubCategory")
     void deleteByNameAndSubCategory(String name, SubCategory subSubCategory);
 
-    void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
+    @Modifying
+@Query("UPDATE Product p SET p.price = :price, p.stock = :stock WHERE p.name = :name")
+void updateProduct(@Param("price") double price, @Param("stock") int stock, @Param("name") String name);
 
     // Este método reemplaza a findAllPaged y findAllPagedFiltered
     Page<Product> findByNameContainingIgnoreCaseAndCategoryAndSubCategory(

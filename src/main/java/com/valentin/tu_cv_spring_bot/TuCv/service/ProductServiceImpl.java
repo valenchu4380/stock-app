@@ -65,7 +65,7 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
     if (!productRepository.existsByNameAndSubCategory(oldName, oldSubCategory)) {
         throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
     }
-    productRepository.update(product, oldName, oldSubCategory);
+    productRepository.save(product);
 }
     @Override
     public boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException {
