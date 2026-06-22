@@ -12,6 +12,8 @@ import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import lombok.RequiredArgsConstructor;
 
@@ -79,10 +81,20 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
 
 
 @Override
-public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) {
-    PageRequest pageable = PageRequest.of(page, size);
-    return productRepository.findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
-        name, category, subCategory, pageable).getContent(); // .getContent() convierte Page a List
+public Page<Product> getAllPaged(String name, ProductCategory category, SubCategory subCategory, Pageable pageable) {
+    // 1. Si NO hay filtros (nombre vacío y categorías nulas)
+    if ((name == null || name.isEmpty()) && category == null && subCategory == null) {
+        return productRepository.findAll(pageable);
+    }
+    
+    // 2. Si solo buscas por nombre
+    if (category == null && subCategory == null) {
+        return productRepository.findByNameContainingIgnoreCase(name, pageable);
+    }
+    
+    // 3. Si tienes categorías, asegúrate de que no sean nulas antes de llamar al repositorio
+    // Aquí puedes agregar validaciones extra si es necesario
+    return productRepository.findByNameContainingIgnoreCaseAndCategoryAndSubCategory(name, category, subCategory, pageable);
 }
 
 @Override

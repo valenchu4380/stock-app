@@ -21,6 +21,10 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     Optional<Product> findByNameIgnoreCase(String name);
 
+    
+
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.price = p.price * (1 + :porcentaje / 100.0) WHERE p.category = :category")
@@ -40,8 +44,12 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 void updateProduct(@Param("price") double price, @Param("stock") int stock, @Param("name") String name);
 
     // Este método reemplaza a findAllPaged y findAllPagedFiltered
-    Page<Product> findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
-            String name, String category, String subCategory, Pageable pageable);
+   Page<Product> findByNameContainingIgnoreCaseAndCategoryAndSubCategory(
+        String name, 
+        ProductCategory category, 
+        SubCategory subCategory, 
+        Pageable pageable
+    );
 
 long countByNameContainingIgnoreCaseAndCategoryAndSubCategory(String name, String category, String subCategory);
 
