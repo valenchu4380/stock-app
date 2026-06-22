@@ -403,10 +403,12 @@
                     <td th:text="${p.subCategory} ?: '-'">Sub</td>
                     <td>
                         <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                        <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="display:inline">
-                            <button class="btn-eliminar" type="submit"
-                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-                        </form>
+                       <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
+    <input type="hidden" name="name" th:value="${p.name}"/>
+    <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
+    <button class="btn-eliminar" type="submit"
+            onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+</form>
                     </td>
                 </tr>
             </tbody>
@@ -488,10 +490,12 @@
         </div>
         <div class="product-card-actions">
             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-            <form th:action="@{/productos/eliminar/{n}(n=${p.name})}" method="post" style="flex:1">
-                <button class="btn-eliminar" type="submit" style="width:100%"
-                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
-            </form>
+           <form th:action="@{/productos/eliminar}" method="post" style="flex:1">
+    <input type="hidden" name="name" th:value="${p.name}"/>
+    <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
+    <button class="btn-eliminar" type="submit" style="width:100%"
+            onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
+</form>
         </div>
     </div>
     <p th:if="${productos == null or #lists.isEmpty(productos)}"

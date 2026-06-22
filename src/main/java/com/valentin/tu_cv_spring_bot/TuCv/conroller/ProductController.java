@@ -131,19 +131,16 @@ public String actualizar(@ModelAttribute Product product,
 }
 
     // ── Eliminar ────────────────────────────────────────
-@PostMapping("/eliminar/{name}/{subCategory}")
-public String eliminar(@PathVariable String name, 
-                       @PathVariable("subCategory") String subCategoryStr,
+@PostMapping("/eliminar")
+public String eliminar(@RequestParam String name,
+                       @RequestParam String subCategory,
                        RedirectAttributes ra) {
-    
-
     try {
-        SubCategory subCategory = SubCategory.valueOf(subCategoryStr);
-        productService.delete(name, subCategory);
-        ra.addFlashAttribute("mensaje", "Borrado con éxito");
+        SubCategory sub = SubCategory.valueOf(subCategory.trim());
+        productService.delete(name.trim(), sub);
+        ra.addFlashAttribute("mensaje", "Producto eliminado correctamente");
     } catch (Exception e) {
-        System.out.println("DEBUG: ERROR EN EL BORRADO: " + e.getMessage());
-        ra.addFlashAttribute("error", "Error: " + e.getMessage());
+        ra.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
     }
     return "redirect:/productos";
 }

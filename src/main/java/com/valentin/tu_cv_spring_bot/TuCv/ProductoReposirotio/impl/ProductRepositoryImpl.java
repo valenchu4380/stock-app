@@ -84,7 +84,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         int stock = rs.getInt("stock");
 
         String catStr = rs.getString("category");
-        String subCatStr = rs.getString("subCategory");
+        String subCatStr = rs.getString("subcategory");
 
         ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
         SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
@@ -94,7 +94,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public void save(Product product) {
-        String sql = "INSERT INTO products(name, price, stock, Category, subCategory ) VALUES(?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products(name, price, stock, category, subcategory) VALUES(?, ?, ?, ?, ?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, product.getName().trim());
@@ -124,24 +124,20 @@ public class ProductRepositoryImpl implements ProductRepository {
             System.out.println(e.getMessage());
         }
     }
-
 @Override
 public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-   
-    String sql = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, subCategory = ? WHERE name = ? AND subCategory = ?";
-                 
+    String sql = "UPDATE products SET name=?, price=?, stock=?, category=?, subCategory=? WHERE name=? AND subCategory=?";
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql)) {
-
         st.setString(1, product.getName().trim());
         st.setDouble(2, product.getPrice());
         st.setInt(3, product.getStock());
         st.setString(4, product.getCategory().name());
         st.setString(5, product.getSubCategory().name());
-        
         st.setString(6, oldName.trim());
-        st.setString(7, oldSubCategory.name()); 
-
+        st.setString(7, oldSubCategory.name());
+        int rows = st.executeUpdate(); // ← FALTABA ESTO
+        if (rows == 0) throw new ProductNotFoundException("Producto no encontrado: " + oldName);
     } catch (SQLException e) {
         System.out.println("Error SQL: " + e.getMessage());
     }
