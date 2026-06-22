@@ -92,4 +92,13 @@ public int getTotalPages(int size, String name, String category, String subCateg
 public int countFiltered(String name, String category, String subCategory) {
     return productRepository.countFiltered(name, category, subCategory);
 }
+
+@Override
+public int sumStock() { return productRepository.sumStock(); }
+
+@Override
+public double sumInventario() { return productRepository.sumInventario(); }
+
+@Override
+public int countSinStock() { return productRepository.countSinStock(); }
 }

@@ -33,7 +33,7 @@ import org.springframework.ui.Model;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductService productService = null;
 
 
 
@@ -167,6 +167,10 @@ public String eliminar(@RequestParam String name,
         return "index";
     }
 
+
+    int totalStock    = productService.sumStock();
+double inventario = productService.sumInventario();
+int sinStock      = productService.countSinStock();
 
 
 

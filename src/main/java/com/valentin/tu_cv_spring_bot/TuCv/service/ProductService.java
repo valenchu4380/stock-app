@@ -21,4 +21,8 @@ public interface ProductService {
 List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) throws InvalidProductException;
 int getTotalPages(int size, String name, String category, String subCategory);
 int countFiltered(String name, String category, String subCategory);
+
+int sumStock();
+double sumInventario();
+int countSinStock();
 }

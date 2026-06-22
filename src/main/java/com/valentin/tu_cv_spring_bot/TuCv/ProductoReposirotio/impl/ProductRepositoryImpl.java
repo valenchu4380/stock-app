@@ -299,4 +299,43 @@ public int countFiltered(String name, String category, String subCategory) {
     return 0;
 }
 
+@Override
+public int sumStock() {
+    String sql = "SELECT COALESCE(SUM(stock), 0) FROM products";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
+}
+
+@Override
+public double sumInventario() {
+    String sql = "SELECT COALESCE(SUM(price * stock), 0) FROM products";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
+        if (rs.next()) return rs.getDouble(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0.0;
+}
+
+@Override
+public int countSinStock() {
+    String sql = "SELECT COUNT(*) FROM products WHERE stock = 0";
+    try (Connection con = getConnection();
+         PreparedStatement st = con.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    return 0;
+}
+
 }
