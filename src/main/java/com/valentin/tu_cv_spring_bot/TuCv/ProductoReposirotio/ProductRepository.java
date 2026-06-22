@@ -34,10 +34,16 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     List<Product> findByNameAndSubCategory(String name, Integer subCategory);
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Product p WHERE p.name = :name AND p.subCategory = :subSubCategory")
-    void deleteByNameAndSubCategory(String name, SubCategory subSubCategory);
+  @Modifying
+@Transactional
+@Query("""
+       DELETE FROM Product p
+       WHERE p.name = :name
+       AND p.subCategory = :subCategory
+       """)
+int deleteByNameAndSubCategory(
+        @Param("name") String name,
+        @Param("subCategory") SubCategory subCategory);
 
     @Modifying
 @Query("UPDATE Product p SET p.price = :price, p.stock = :stock WHERE p.name = :name")

@@ -53,14 +53,24 @@ public void save(Product product) throws InvalidProductException {
     productRepository.save(product);
 }
 
-    @Override
-    @Transactional
-    public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
-        if (!productRepository.existsByNameAndSubCategory(name, subCategory)) {
-            throw new ProductNotFoundException("Producto no encontrado: " + name);
-        }
-        productRepository.deleteByNameAndSubCategory(name, subCategory);
+  @Transactional
+@Override
+public void delete(String name, SubCategory subCategory)
+        throws ProductNotFoundException {
+
+    if (!productRepository.existsByNameAndSubCategory(name, subCategory)) {
+        throw new ProductNotFoundException(
+                "Producto no encontrado: " + name);
     }
+
+    int deleted = productRepository
+            .deleteByNameAndSubCategory(name, subCategory);
+
+    if (deleted == 0) {
+        throw new ProductNotFoundException(
+                "No se pudo eliminar el producto");
+    }
+}
 
 @Override
 public void update(Product product, String oldName, SubCategory oldSubCategory) 
