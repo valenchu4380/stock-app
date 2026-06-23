@@ -40,45 +40,50 @@ public class ProductController {
     // ── Pantalla principal ──────────────────────────────
 @GetMapping
 public String index(
-        @RequestParam(defaultValue = "0")  int page,
-        @RequestParam(defaultValue = "")   String name,
-        @RequestParam(defaultValue = "")   String category,
-        @RequestParam(defaultValue = "")   String subCategory,
+        @RequestParam(defaultValue = "0")    int page,
+        @RequestParam(defaultValue = "")     String name,
+        @RequestParam(defaultValue = "")     String category,
+        @RequestParam(defaultValue = "")     String subCategory,
+        @RequestParam(defaultValue = "name") String sortBy,
+        @RequestParam(defaultValue = "asc")  String sortDir,
         Model model) {
 
     int size = 15;
     try {
+        List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory, sortBy, sortDir);
+        int totalPages     = productService.getTotalPages(size, name, category, subCategory);
+        int totalRegistros = productService.countFiltered(name, category, subCategory);
+        int totalStock     = productService.sumStock(name, category, subCategory);
+        double inventario  = productService.sumInventario(name, category, subCategory);
+        int sinStock       = productService.countSinStock(name, category, subCategory);
 
-        
-
-double inventario = productService.sumInventario(name, category, subCategory);
-
-        List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory);
-        int totalPages   = productService.getTotalPages(size, name, category, subCategory);
-int totalStock    = productService.sumStock(name, category, subCategory);
-int sinStock      = productService.countSinStock(name, category, subCategory);
-int totalRegistros = productService.countFiltered(name, category, subCategory);
-model.addAttribute("totalRegistros", totalRegistros);
-
-        model.addAttribute("productos",     listaProductos);
-        model.addAttribute("totalStock",    totalStock);
-        model.addAttribute("inventario",    inventario);
-        model.addAttribute("stockNull",     sinStock);
-        model.addAttribute("paginaActual",  page);
-        model.addAttribute("totalPaginas",  totalPages);
+        model.addAttribute("productos",      listaProductos);
+        model.addAttribute("totalStock",     totalStock);
+        model.addAttribute("inventario",     inventario);
+        model.addAttribute("stockNull",      sinStock);
+        model.addAttribute("paginaActual",   page);
+        model.addAttribute("totalPaginas",   totalPages);
+        model.addAttribute("totalRegistros", totalRegistros);
         model.addAttribute("filtroName",     name);
         model.addAttribute("filtroCategory", category);
         model.addAttribute("filtroSub",      subCategory);
+        model.addAttribute("sortBy",         sortBy);
+        model.addAttribute("sortDir",        sortDir);
+        model.addAttribute("sortDirNext", "asc".equals(sortDir) ? "desc" : "asc");
     } catch (InvalidProductException e) {
-        model.addAttribute("productos",    java.util.Collections.emptyList());
-        model.addAttribute("totalStock",   0);
-        model.addAttribute("inventario",   0.0);
-        model.addAttribute("stockNull",    0);
-        model.addAttribute("paginaActual", 0);
-        model.addAttribute("totalPaginas", 0);
-        model.addAttribute("filtroName",   "");
-        model.addAttribute("filtroCategory","");
-        model.addAttribute("filtroSub",    "");
+        model.addAttribute("productos",      java.util.Collections.emptyList());
+        model.addAttribute("totalStock",     0);
+        model.addAttribute("inventario",     0.0);
+        model.addAttribute("stockNull",      0);
+        model.addAttribute("paginaActual",   0);
+        model.addAttribute("totalPaginas",   0);
+        model.addAttribute("totalRegistros", 0);
+        model.addAttribute("filtroName",     "");
+        model.addAttribute("filtroCategory", "");
+        model.addAttribute("filtroSub",      "");
+        model.addAttribute("sortBy",         "name");
+        model.addAttribute("sortDir",        "asc");
+        model.addAttribute("sortDirNext",    "desc");
     }
     model.addAttribute("Categorys",    ProductCategory.values());
     model.addAttribute("SubCategorys", SubCategory.values());

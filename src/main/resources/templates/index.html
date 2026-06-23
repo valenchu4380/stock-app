@@ -94,8 +94,21 @@
         }
         td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 0.95rem; }
         tr:hover td { background: #f8faff; }
-        .sortable { cursor: pointer; user-select: none; }
-        .sortable:hover { color: #1e40af; }
+
+        .th-sort {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .th-sort a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .th-sort:hover { color: #1e40af; }
+        .th-sort.sort-active { color: #1e3a8a; }
 
         .th-filter { cursor: pointer; user-select: none; white-space: nowrap; }
         .th-filter:hover { color: #1e40af; }
@@ -231,8 +244,10 @@
             font-weight: 600;
             color: #2563eb;
             cursor: pointer;
+            text-decoration: none;
         }
         .btn-orden:hover { background: #eff6ff; }
+        .btn-orden.sort-active { background: #eff6ff; border-color: #2563eb; }
 
         .mobile-filtros {
             display: none;
@@ -301,11 +316,13 @@
     </a>
 </div>
 
+<!-- Formulario principal de búsqueda y filtros -->
 <form id="filtroForm" th:action="@{/productos}" method="get" style="width:80%; margin: 30px auto 0;">
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenCategory" name="category" th:value="${filtroCategory}"/>
     <input type="hidden" id="hiddenSub" name="subCategory" th:value="${filtroSub}"/>
-
+    <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
+    <input type="hidden" name="sortDir" th:value="${sortDir}"/>
     <div class="search-bar">
         <input type="text"
                id="searchInput"
@@ -316,26 +333,53 @@
     </div>
 </form>
 
-
+<!-- Formulario mobile -->
 <form id="filtroFormMobile" th:action="@{/productos}" method="get" style="display:none;">
     <input type="hidden" name="page" value="0"/>
-    <input type="hidden" id="hiddenNameMobile" name="name" th:value="${filtroName}"/>
-    <input type="hidden" id="hiddenSubMobile" name="subCategory" th:value="${filtroSub}"/>
+    <input type="hidden" id="hiddenNameMobile"  name="name"        th:value="${filtroName}"/>
+    <input type="hidden" id="hiddenSubMobile"   name="subCategory" th:value="${filtroSub}"/>
+    <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
+    <input type="hidden" name="sortDir" th:value="${sortDir}"/>
 </form>
 
 <div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
 <div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
 
+<!-- TABLA DESKTOP -->
 <div class="tabla-container">
     <h2>📋 Listado de Productos</h2>
     <div class="tabla-wrapper">
         <table th:if="${productos != null and !#lists.isEmpty(productos)}">
             <thead>
                 <tr>
-                    <th class="sortable" onclick="ordenar('name')">Nombre <span id="icon-name">⇅</span></th>
-                    <th class="sortable" onclick="ordenar('price')">Precio <span id="icon-price">⇅</span></th>
-                    <th class="sortable" onclick="ordenar('stock')">Stock <span id="icon-stock">⇅</span></th>
+                    <!-- Nombre: ordena por backend -->
+                    <th class="th-sort" th:classappend="${sortBy == 'name'} ? ' sort-active' : ''">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">
+                            Nombre
+                            <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                            <span th:if="${sortBy != 'name'}">⇅</span>
+                        </a>
+                    </th>
 
+                    <!-- Precio: ordena por backend -->
+                    <th class="th-sort" th:classappend="${sortBy == 'price'} ? ' sort-active' : ''">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">
+                            Precio
+                            <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                            <span th:if="${sortBy != 'price'}">⇅</span>
+                        </a>
+                    </th>
+
+                    <!-- Stock: ordena por backend -->
+                    <th class="th-sort" th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'})}">
+                            Stock
+                            <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                            <span th:if="${sortBy != 'stock'}">⇅</span>
+                        </a>
+                    </th>
+
+                    <!-- Categoría: filtro dropdown -->
                     <th class="th-filter" id="th-cat" onclick="toggleDropdown('drop-cat', event)"
                         th:classappend="${filtroCategory != null and filtroCategory != ''} ? ' active-filter' : ''">
                         Categoría <span class="filter-icon">▾</span>
@@ -353,6 +397,7 @@
                         </div>
                     </th>
 
+                    <!-- Subcategoría: filtro dropdown -->
                     <th class="th-filter" id="th-sub" onclick="toggleDropdown('drop-sub', event)"
                         th:classappend="${filtroSub != null and filtroSub != ''} ? ' active-filter' : ''">
                         Subcategoría <span class="filter-icon">▾</span>
@@ -403,12 +448,12 @@
                     <td th:text="${p.subCategory} ?: '-'">Sub</td>
                     <td>
                         <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-                       <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
-    <input type="hidden" name="name" th:value="${p.name}"/>
-    <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
-    <button class="btn-eliminar" type="submit"
-            onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-</form>
+                        <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
+                            <input type="hidden" name="name" th:value="${p.name}"/>
+                            <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
+                            <button class="btn-eliminar" type="submit"
+                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             </tbody>
@@ -420,22 +465,24 @@
     </div>
 </div>
 
+<!-- PAGINACIÓN DESKTOP -->
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}">← Anterior</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">← Anterior</a>
 
     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
        th:text="${i + 1}">1</a>
 
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub})}">Siguiente →</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">Siguiente →</a>
 </div>
 
+<!-- TARJETAS MOBILE -->
 <div class="cards-mobile">
     <h2>📋 Listado de Productos</h2>
 
@@ -448,24 +495,43 @@
         </select>
         <select class="mobile-filtro-select" id="mobile-sub" onchange="cambiarSubMobile(this)">
             <option value="" th:selected="${filtroSub == null or filtroSub == ''}">Todas las subcategorías</option>
-            <option value="PERFUME"       data-cats="AVON,NATURA"           th:selected="${filtroSub == 'PERFUME'}">Perfume</option>
-            <option value="MAQUILLAJE"    data-cats="AVON,NATURA"           th:selected="${filtroSub == 'MAQUILLAJE'}">Maquillaje</option>
-            <option value="CABELLO"       data-cats="AVON,NATURA"           th:selected="${filtroSub == 'CABELLO'}">Cabello</option>
-            <option value="CREMA"         data-cats="AVON,NATURA"           th:selected="${filtroSub == 'CREMA'}">Crema</option>
-            <option value="CUIDADO_DIARIO" data-cats="AVON,NATURA"          th:selected="${filtroSub == 'CUIDADO_DIARIO'}">Cuidado diario</option>
-            <option value="TEXIL"         data-cats="SAPHIRUS"              th:selected="${filtroSub == 'TEXIL'}">Textil</option>
-            <option value="AEROSOL"       data-cats="SAPHIRUS"              th:selected="${filtroSub == 'AEROSOL'}">Aerosol</option>
-            <option value="DIFUSOR"       data-cats="SAPHIRUS"              th:selected="${filtroSub == 'DIFUSOR'}">Difusor</option>
-            <option value="JABON"         data-cats="SAPHIRUS"              th:selected="${filtroSub == 'JABON'}">Jabón</option>
-            <option value="PERFUME_PISO"  data-cats="SAPHIRUS"              th:selected="${filtroSub == 'PERFUME_PISO'}">Perfume para piso</option>
-            <option value="SAHUMERIO"     data-cats="SAPHIRUS"              th:selected="${filtroSub == 'SAHUMERIO'}">Sahumerio</option>
+            <option value="PERFUME"        data-cats="AVON,NATURA"  th:selected="${filtroSub == 'PERFUME'}">Perfume</option>
+            <option value="MAQUILLAJE"     data-cats="AVON,NATURA"  th:selected="${filtroSub == 'MAQUILLAJE'}">Maquillaje</option>
+            <option value="CABELLO"        data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CABELLO'}">Cabello</option>
+            <option value="CREMA"          data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CREMA'}">Crema</option>
+            <option value="CUIDADO_DIARIO" data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CUIDADO_DIARIO'}">Cuidado diario</option>
+            <option value="TEXIL"          data-cats="SAPHIRUS"     th:selected="${filtroSub == 'TEXIL'}">Textil</option>
+            <option value="AEROSOL"        data-cats="SAPHIRUS"     th:selected="${filtroSub == 'AEROSOL'}">Aerosol</option>
+            <option value="DIFUSOR"        data-cats="SAPHIRUS"     th:selected="${filtroSub == 'DIFUSOR'}">Difusor</option>
+            <option value="JABON"          data-cats="SAPHIRUS"     th:selected="${filtroSub == 'JABON'}">Jabón</option>
+            <option value="PERFUME_PISO"   data-cats="SAPHIRUS"     th:selected="${filtroSub == 'PERFUME_PISO'}">Perfume para piso</option>
+            <option value="SAHUMERIO"      data-cats="SAPHIRUS"     th:selected="${filtroSub == 'SAHUMERIO'}">Sahumerio</option>
         </select>
     </div>
 
+    <!-- Botones de orden mobile — van al backend -->
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-        <button class="btn-orden" onclick="ordenarMobile('name')">Nombre <span id="micon-name">⇅</span></button>
-        <button class="btn-orden" onclick="ordenarMobile('price')">Precio <span id="micon-price">⇅</span></button>
-        <button class="btn-orden" onclick="ordenarMobile('stock')">Stock <span id="micon-stock">⇅</span></button>
+        <a class="btn-orden"
+           th:classappend="${sortBy == 'name'} ? ' sort-active' : ''"
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">
+            Nombre
+            <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+            <span th:if="${sortBy != 'name'}">⇅</span>
+        </a>
+        <a class="btn-orden"
+           th:classappend="${sortBy == 'price'} ? ' sort-active' : ''"
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">
+            Precio
+            <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+            <span th:if="${sortBy != 'price'}">⇅</span>
+        </a>
+        <a class="btn-orden"
+           th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''"
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'})}">
+            Stock
+            <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+            <span th:if="${sortBy != 'stock'}">⇅</span>
+        </a>
     </div>
 
     <div th:each="p : ${productos}" class="product-card">
@@ -490,18 +556,35 @@
         </div>
         <div class="product-card-actions">
             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
-           <form th:action="@{/productos/eliminar}" method="post" style="flex:1">
-    <input type="hidden" name="name" th:value="${p.name}"/>
-    <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
-    <button class="btn-eliminar" type="submit" style="width:100%"
-            onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
-</form>
+            <form th:action="@{/productos/eliminar}" method="post" style="flex:1">
+                <input type="hidden" name="name" th:value="${p.name}"/>
+                <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
+                <button class="btn-eliminar" type="submit" style="width:100%"
+                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
+            </form>
         </div>
     </div>
     <p th:if="${productos == null or #lists.isEmpty(productos)}"
        style="text-align:center; color:#9ca3af; padding: 20px 0;">
         No se encontraron productos.
     </p>
+</div>
+
+<!-- PAGINACIÓN MOBILE -->
+<div class="paginacion" th:if="${totalPaginas > 1}">
+    <a class="pag-btn"
+       th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">← Anterior</a>
+
+    <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+       class="pag-btn"
+       th:classappend="${i == paginaActual ? ' active' : ''}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
+       th:text="${i + 1}">1</a>
+
+    <a class="pag-btn"
+       th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">Siguiente →</a>
 </div>
 
 <div class="estadisticas">
@@ -526,7 +609,6 @@
 <script>
     let searchTimer;
 
-   
     document.getElementById('searchInput').addEventListener('input', () => {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
@@ -534,8 +616,6 @@
             document.getElementById('filtroForm').submit();
         }, 400);
     });
-
-
 
     const subsPorCat = {
         AVON:     ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
@@ -545,23 +625,17 @@
 
     function filtrarOpcionesSub(cat) {
         document.querySelectorAll('#drop-sub li:not(:first-child)').forEach(li => {
-            if (!cat) {
-                li.classList.remove('hidden');
-            } else {
-                const cats = li.dataset.cats ? li.dataset.cats.split(',') : [];
-                li.classList.toggle('hidden', !cats.includes(cat));
-            }
+            if (!cat) { li.classList.remove('hidden'); return; }
+            const cats = li.dataset.cats ? li.dataset.cats.split(',') : [];
+            li.classList.toggle('hidden', !cats.includes(cat));
         });
     }
 
     function filtrarOpcionesMobileSub(cat) {
         document.querySelectorAll('#mobile-sub option:not(:first-child)').forEach(opt => {
-            if (!cat) {
-                opt.style.display = '';
-            } else {
-                const cats = opt.dataset.cats ? opt.dataset.cats.split(',') : [];
-                opt.style.display = cats.includes(cat) ? '' : 'none';
-            }
+            if (!cat) { opt.style.display = ''; return; }
+            const cats = opt.dataset.cats ? opt.dataset.cats.split(',') : [];
+            opt.style.display = cats.includes(cat) ? '' : 'none';
         });
     }
 
@@ -604,7 +678,6 @@
         document.querySelectorAll('.dropdown-filter').forEach(d => d.classList.remove('open'));
     });
 
-
     function cambiarCatMobile(sel) {
         const cat = sel.value;
         filtrarOpcionesMobileSub(cat);
@@ -628,68 +701,6 @@
         inputCat.value = cat;
         document.getElementById('hiddenSubMobile').value = sub;
         form.submit();
-    }
-
-
-    let ordenActual = null;
-    let ascendente  = true;
-
-    function ordenar(campo) {
-        const tbody = document.querySelector('table tbody');
-        if (!tbody) return;
-        const filas = Array.from(tbody.querySelectorAll('tr'));
-        if (ordenActual === campo) { ascendente = !ascendente; }
-        else { ordenActual = campo; ascendente = true; }
-        document.querySelectorAll('[id^="icon-"]').forEach(el => el.textContent = '⇅');
-        const icono = document.getElementById('icon-' + campo);
-        if (icono) icono.textContent = ascendente ? '↑' : '↓';
-        const indices = { name: 0, price: 1, stock: 2 };
-        const col = indices[campo];
-        filas.sort((a, b) => {
-            let valA = a.cells[col].textContent.trim();
-            let valB = b.cells[col].textContent.trim();
-            if (campo === 'price' || campo === 'stock') {
-                valA = parseFloat(valA.replace('$','').replace(',','.')) || 0;
-                valB = parseFloat(valB.replace('$','').replace(',','.')) || 0;
-                return ascendente ? valA - valB : valB - valA;
-            }
-            return ascendente ? valA.localeCompare(valB,'es') : valB.localeCompare(valA,'es');
-        });
-        filas.forEach(f => tbody.appendChild(f));
-    }
-
-    let ordenMobile = null;
-    let ascMobile   = true;
-
-    function ordenarMobile(campo) {
-        const contenedor = document.querySelector('.cards-mobile');
-        const tarjetas = Array.from(contenedor.querySelectorAll('.product-card'));
-        if (ordenMobile === campo) { ascMobile = !ascMobile; }
-        else { ordenMobile = campo; ascMobile = true; }
-        ['name','price','stock'].forEach(c => {
-            const el = document.getElementById('micon-' + c);
-            if (el) el.textContent = '⇅';
-        });
-        const icono = document.getElementById('micon-' + campo);
-        if (icono) icono.textContent = ascMobile ? '↑' : '↓';
-        tarjetas.sort((a, b) => {
-            let valA, valB;
-            if (campo === 'name') {
-                valA = a.querySelector('.product-card-name').textContent.trim();
-                valB = b.querySelector('.product-card-name').textContent.trim();
-                return ascMobile ? valA.localeCompare(valB,'es') : valB.localeCompare(valA,'es');
-            }
-            if (campo === 'price') {
-                valA = parseFloat(a.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-                valB = parseFloat(b.querySelectorAll('.product-card-field span')[0].textContent.replace('$','').replace(',','.')) || 0;
-            }
-            if (campo === 'stock') {
-                valA = parseInt(a.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-                valB = parseInt(b.querySelectorAll('.product-card-field span')[1].textContent) || 0;
-            }
-            return ascMobile ? valA - valB : valB - valA;
-        });
-        tarjetas.forEach(t => contenedor.appendChild(t));
     }
 
     window.addEventListener('DOMContentLoaded', () => {

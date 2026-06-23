@@ -231,7 +231,7 @@ public int countAll() {
 }
 
 @Override
-public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory) throws InvalidProductException {
+public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException {
     List<Product> products = new ArrayList<>();
     StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
     List<Object> params = new ArrayList<>();
@@ -240,34 +240,37 @@ public List<Product> findAllPagedFiltered(int offset, int limit, String name, St
         sql.append(" AND LOWER(name) LIKE ?");
         params.add("%" + name.trim().toLowerCase() + "%");
     }
-    if (category != null && !category.isBlank() && !category.equals("TODAS")) {
+    if (category != null && !category.isBlank()) {
         sql.append(" AND category = ?");
         params.add(category);
     }
-    if (subCategory != null && !subCategory.isBlank() && !subCategory.equals("TODAS")) {
+    if (subCategory != null && !subCategory.isBlank()) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
     }
 
-    sql.append(" ORDER BY name LIMIT ? OFFSET ?");
+    // Columnas permitidas para evitar SQL injection
+    String col = switch (sortBy != null ? sortBy : "") {
+        case "price" -> "price";
+        case "stock" -> "stock";
+        default      -> "name";
+    };
+    String dir = "desc".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
+    sql.append(" ORDER BY ").append(col).append(" ").append(dir);
+    sql.append(" LIMIT ? OFFSET ?");
     params.add(limit);
     params.add(offset);
 
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) {
-            st.setObject(i + 1, params.get(i));
-        }
+        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
         ResultSet rs = st.executeQuery();
-        while (rs.next()) {
-            products.add(mapResult(rs));
-        }
+        while (rs.next()) products.add(mapResult(rs));
     } catch (SQLException e) {
         System.out.println(e.getMessage());
     }
     return products;
 }
-
 @Override
 public int countFiltered(String name, String category, String subCategory) {
     StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");

@@ -30,7 +30,7 @@ public interface ProductRepository {
 
     int countAll();
 
-    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory) throws InvalidProductException;
+    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException;
 int countFiltered(String name, String category, String subCategory);
 double sumInventario(String name, String category, String subCategory);
 int sumStock(String name, String category, String subCategory);

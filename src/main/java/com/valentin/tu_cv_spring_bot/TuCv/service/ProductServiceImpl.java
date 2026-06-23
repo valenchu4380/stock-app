@@ -78,9 +78,9 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
 
 
 @Override
-public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory) throws InvalidProductException {
+public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException {
     int offset = page * size;
-    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory);
+    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory, sortBy, sortDir);
 }
 
 @Override
