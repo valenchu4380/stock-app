@@ -614,7 +614,7 @@
         searchTimer = setTimeout(() => {
             document.querySelector('#filtroForm input[name="page"]').value = '0';
             document.getElementById('filtroForm').submit();
-        }, 400);
+        }, 4000);
     });
 
     const subsPorCat = {
@@ -709,18 +709,7 @@
         filtrarOpcionesMobileSub(cat);
     });
 
-    const searchInput = document.getElementById('searchInput');
-    const filtroForm = document.getElementById('filtroForm');
-    let debounceTimer;
 
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-
-        // 2. Iniciamos un nuevo temporizador de 600ms
-        debounceTimer = setTimeout(() => {
-            filtroForm.submit();
-        }, 4000);
-    });
 </script>
 </body>
 </html>
