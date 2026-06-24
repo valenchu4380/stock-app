@@ -715,10 +715,12 @@
 
     searchInput.addEventListener('input', () => {
         // 1. Limpiamos el temporizador anterior
+        console.log("Tecla presionada, reiniciando contador...");
         clearTimeout(debounceTimer);
 
         // 2. Iniciamos un nuevo temporizador de 600ms
         debounceTimer = setTimeout(() => {
+            console.log("¡Tiempo cumplido! Enviando formulario..."); 
             // 3. Enviamos el formulario
             filtroForm.submit();
         }, 600);
