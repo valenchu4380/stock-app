@@ -708,6 +708,21 @@
         filtrarOpcionesSub(cat);
         filtrarOpcionesMobileSub(cat);
     });
+
+    const searchInput = document.getElementById('searchInput');
+    const filtroForm = document.getElementById('filtroForm');
+    let debounceTimer;
+
+    searchInput.addEventListener('input', () => {
+        // 1. Limpiamos el temporizador anterior
+        clearTimeout(debounceTimer);
+
+        // 2. Iniciamos un nuevo temporizador de 600ms
+        debounceTimer = setTimeout(() => {
+            // 3. Enviamos el formulario
+            filtroForm.submit();
+        }, 600);
+    });
 </script>
 </body>
 </html>
