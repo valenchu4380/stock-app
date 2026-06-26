@@ -314,6 +314,14 @@
         <h2>➕</h2>
         <h3>Agregar Producto</h3>
     </a>
+    <a class="card" href="#" onclick="openModal(event)">
+        <h2>💰</h2>
+        <h3>Actualizar Precios</h3>
+    </a>
+    <a class="card" th:href="@{/productos/movimientos}">
+        <h2>📋</h2>
+        <h3>Historial</h3>
+    </a>
 </div>
 
 <!-- Formulario principal de búsqueda y filtros -->
@@ -323,6 +331,7 @@
     <input type="hidden" id="hiddenSub" name="subCategory" th:value="${filtroSub}"/>
     <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
     <input type="hidden" name="sortDir" th:value="${sortDir}"/>
+    <input type="hidden" name="stockBajo" th:value="${stockBajo}"/>
     <div class="search-bar">
         <input type="text"
                id="searchInput"
@@ -340,6 +349,7 @@
     <input type="hidden" id="hiddenSubMobile"   name="subCategory" th:value="${filtroSub}"/>
     <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
     <input type="hidden" name="sortDir" th:value="${sortDir}"/>
+    <input type="hidden" name="stockBajo" th:value="${stockBajo}"/>
 </form>
 
 <div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
@@ -354,7 +364,7 @@
                 <tr>
                     <!-- Nombre: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'name'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
                             Nombre
                             <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'name'}">⇅</span>
@@ -363,7 +373,7 @@
 
                     <!-- Precio: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'price'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
                             Precio
                             <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'price'}">⇅</span>
@@ -372,7 +382,7 @@
 
                     <!-- Stock: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
                             Stock
                             <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'stock'}">⇅</span>
@@ -469,17 +479,17 @@
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">← Anterior</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">← Anterior</a>
 
     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}"
        th:text="${i + 1}">1</a>
 
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">Siguiente →</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">Siguiente →</a>
 </div>
 
 <!-- TARJETAS MOBILE -->
@@ -513,21 +523,21 @@
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
         <a class="btn-orden"
            th:classappend="${sortBy == 'name'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
             Nombre
             <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'name'}">⇅</span>
         </a>
         <a class="btn-orden"
            th:classappend="${sortBy == 'price'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
             Precio
             <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'price'}">⇅</span>
         </a>
         <a class="btn-orden"
            th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
             Stock
             <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'stock'}">⇅</span>
@@ -574,17 +584,17 @@
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">← Anterior</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">← Anterior</a>
 
     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}"
        th:text="${i + 1}">1</a>
 
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">Siguiente →</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">Siguiente →</a>
 </div>
 
 <div class="estadisticas">
@@ -603,6 +613,15 @@
     <div class="stat-item">
         <p th:text="${stockNull != null ? stockNull : 0}">0</p>
         <p>Productos sin stock</p>
+    </div>
+    <div class="stat-item" style="cursor:pointer;" onclick="toggleStockBajo()">
+        <p th:text="${stockBajoCount != null ? stockBajoCount : 0}"
+           style="color: #e6b800 !important;">0</p>
+        <p>
+            Stock bajo
+            <span th:if="${stockBajo}" style="font-size:0.7rem;display:block;color:#2563eb;">(filtrando)</span>
+            <span th:unless="${stockBajo}" style="font-size:0.7rem;display:block;color:#6b7280;">click para filtrar</span>
+        </p>
     </div>
 </div>
 
@@ -703,13 +722,115 @@
         form.submit();
     }
 
+    function toggleStockBajo() {
+        const url = new URL(window.location);
+        const current = url.searchParams.get('stockBajo') === 'true';
+        url.searchParams.set('stockBajo', (!current).toString());
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+
+    function openModal(e) {
+        e.preventDefault();
+        document.getElementById('modal-precios').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-precios').classList.remove('open');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         const cat = document.getElementById('hiddenCategory')?.value || '';
         filtrarOpcionesSub(cat);
         filtrarOpcionesMobileSub(cat);
     });
 
-
 </script>
+
+<!-- MODAL ACTUALIZAR PRECIOS -->
+<div class="modal-overlay" id="modal-precios" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>Actualizar Precios por Subcategoría</h2>
+        <form th:action="@{/productos/actualizar-precios-sub}" method="post">
+            <div class="modal-form-group">
+                <label for="modal-sub">Subcategoría</label>
+                <select id="modal-sub" name="subCategory" required>
+                    <option value="">-- Seleccioná --</option>
+                    <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"></option>
+                </select>
+            </div>
+            <div class="modal-form-group">
+                <label for="modal-pct">Porcentaje (%)</label>
+                <input type="number" id="modal-pct" name="porcentaje" step="0.01" required
+                       placeholder="Ej: 10 para aumentar, -10 para disminuir"/>
+                <span class="modal-help">Positivo para aumentar, negativo para disminuir</span>
+            </div>
+            <button class="modal-btn" type="submit">Actualizar Precios</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+        background: white;
+        padding: 35px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 450px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #6b7280;
+    }
+    .modal-close:hover { color: #1f2937; }
+    .modal-content h2 { font-size: 1.2rem; color: #1e3a8a; margin-bottom: 20px; }
+    .modal-form-group { margin-bottom: 18px; }
+    .modal-form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .modal-form-group select,
+    .modal-form-group input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #dce1ec;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+    .modal-form-group select:focus,
+    .modal-form-group input:focus { border-color: #2563eb; outline: none; }
+    .modal-help { display: block; font-size: 0.78rem; color: #9ca3af; margin-top: 4px; }
+    .modal-btn {
+        width: 100%;
+        padding: 12px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .modal-btn:hover { background: #1d4ed8; }
+    .stat-item[onclick] { cursor: pointer; }
+    .stat-item[onclick]:hover { opacity: 0.8; }
+</style>
+
 </body>
 </html>

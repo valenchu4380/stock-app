@@ -68,44 +68,60 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
 }
     @Override
     public boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException {
-
         if (categoria == null) {
             throw new ProductNotFoundException("Categoría inválida");
         }
+        productRepository.actualizarpricePorCategory(categoria, porcentaje);
         return true;
     }
 
+    @Override
+    public void actualizarpricesPorSubCategoria(SubCategory subCategory, double porcentaje) throws ProductNotFoundException {
+        if (subCategory == null) {
+            throw new ProductNotFoundException("Subcategoría inválida");
+        }
+        productRepository.actualizarpricePorSubCategoria(subCategory, porcentaje);
+    }
 
+    @Override
+    public List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory) {
+        return productRepository.findBynameAndSubCategoryForUpdate(name, subCategory);
+    }
 
 @Override
-public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException {
+public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
     int offset = page * size;
-    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory, sortBy, sortDir);
+    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory, sortBy, sortDir, stockBajo);
 }
 
 @Override
-public int getTotalPages(int size, String name, String category, String subCategory) {
-    int total = productRepository.countFiltered(name, category, subCategory);
+public int getTotalPages(int size, String name, String category, String subCategory, boolean stockBajo) {
+    int total = productRepository.countFiltered(name, category, subCategory, stockBajo);
     return (int) Math.ceil((double) total / size);
 }
 @Override
-public int countFiltered(String name, String category, String subCategory) {
-    return productRepository.countFiltered(name, category, subCategory);
+public int countFiltered(String name, String category, String subCategory, boolean stockBajo) {
+    return productRepository.countFiltered(name, category, subCategory, stockBajo);
 }
 
 @Override
-public double sumInventario(String name, String category, String subCategory) {
-    return productRepository.sumInventario(name, category, subCategory);
+public double sumInventario(String name, String category, String subCategory, boolean stockBajo) {
+    return productRepository.sumInventario(name, category, subCategory, stockBajo);
 }
 
 @Override
-public int sumStock(String name, String category, String subCategory) {
-    return productRepository.sumStock(name, category, subCategory);
+public int sumStock(String name, String category, String subCategory, boolean stockBajo) {
+    return productRepository.sumStock(name, category, subCategory, stockBajo);
 }
 
 @Override
-public int countSinStock(String name, String category, String subCategory) {
-    return productRepository.countSinStock(name, category, subCategory);
+public int countSinStock(String name, String category, String subCategory, boolean stockBajo) {
+    return productRepository.countSinStock(name, category, subCategory, stockBajo);
+}
+
+@Override
+public int countStockBajo(String name, String category, String subCategory) {
+    return productRepository.countStockBajo(name, category, subCategory);
 }
 
 

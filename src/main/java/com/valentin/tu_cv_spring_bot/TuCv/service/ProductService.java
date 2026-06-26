@@ -15,15 +15,18 @@ public interface ProductService {
     Optional<Product> getByname(String name);
     void save(Product product) throws InvalidProductException;
     boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException;
+    void actualizarpricesPorSubCategoria(SubCategory subCategory, double porcentaje) throws ProductNotFoundException;
+    List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory);
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
     void update(Product product, String oldName, SubCategory oldSubCategory)
             throws ProductNotFoundException, InvalidProductException;
-            List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException;
-int getTotalPages(int size, String name, String category, String subCategory);
-int countFiltered(String name, String category, String subCategory);
+    List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException;
+    int getTotalPages(int size, String name, String category, String subCategory, boolean stockBajo);
+    int countFiltered(String name, String category, String subCategory, boolean stockBajo);
 
-double sumInventario(String name, String category, String subCategory);
-int sumStock(String name, String category, String subCategory);
-int countSinStock(String name, String category, String subCategory);
+    double sumInventario(String name, String category, String subCategory, boolean stockBajo);
+    int sumStock(String name, String category, String subCategory, boolean stockBajo);
+    int countSinStock(String name, String category, String subCategory, boolean stockBajo);
+    int countStockBajo(String name, String category, String subCategory);
 
 }

@@ -17,6 +17,8 @@ public interface ProductRepository {
     void save(Product product);
 
     void actualizarpricePorCategory(ProductCategory Category, double porcentaje);
+    void actualizarpricePorSubCategoria(SubCategory subCategory, double porcentaje);
+    List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory);
 
     boolean existsByname(String name);
 
@@ -30,11 +32,12 @@ public interface ProductRepository {
 
     int countAll();
 
-    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String sortBy, String sortDir) throws InvalidProductException;
-int countFiltered(String name, String category, String subCategory);
-double sumInventario(String name, String category, String subCategory);
-int sumStock(String name, String category, String subCategory);
-int countSinStock(String name, String category, String subCategory);
+    List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException;
+int countFiltered(String name, String category, String subCategory, boolean stockBajo);
+double sumInventario(String name, String category, String subCategory, boolean stockBajo);
+int sumStock(String name, String category, String subCategory, boolean stockBajo);
+int countSinStock(String name, String category, String subCategory, boolean stockBajo);
+int countStockBajo(String name, String category, String subCategory);
 
 
 }
