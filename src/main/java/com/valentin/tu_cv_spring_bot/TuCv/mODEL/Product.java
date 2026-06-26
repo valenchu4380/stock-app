@@ -21,7 +21,9 @@ public class Product {
     
     private String name;
     private double price;
+    private double costPrice;
     private int stock;
     private ProductCategory category;
     private SubCategory subCategory;
+    private Linea linea;
 }

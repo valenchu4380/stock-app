@@ -322,6 +322,14 @@
         <h2>📋</h2>
         <h3>Historial</h3>
     </a>
+    <a class="card" th:href="@{/productos/dashboard}">
+        <h2>📊</h2>
+        <h3>Dashboard</h3>
+    </a>
+    <a class="card" th:href="@{/productos/lineas}">
+        <h2>🏷️</h2>
+        <h3>Costos x Línea</h3>
+    </a>
 </div>
 
 <!-- Formulario principal de búsqueda y filtros -->
@@ -329,6 +337,7 @@
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenCategory" name="category" th:value="${filtroCategory}"/>
     <input type="hidden" id="hiddenSub" name="subCategory" th:value="${filtroSub}"/>
+    <input type="hidden" id="hiddenLinea" name="linea" th:value="${filtroLinea}"/>
     <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
     <input type="hidden" name="sortDir" th:value="${sortDir}"/>
     <input type="hidden" name="stockBajo" th:value="${stockBajo}"/>
@@ -347,6 +356,7 @@
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenNameMobile"  name="name"        th:value="${filtroName}"/>
     <input type="hidden" id="hiddenSubMobile"   name="subCategory" th:value="${filtroSub}"/>
+    <input type="hidden" id="hiddenLineaMobile" name="linea" th:value="${filtroLinea}"/>
     <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
     <input type="hidden" name="sortDir" th:value="${sortDir}"/>
     <input type="hidden" name="stockBajo" th:value="${stockBajo}"/>
@@ -364,7 +374,7 @@
                 <tr>
                     <!-- Nombre: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'name'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
                             Nombre
                             <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'name'}">⇅</span>
@@ -373,7 +383,7 @@
 
                     <!-- Precio: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'price'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
                             Precio
                             <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'price'}">⇅</span>
@@ -382,7 +392,7 @@
 
                     <!-- Stock: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''">
-                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+                        <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
                             Stock
                             <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
                             <span th:if="${sortBy != 'stock'}">⇅</span>
@@ -425,8 +435,8 @@
                                     data-val="CREMA" data-cats="AVON,NATURA" onclick="seleccionarSub(this, event)">Crema</li>
                                 <li th:classappend="${filtroSub == 'CUIDADO_DIARIO'} ? 'selected' : ''"
                                     data-val="CUIDADO_DIARIO" data-cats="AVON,NATURA" onclick="seleccionarSub(this, event)">Cuidado diario</li>
-                                <li th:classappend="${filtroSub == 'TEXIL'} ? 'selected' : ''"
-                                    data-val="TEXIL" data-cats="SAPHIRUS" onclick="seleccionarSub(this, event)">Textil</li>
+                                <li th:classappend="${filtroSub == 'TEXTIL'} ? 'selected' : ''"
+                                    data-val="TEXTIL" data-cats="SAPHIRUS" onclick="seleccionarSub(this, event)">Textil</li>
                                 <li th:classappend="${filtroSub == 'AEROSOL'} ? 'selected' : ''"
                                     data-val="AEROSOL" data-cats="SAPHIRUS" onclick="seleccionarSub(this, event)">Aerosol</li>
                                 <li th:classappend="${filtroSub == 'DIFUSOR'} ? 'selected' : ''"
@@ -437,6 +447,22 @@
                                     data-val="PERFUME_PISO" data-cats="SAPHIRUS" onclick="seleccionarSub(this, event)">Perfume para piso</li>
                                 <li th:classappend="${filtroSub == 'SAHUMERIO'} ? 'selected' : ''"
                                     data-val="SAHUMERIO" data-cats="SAPHIRUS" onclick="seleccionarSub(this, event)">Sahumerio</li>
+                            </ul>
+                        </div>
+                    </th>
+
+                    <!-- Línea: filtro dropdown -->
+                    <th class="th-filter" id="th-linea-header" onclick="toggleDropdown('drop-linea', event)"
+                        th:classappend="${filtroLinea != null and filtroLinea != ''} ? ' active-filter' : ''">
+                        Línea <span class="filter-icon">▾</span>
+                        <div class="dropdown-filter" id="drop-linea">
+                            <ul>
+                                <li th:classappend="${filtroLinea == null or filtroLinea == ''} ? 'selected' : ''"
+                                    data-val="" onclick="seleccionarLinea(this, event)">Todas</li>
+                                <li th:each="l : ${lineas}"
+                                    th:classappend="${filtroLinea == l.name()} ? 'selected' : ''"
+                                    th:data-val="${l.name()}" onclick="seleccionarLinea(this, event)"
+                                    th:text="${l.displayName}">Línea</li>
                             </ul>
                         </div>
                     </th>
@@ -456,6 +482,11 @@
                               th:text="${p.category}">Cat</span>
                     </td>
                     <td th:text="${p.subCategory} ?: '-'">Sub</td>
+                    <td th:text="${p.linea != null} ? ${p.linea.displayName} : '-'">Línea</td>
+
+
+
+
                     <td>
                         <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
                         <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
@@ -479,17 +510,17 @@
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">← Anterior</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">← Anterior</a>
 
     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}"
        th:text="${i + 1}">1</a>
 
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">Siguiente →</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">Siguiente →</a>
 </div>
 
 <!-- TARJETAS MOBILE -->
@@ -510,7 +541,7 @@
             <option value="CABELLO"        data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CABELLO'}">Cabello</option>
             <option value="CREMA"          data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CREMA'}">Crema</option>
             <option value="CUIDADO_DIARIO" data-cats="AVON,NATURA"  th:selected="${filtroSub == 'CUIDADO_DIARIO'}">Cuidado diario</option>
-            <option value="TEXIL"          data-cats="SAPHIRUS"     th:selected="${filtroSub == 'TEXIL'}">Textil</option>
+            <option value="TEXTIL"          data-cats="SAPHIRUS"     th:selected="${filtroSub == 'TEXTIL'}">Textil</option>
             <option value="AEROSOL"        data-cats="SAPHIRUS"     th:selected="${filtroSub == 'AEROSOL'}">Aerosol</option>
             <option value="DIFUSOR"        data-cats="SAPHIRUS"     th:selected="${filtroSub == 'DIFUSOR'}">Difusor</option>
             <option value="JABON"          data-cats="SAPHIRUS"     th:selected="${filtroSub == 'JABON'}">Jabón</option>
@@ -523,21 +554,21 @@
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
         <a class="btn-orden"
            th:classappend="${sortBy == 'name'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
             Nombre
             <span th:if="${sortBy == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'name'}">⇅</span>
         </a>
         <a class="btn-orden"
            th:classappend="${sortBy == 'price'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
             Precio
             <span th:if="${sortBy == 'price'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'price'}">⇅</span>
         </a>
         <a class="btn-orden"
            th:classappend="${sortBy == 'stock'} ? ' sort-active' : ''"
-           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo})}">
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
             Stock
             <span th:if="${sortBy == 'stock'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
             <span th:if="${sortBy != 'stock'}">⇅</span>
@@ -563,6 +594,10 @@
                 <span th:text="${p.stock}"
                       th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}">0</span>
             </div>
+            <div class="product-card-field">
+                Línea
+                <span th:text="${p.linea != null} ? ${p.linea.displayName} : '-'">Línea</span>
+            </div>
         </div>
         <div class="product-card-actions">
             <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
@@ -584,17 +619,17 @@
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">← Anterior</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">← Anterior</a>
 
     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}"
        th:text="${i + 1}">1</a>
 
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo})}">Siguiente →</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">Siguiente →</a>
 </div>
 
 <div class="estadisticas">
@@ -639,7 +674,7 @@
     const subsPorCat = {
         AVON:     ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
         NATURA:   ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO'],
-        SAPHIRUS: ['TEXIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO']
+        SAPHIRUS: ['TEXTIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO']
     };
 
     function filtrarOpcionesSub(cat) {
@@ -689,6 +724,18 @@
         document.getElementById('hiddenSub').value = sub;
         document.getElementById('th-sub').classList.toggle('active-filter', sub !== '');
         document.getElementById('drop-sub').classList.remove('open');
+        document.querySelector('#filtroForm input[name="page"]').value = '0';
+        document.getElementById('filtroForm').submit();
+    }
+
+    function seleccionarLinea(li, e) {
+        e.stopPropagation();
+        document.querySelectorAll('#drop-linea li').forEach(l => l.classList.remove('selected'));
+        li.classList.add('selected');
+        const linea = li.dataset.val;
+        document.getElementById('hiddenLinea').value = linea;
+        document.getElementById('th-linea-header').classList.toggle('active-filter', linea !== '');
+        document.getElementById('drop-linea').classList.remove('open');
         document.querySelector('#filtroForm input[name="page"]').value = '0';
         document.getElementById('filtroForm').submit();
     }

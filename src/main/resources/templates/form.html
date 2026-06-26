@@ -139,14 +139,25 @@
             </div>
 
             <div class="form-group">
-    <label for="price">Precio ($)</label>
+    <label for="price">Precio de venta ($)</label>
     <input type="number" 
            id="price" 
            th:field="*{price}" 
-       th:value="${product.price}"
+        th:value="${product.price}"
            step="0.01" 
            min="0" 
            placeholder="Ej: 1500.00" />
+</div>
+
+            <div class="form-group">
+    <label for="costPrice">Precio de costo ($)</label>
+    <input type="number" 
+           id="costPrice" 
+           th:field="*{costPrice}"
+        th:value="${product.costPrice}"
+           step="0.01" 
+           min="0" 
+           placeholder="Ej: 800.00" />
 </div>
 
             <div class="form-group">
@@ -175,6 +186,16 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="linea">Línea</label>
+                <input type="text" id="linea" th:field="*{linea}"
+                       list="lineaList" placeholder="Se detecta automáticamente del nombre"/>
+                <datalist id="lineaList">
+                    <option th:each="l : ${lineas}" th:value="${l}"></option>
+                </datalist>
+                <span style="font-size:0.78rem;color:#9ca3af;">Se asigna automáticamente según el nombre del producto</span>
+            </div>
+
             <div class="btn-row">
                 <button class="btn-guardar" type="submit">Guardar</button>
                 <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>
@@ -183,6 +204,36 @@
     </div>
 
     <script>
+        let detectTimer;
+
+        function detectarLinea() {
+            const name = document.getElementById('name')?.value || '';
+            const cat = document.getElementById('category')?.value || '';
+            const sub = document.getElementById('subCategory')?.value || '';
+            const lineaInput = document.getElementById('linea');
+            if (!lineaInput || !name.trim()) return;
+            fetch('/productos/detectar-linea?name=' + encodeURIComponent(name) + '&category=' + encodeURIComponent(cat) + '&subCategory=' + encodeURIComponent(sub))
+                .then(r => r.json())
+                .then(data => {
+                    if (data.linea) lineaInput.value = data.linea;
+                })
+                .catch(() => {});
+        }
+
+        function programarDeteccion() {
+            clearTimeout(detectTimer);
+            detectTimer = setTimeout(detectarLinea, 600);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('name');
+            const catSelect = document.getElementById('category');
+            const subSelect = document.getElementById('subCategory');
+            if (nameInput) nameInput.addEventListener('input', programarDeteccion);
+            if (catSelect) catSelect.addEventListener('change', programarDeteccion);
+            if (subSelect) subSelect.addEventListener('change', programarDeteccion);
+        });
+
         const subcategorias = {
 
             AVON: ['PERFUME', 'MAQUILLAJE', 'CABELLO', 'CREMA', 'CUIDADO_DIARIO'],

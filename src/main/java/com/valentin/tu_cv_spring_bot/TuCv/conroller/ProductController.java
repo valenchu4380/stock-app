@@ -1,10 +1,13 @@
 package com.valentin.tu_cv_spring_bot.TuCv.conroller;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
+import com.valentin.tu_cv_spring_bot.TuCv.service.LineaDetectionService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.MovementService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 
@@ -30,6 +35,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final MovementService movementService;
+    private final LineaDetectionService lineaDetectionService;
 
     @GetMapping
     public String index(
@@ -37,6 +43,7 @@ public class ProductController {
             @RequestParam(defaultValue = "")     String name,
             @RequestParam(defaultValue = "")     String category,
             @RequestParam(defaultValue = "")     String subCategory,
+            @RequestParam(defaultValue = "")     String linea,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc")  String sortDir,
             @RequestParam(defaultValue = "false") boolean stockBajo,
@@ -44,13 +51,13 @@ public class ProductController {
 
         int size = 15;
         try {
-            List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory, sortBy, sortDir, stockBajo);
-            int totalPages     = productService.getTotalPages(size, name, category, subCategory, stockBajo);
-            int totalRegistros = productService.countFiltered(name, category, subCategory, stockBajo);
-            int totalStock     = productService.sumStock(name, category, subCategory, stockBajo);
-            double inventario  = productService.sumInventario(name, category, subCategory, stockBajo);
-            int sinStock       = productService.countSinStock(name, category, subCategory, stockBajo);
-            int stockBajoCount = productService.countStockBajo(name, category, subCategory);
+            List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory, linea, sortBy, sortDir, stockBajo);
+            int totalPages     = productService.getTotalPages(size, name, category, subCategory, linea, stockBajo);
+            int totalRegistros = productService.countFiltered(name, category, subCategory, linea, stockBajo);
+            int totalStock     = productService.sumStock(name, category, subCategory, linea, stockBajo);
+            double inventario  = productService.sumInventario(name, category, subCategory, linea, stockBajo);
+            int sinStock       = productService.countSinStock(name, category, subCategory, linea, stockBajo);
+            int stockBajoCount = productService.countStockBajo(name, category, subCategory, linea);
 
             model.addAttribute("productos",      listaProductos);
             model.addAttribute("totalStock",     totalStock);
@@ -63,6 +70,7 @@ public class ProductController {
             model.addAttribute("filtroName",     name);
             model.addAttribute("filtroCategory", category);
             model.addAttribute("filtroSub",      subCategory);
+            model.addAttribute("filtroLinea",    linea);
             model.addAttribute("sortBy",         sortBy);
             model.addAttribute("sortDir",        sortDir);
             model.addAttribute("sortDirNext", "asc".equals(sortDir) ? "desc" : "asc");
@@ -79,6 +87,7 @@ public class ProductController {
             model.addAttribute("filtroName",     "");
             model.addAttribute("filtroCategory", "");
             model.addAttribute("filtroSub",      "");
+            model.addAttribute("filtroLinea",    "");
             model.addAttribute("sortBy",         "name");
             model.addAttribute("sortDir",        "asc");
             model.addAttribute("sortDirNext",    "desc");
@@ -86,6 +95,7 @@ public class ProductController {
         }
         model.addAttribute("Categorys",    ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
+        model.addAttribute("lineas", productService.findAllLineas());
         return "index";
     }
 
@@ -94,13 +104,27 @@ public class ProductController {
         model.addAttribute("product", new Product());
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
+        model.addAttribute("lineas", productService.findAllLineas());
+        model.addAttribute("allLineas", Linea.values());
         return "form";
+    }
+
+    private void autoDetectarLinea(Product product) {
+        if (product.getLinea() == null) {
+            Linea detected = lineaDetectionService.detectarLinea(
+                product.getName(),
+                product.getCategory() != null ? product.getCategory().name() : null,
+                product.getSubCategory() != null ? product.getSubCategory().name() : null
+            );
+            product.setLinea(detected);
+        }
     }
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
             RedirectAttributes ra) {
         try {
+            autoDetectarLinea(product);
             productService.save(product);
             Movement m = new Movement();
             m.setProductName(product.getName());
@@ -123,6 +147,8 @@ public class ProductController {
             model.addAttribute("product", p));
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
+        model.addAttribute("lineas", productService.findAllLineas());
+        model.addAttribute("allLineas", Linea.values());
         return "form";
     }
 
@@ -135,6 +161,7 @@ public class ProductController {
             SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
             Product oldProduct = productService.getByname(oldName).orElse(null);
 
+            autoDetectarLinea(product);
             productService.update(product, oldName, oldSubCat);
 
             if (oldProduct != null) {
@@ -213,6 +240,74 @@ public class ProductController {
         return "redirect:/productos";
     }
 
+    @GetMapping("/lineas")
+    public String lineas(Model model) {
+        List<LineaCost> lineas = productService.getLineaCosts();
+        model.addAttribute("lineas", lineas);
+        return "lineas";
+    }
+
+    @PostMapping("/lineas/actualizar-costo")
+    public String actualizarCostoLinea(@RequestParam String linea, @RequestParam double costPrice, RedirectAttributes ra) {
+        try {
+            productService.updateLineaCost(linea, costPrice);
+            ra.addFlashAttribute("mensaje", "Costo actualizado para la linea: " + linea);
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error: " + e.getMessage());
+        }
+        return "redirect:/productos/lineas";
+    }
+
+    @PostMapping("/asignar-lineas-pendientes")
+    @ResponseBody
+    public Map<String, Object> asignarLineasPendientes() {
+        int asignados = 0;
+        try {
+            List<Product> todos = productService.getAll();
+            for (Product p : todos) {
+                if (p.getLinea() == null) {
+                    Linea detected = lineaDetectionService.detectarLinea(
+                        p.getName(),
+                        p.getCategory() != null ? p.getCategory().name() : null,
+                        p.getSubCategory() != null ? p.getSubCategory().name() : null
+                    );
+                    if (detected != null) {
+                        p.setLinea(detected);
+                        try {
+                            productService.update(p, p.getName(), p.getSubCategory());
+                            asignados++;
+                        } catch (Exception e) {
+                            // skip
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // skip
+        }
+        return Map.of("asignados", asignados);
+    }
+
+    @GetMapping("/detectar-linea")
+    @ResponseBody
+    public Map<String, String> detectarLinea(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String subCategory) {
+        Linea linea = lineaDetectionService.detectarLinea(name, category, subCategory);
+        return Map.of("linea", linea != null ? linea.getDisplayName() : "");
+    }
+
+    @GetMapping("/lineas-por-categoria")
+    @ResponseBody
+    public Map<String, List<String>> lineasPorCategoria(
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String subCategory) {
+        List<Linea> lineas = lineaDetectionService.getLineasPorCategoriaYSub(category, subCategory);
+        List<String> names = lineas.stream().map(Linea::name).toList();
+        return Map.of("lineas", names);
+    }
+
     @GetMapping("/movimientos")
     public String movimientos(
             @RequestParam(defaultValue = "0") int page,
@@ -227,6 +322,127 @@ public class ProductController {
         model.addAttribute("totalPaginas",  totalPages);
         model.addAttribute("totalRegistros", totalRegistros);
         return "movements";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(
+            @RequestParam(defaultValue = "") String name,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String subCategory,
+            Model model) {
+        try {
+            List<Product> todos = productService.getAllFiltered(name, category, subCategory, "");
+            double totalInversion = 0;
+            double totalVenta = 0;
+            double totalGanancia = 0;
+            int countConCosto = 0;
+
+            java.util.Map<String, Double> gananciaPorCat = new java.util.HashMap<>();
+            java.util.Map<String, Double> gananciaPorSub = new java.util.HashMap<>();
+            java.util.List<Product> conDatos = new java.util.ArrayList<>();
+
+            for (Product p : todos) {
+                double inversion = p.getCostPrice() * p.getStock();
+                double venta = p.getPrice() * p.getStock();
+                double ganancia = venta - inversion;
+                totalInversion += inversion;
+                totalVenta += venta;
+                totalGanancia += ganancia;
+
+                String cat = p.getCategory() != null ? p.getCategory().name() : "SIN CAT";
+                gananciaPorCat.merge(cat, ganancia, Double::sum);
+
+                String sub = p.getSubCategory() != null ? p.getSubCategory().name() : "SIN SUB";
+                gananciaPorSub.merge(sub, ganancia, Double::sum);
+
+                if (p.getCostPrice() > 0) countConCosto++;
+
+                if (p.getStock() > 0) conDatos.add(p);
+            }
+
+            double margenPromedio = 0;
+            if (!todos.isEmpty() && countConCosto > 0) {
+                double sumaMargenes = 0;
+                for (Product p : todos) {
+                    if (p.getPrice() > 0 && p.getCostPrice() > 0) {
+                        sumaMargenes += ((p.getPrice() - p.getCostPrice()) / p.getPrice()) * 100;
+                    }
+                }
+                margenPromedio = sumaMargenes / countConCosto;
+            }
+
+            conDatos.sort((a, b) -> {
+                double gA = (a.getPrice() - a.getCostPrice()) * a.getStock();
+                double gB = (b.getPrice() - b.getCostPrice()) * b.getStock();
+                return Double.compare(gB, gA);
+            });
+
+            java.util.List<String> labels = new java.util.ArrayList<>();
+            java.util.List<Double> ganancias = new java.util.ArrayList<>();
+            java.util.List<Double> costos = new java.util.ArrayList<>();
+            java.util.List<Double> ventas = new java.util.ArrayList<>();
+            java.util.List<Double> margenes = new java.util.ArrayList<>();
+
+            int limit = Math.min(conDatos.size(), 20);
+            for (int i = 0; i < limit; i++) {
+                Product p = conDatos.get(i);
+                labels.add(p.getName().length() > 20 ? p.getName().substring(0, 20) + "…" : p.getName());
+                double g = (p.getPrice() - p.getCostPrice()) * p.getStock();
+                ganancias.add(g);
+                costos.add(p.getCostPrice() * p.getStock());
+                ventas.add(p.getPrice() * p.getStock());
+                if (p.getPrice() > 0 && p.getCostPrice() > 0) {
+                    margenes.add(((p.getPrice() - p.getCostPrice()) / p.getPrice()) * 100);
+                } else {
+                    margenes.add(0.0);
+                }
+            }
+
+            java.util.List<String> catLabels = new java.util.ArrayList<>(gananciaPorCat.keySet());
+            java.util.List<Double> catGanancias = new java.util.ArrayList<>();
+            for (String cl : catLabels) catGanancias.add(gananciaPorCat.get(cl));
+
+            java.util.Map<String, Double> gananciaPorLinea = new java.util.HashMap<>();
+            java.util.Map<String, Double> inversionPorLinea = new java.util.HashMap<>();
+            for (Product p : todos) {
+                String linea = p.getLinea() != null ? p.getLinea().getDisplayName() : "SIN LINEA";
+                double inversion = p.getCostPrice() * p.getStock();
+                double venta = p.getPrice() * p.getStock();
+                gananciaPorLinea.merge(linea, venta - inversion, Double::sum);
+                inversionPorLinea.merge(linea, inversion, Double::sum);
+            }
+            java.util.List<String> lineaLabels = new java.util.ArrayList<>(gananciaPorLinea.keySet());
+            lineaLabels.sort((a, b) -> Double.compare(gananciaPorLinea.get(b), gananciaPorLinea.get(a)));
+            java.util.List<Double> lineaGanancias = new java.util.ArrayList<>();
+            for (String bl : lineaLabels) lineaGanancias.add(gananciaPorLinea.get(bl));
+
+            model.addAttribute("labels",       labels);
+            model.addAttribute("ganancias",    ganancias);
+            model.addAttribute("costos",       costos);
+            model.addAttribute("ventas",       ventas);
+            model.addAttribute("margenes",     margenes);
+            model.addAttribute("catLabels",    catLabels);
+            model.addAttribute("catGanancias", catGanancias);
+            model.addAttribute("lineaLabels",  lineaLabels);
+            model.addAttribute("lineaGanancias", lineaGanancias);
+            model.addAttribute("totalInversion", totalInversion);
+            model.addAttribute("totalVenta", totalVenta);
+            model.addAttribute("totalGanancia", totalGanancia);
+            model.addAttribute("margenPromedio", margenPromedio);
+            model.addAttribute("totalProductos", todos.size());
+            model.addAttribute("mejorProducto", conDatos.isEmpty() ? "—" : conDatos.get(0).getName());
+            model.addAttribute("filtroName",     name);
+            model.addAttribute("filtroCategory", category);
+            model.addAttribute("filtroSub",      subCategory);
+            model.addAttribute("Categorys",      ProductCategory.values());
+            model.addAttribute("SubCategorys",   SubCategory.values());
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar dashboard: " + e.getMessage());
+            model.addAttribute("Categorys",    ProductCategory.values());
+            model.addAttribute("SubCategorys", SubCategory.values());
+        }
+        return "dashboard";
     }
 
     @GetMapping("/buscar")

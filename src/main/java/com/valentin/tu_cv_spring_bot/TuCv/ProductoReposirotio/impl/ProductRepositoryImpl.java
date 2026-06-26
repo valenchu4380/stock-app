@@ -7,11 +7,15 @@ package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.impl;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
 
 import org.springframework.stereotype.Repository;
 
@@ -37,6 +41,56 @@ public class ProductRepositoryImpl implements ProductRepository {
             System.out.println("¡ERROR: El DataSource es nulo!");
         }
         this.dataSource = dataSource;
+        migrarColumnaCostPrice();
+    }
+
+    private void migrarColumnaCostPrice() {
+        try (Connection con = dataSource.getConnection();
+             Statement st = con.createStatement()) {
+            st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS cost_price DOUBLE PRECISION DEFAULT 0");
+            st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS linea VARCHAR(255) DEFAULT ''");
+        } catch (SQLException e) {
+            System.out.println("Nota: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Linea> findAllLineas() {
+        return Arrays.asList(Linea.values());
+    }
+
+    @Override
+    public void updateLineaCost(String linea, double costPrice) {
+        String sql = "UPDATE products SET cost_price = ? WHERE linea = ?";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setDouble(1, costPrice);
+            st.setString(2, linea);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<LineaCost> getLineaCosts() {
+        List<LineaCost> list = new ArrayList<>();
+        String sql = "SELECT linea, cost_price, COUNT(*) as cnt FROM products WHERE linea IS NOT NULL AND linea != '' GROUP BY linea, cost_price ORDER BY linea";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                String lineaStr = rs.getString("linea");
+                Linea lineaEnum = null;
+                if (lineaStr != null && !lineaStr.isBlank()) {
+                    try { lineaEnum = Linea.valueOf(lineaStr); } catch (IllegalArgumentException e) { lineaEnum = null; }
+                }
+                list.add(new LineaCost(lineaEnum, rs.getDouble("cost_price"), rs.getInt("cnt")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
     }
 
     private Connection getConnection() throws SQLException {
@@ -81,27 +135,35 @@ public class ProductRepositoryImpl implements ProductRepository {
     private Product mapResult(ResultSet rs) throws SQLException {
         String name = rs.getString("name");
         double price = rs.getDouble("price");
+        double costPrice = rs.getDouble("cost_price");
         int stock = rs.getInt("stock");
 
         String catStr = rs.getString("category");
         String subCatStr = rs.getString("subcategory");
+        String linea = rs.getString("linea");
 
         ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
         SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
 
-        return new Product(name, price, stock, category, subCategory);
+        Linea lineaEnum = null;
+        if (linea != null && !linea.isBlank()) {
+            try { lineaEnum = Linea.valueOf(linea); } catch (IllegalArgumentException e) { lineaEnum = null; }
+        }
+        return new Product(name, price, costPrice, stock, category, subCategory, lineaEnum);
     }
 
     @Override
     public void save(Product product) {
-        String sql = "INSERT INTO products(name, price, stock, category, subcategory) VALUES(?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products(name, price, cost_price, stock, category, subcategory, linea) VALUES(?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, product.getName().trim());
             st.setDouble(2, product.getPrice());
-            st.setInt(3, product.getStock());
-            st.setString(4, product.getCategory().name());
-            st.setString(5, product.getSubCategory().name());
+            st.setDouble(3, product.getCostPrice());
+            st.setInt(4, product.getStock());
+            st.setString(5, product.getCategory().name());
+            st.setString(6, product.getSubCategory().name());
+            st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
             st.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -126,17 +188,19 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 @Override
 public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-    String sql = "UPDATE products SET name=?, price=?, stock=?, category=?, subCategory=? WHERE name=? AND subCategory=?";
+    String sql = "UPDATE products SET name=?, price=?, cost_price=?, stock=?, category=?, subCategory=?, linea=? WHERE name=? AND subCategory=?";
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql)) {
         st.setString(1, product.getName().trim());
         st.setDouble(2, product.getPrice());
-        st.setInt(3, product.getStock());
-        st.setString(4, product.getCategory().name());
-        st.setString(5, product.getSubCategory().name());
-        st.setString(6, oldName.trim());
-        st.setString(7, oldSubCategory.name());
-        int rows = st.executeUpdate(); // ← FALTABA ESTO
+        st.setDouble(3, product.getCostPrice());
+        st.setInt(4, product.getStock());
+        st.setString(5, product.getCategory().name());
+        st.setString(6, product.getSubCategory().name());
+        st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
+        st.setString(8, oldName.trim());
+        st.setString(9, oldSubCategory.name());
+        int rows = st.executeUpdate();
         if (rows == 0) throw new ProductNotFoundException("Producto no encontrado: " + oldName);
     } catch (SQLException e) {
         System.out.println("Error SQL: " + e.getMessage());
@@ -178,6 +242,39 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             System.out.println("Error en existsBynameAndSubCategory: " + e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public List<Product> findAllFiltered(String name, String category, String subCategory, String linea) throws InvalidProductException {
+        List<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        sql.append(" ORDER BY name");
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) products.add(mapResult(rs));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return products;
     }
 
     @Override
@@ -257,7 +354,7 @@ public int countAll() {
 }
 
 @Override
-public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
+    public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
     List<Product> products = new ArrayList<>();
     StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
     List<Object> params = new ArrayList<>();
@@ -273,6 +370,10 @@ public List<Product> findAllPagedFiltered(int offset, int limit, String name, St
     if (subCategory != null && !subCategory.isBlank()) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
+    }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
     }
     if (stockBajo) {
         sql.append(" AND stock >= 0 AND stock <= ?");
@@ -301,7 +402,7 @@ public List<Product> findAllPagedFiltered(int offset, int limit, String name, St
     return products;
 }
 @Override
-public int countFiltered(String name, String category, String subCategory, boolean stockBajo) {
+    public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
     StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");
     List<Object> params = new ArrayList<>();
 
@@ -316,6 +417,10 @@ public int countFiltered(String name, String category, String subCategory, boole
     if (subCategory != null && !subCategory.isBlank() && !subCategory.equals("TODAS")) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
+    }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
     }
     if (stockBajo) {
         sql.append(" AND stock >= 0 AND stock <= ?");
@@ -336,7 +441,7 @@ public int countFiltered(String name, String category, String subCategory, boole
 }
 
 @Override
-public int countStockBajo(String name, String category, String subCategory) {
+    public int countStockBajo(String name, String category, String subCategory, String linea) {
     StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock >= 0 AND stock <= 1");
     List<Object> params = new ArrayList<>();
     if (name != null && !name.isBlank()) {
@@ -351,6 +456,10 @@ public int countStockBajo(String name, String category, String subCategory) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
     }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
+    }
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql.toString())) {
         for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
@@ -364,7 +473,7 @@ public int countStockBajo(String name, String category, String subCategory) {
 
 
 @Override
-public double sumInventario(String name, String category, String subCategory, boolean stockBajo) {
+    public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
     StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(price * stock), 0) FROM products WHERE 1=1");
     List<Object> params = new ArrayList<>();
 
@@ -379,6 +488,10 @@ public double sumInventario(String name, String category, String subCategory, bo
     if (subCategory != null && !subCategory.isBlank()) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
+    }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
     }
     if (stockBajo) {
         sql.append(" AND stock >= 0 AND stock <= ?");
@@ -397,7 +510,7 @@ public double sumInventario(String name, String category, String subCategory, bo
 }
 
 @Override
-public int sumStock(String name, String category, String subCategory, boolean stockBajo) {
+    public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
     StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(stock), 0) FROM products WHERE 1=1");
     List<Object> params = new ArrayList<>();
 
@@ -412,6 +525,10 @@ public int sumStock(String name, String category, String subCategory, boolean st
     if (subCategory != null && !subCategory.isBlank()) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
+    }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
     }
     if (stockBajo) {
         sql.append(" AND stock >= 0 AND stock <= ?");
@@ -430,7 +547,7 @@ public int sumStock(String name, String category, String subCategory, boolean st
 }
 
 @Override
-public int countSinStock(String name, String category, String subCategory, boolean stockBajo) {
+    public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
     StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
     List<Object> params = new ArrayList<>();
 
@@ -445,6 +562,10 @@ public int countSinStock(String name, String category, String subCategory, boole
     if (subCategory != null && !subCategory.isBlank()) {
         sql.append(" AND subcategory = ?");
         params.add(subCategory);
+    }
+    if (linea != null && !linea.isBlank()) {
+        sql.append(" AND LOWER(linea) = LOWER(?)");
+        params.add(linea.trim().toLowerCase());
     }
     if (stockBajo) {
         sql.append(" AND stock >= 0 AND stock <= ?");

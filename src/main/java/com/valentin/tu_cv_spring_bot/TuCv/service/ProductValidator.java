@@ -8,6 +8,9 @@ public class ProductValidator {
         if(product.getPrice()<0){
             throw new InvalidProductException("El price debe ser mayor a 0");
         }
+        if(product.getCostPrice()<0){
+            throw new InvalidProductException("El precio de costo no puede ser negativo");
+        }
         if(product.getStock()<0){
             throw new InvalidProductException("El stock del producto no puede ser negativo");
         }
