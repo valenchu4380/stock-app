@@ -275,8 +275,8 @@ public List<Product> findAllPagedFiltered(int offset, int limit, String name, St
         params.add(subCategory);
     }
     if (stockBajo) {
-        sql.append(" AND stock > 0 AND stock <= ?");
-        params.add(5);
+        sql.append(" AND stock >= 0 AND stock <= ?");
+        params.add(1);
     }
 
     String col = switch (sortBy != null ? sortBy : "") {
@@ -318,8 +318,8 @@ public int countFiltered(String name, String category, String subCategory, boole
         params.add(subCategory);
     }
     if (stockBajo) {
-        sql.append(" AND stock > 0 AND stock <= ?");
-        params.add(5);
+        sql.append(" AND stock >= 0 AND stock <= ?");
+        params.add(1);
     }
 
     try (Connection con = getConnection();
@@ -337,7 +337,7 @@ public int countFiltered(String name, String category, String subCategory, boole
 
 @Override
 public int countStockBajo(String name, String category, String subCategory) {
-    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock > 0 AND stock <= 5");
+    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock >= 0 AND stock <= 1");
     List<Object> params = new ArrayList<>();
     if (name != null && !name.isBlank()) {
         sql.append(" AND LOWER(name) LIKE ?");
@@ -381,8 +381,8 @@ public double sumInventario(String name, String category, String subCategory, bo
         params.add(subCategory);
     }
     if (stockBajo) {
-        sql.append(" AND stock > 0 AND stock <= ?");
-        params.add(5);
+        sql.append(" AND stock >= 0 AND stock <= ?");
+        params.add(1);
     }
 
     try (Connection con = getConnection();
@@ -414,8 +414,8 @@ public int sumStock(String name, String category, String subCategory, boolean st
         params.add(subCategory);
     }
     if (stockBajo) {
-        sql.append(" AND stock > 0 AND stock <= ?");
-        params.add(5);
+        sql.append(" AND stock >= 0 AND stock <= ?");
+        params.add(1);
     }
 
     try (Connection con = getConnection();
@@ -447,8 +447,8 @@ public int countSinStock(String name, String category, String subCategory, boole
         params.add(subCategory);
     }
     if (stockBajo) {
-        sql.append(" AND stock > 0 AND stock <= ?");
-        params.add(5);
+        sql.append(" AND stock >= 0 AND stock <= ?");
+        params.add(1);
     }
 
     try (Connection con = getConnection();
