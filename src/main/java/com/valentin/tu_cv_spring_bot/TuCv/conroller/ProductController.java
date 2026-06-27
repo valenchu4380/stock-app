@@ -13,17 +13,11 @@ import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -138,13 +132,8 @@ public class ProductController {
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
-            @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
             RedirectAttributes ra) {
         try {
-            if (imagenFile != null && !imagenFile.isEmpty()) {
-                String nombreArchivo = guardarImagen(imagenFile);
-                product.setImagen(nombreArchivo);
-            }
             autoDetectarLinea(product);
             productService.save(product);
             Movement m = new Movement();
@@ -190,16 +179,8 @@ public class ProductController {
     public String actualizar(@ModelAttribute Product product,
                              @RequestParam String oldName,
                              @RequestParam String oldSubCategory,
-                             @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
                              RedirectAttributes ra) {
         try {
-            if (imagenFile != null && !imagenFile.isEmpty()) {
-                String nombreArchivo = guardarImagen(imagenFile);
-                product.setImagen(nombreArchivo);
-            } else {
-                Product existente = productService.getByname(oldName).orElse(null);
-                if (existente != null) product.setImagen(existente.getImagen());
-            }
             SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
             Product oldProduct = productService.getByname(oldName).orElse(null);
 
@@ -555,22 +536,4 @@ public class ProductController {
         return "index";
     }
 
-    private String guardarImagen(MultipartFile archivo) {
-        try {
-            String uploadDir = "uploads";
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-            String extension = "";
-            String nombreOriginal = archivo.getOriginalFilename();
-            if (nombreOriginal != null && nombreOriginal.contains(".")) {
-                extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
-            }
-            String nombreUnico = UUID.randomUUID().toString() + extension;
-            Path filePath = uploadPath.resolve(nombreUnico);
-            Files.copy(archivo.getInputStream(), filePath);
-            return nombreUnico;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar imagen", e);
-        }
-    }
 }
