@@ -190,7 +190,7 @@
                 <label for="imagenFile">Imagen del producto</label>
                 <input type="file" id="imagenFile" name="imagenFile" accept="image/*"/>
                 <div th:if="${product.imagen != null and !#strings.isEmpty(product.imagen)}" style="margin-top:8px;">
-                    <img th:src="@{'/uploads/' + ${product.imagen}}" style="max-height:80px; border-radius:8px; border:1px solid #dce1ec;"/>
+                    <img th:src="@{/uploads/{img}(img=${product.imagen})}" style="max-height:80px; border-radius:8px; border:1px solid #dce1ec;"/>
                     <span style="font-size:0.78rem;color:#9ca3af;display:block;">Imagen actual. Subí una nueva para reemplazarla.</span>
                 </div>
             </div>

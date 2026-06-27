@@ -353,7 +353,7 @@
     <div class="producto-card" th:each="p : ${productos}">
         <div class="card-img">
             <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
-                 th:src="@{'/uploads/' + ${p.imagen}}">
+                 th:src="@{/uploads/{img}(img=${p.imagen})}">
             <div th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" class="card-img-placeholder">📦</div>
             <input type="checkbox" class="card-checkbox product-checkbox"
                    th:data-name="${p.name}"

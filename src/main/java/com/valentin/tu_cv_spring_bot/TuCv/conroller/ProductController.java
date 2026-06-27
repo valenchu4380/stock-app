@@ -557,7 +557,7 @@ public class ProductController {
 
     private String guardarImagen(MultipartFile archivo) {
         try {
-            String uploadDir = "src/main/resources/static/uploads";
+            String uploadDir = "uploads";
             Path uploadPath = Paths.get(uploadDir);
             if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
             String extension = "";
