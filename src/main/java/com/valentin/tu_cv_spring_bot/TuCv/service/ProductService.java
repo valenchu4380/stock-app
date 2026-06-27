@@ -35,4 +35,6 @@ public interface ProductService {
     void updateLineaCost(String linea, double costPrice);
     List<LineaCost> getLineaCosts();
 
+    void batchUpdateFields(List<String> items, Double price, Double costPrice, Integer stock) throws InvalidProductException;
+    void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException;
 }

@@ -208,6 +208,25 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
 }
 
     @Override
+    public void updateFields(String name, SubCategory subCategory, Double newPrice, Double newCostPrice, Integer newStock) {
+        String sql = "UPDATE products SET price = COALESCE(?, price), cost_price = COALESCE(?, cost_price), stock = COALESCE(?, stock) WHERE name = ? AND subcategory = ?";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            if (newPrice != null) st.setDouble(1, newPrice);
+            else st.setNull(1, java.sql.Types.DOUBLE);
+            if (newCostPrice != null) st.setDouble(2, newCostPrice);
+            else st.setNull(2, java.sql.Types.DOUBLE);
+            if (newStock != null) st.setInt(3, newStock);
+            else st.setNull(3, java.sql.Types.INTEGER);
+            st.setString(4, name.trim());
+            st.setString(5, subCategory.name());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error batch update: " + e.getMessage());
+        }
+    }
+
+    @Override
     public boolean existsByname(String name) {
         String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
         try (Connection con = getConnection();
@@ -308,10 +327,20 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
     @Override
     public List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM products WHERE subcategory = ?";
+        String sql;
+        if (name != null && !name.isBlank()) {
+            sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?) AND subcategory = ?";
+        } else {
+            sql = "SELECT * FROM products WHERE subcategory = ?";
+        }
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, subCategory.name());
+            if (name != null && !name.isBlank()) {
+                st.setString(1, name.trim());
+                st.setString(2, subCategory.name());
+            } else {
+                st.setString(1, subCategory.name());
+            }
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 products.add(mapResult(rs));

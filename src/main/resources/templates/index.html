@@ -372,6 +372,9 @@
         <table th:if="${productos != null and !#lists.isEmpty(productos)}">
             <thead>
                 <tr>
+                    <th style="width:50px; text-align:center;">
+                        <input type="checkbox" id="selectAll" onchange="toggleSeleccionarTodos(this)">
+                    </th>
                     <!-- Nombre: ordena por backend -->
                     <th class="th-sort" th:classappend="${sortBy == 'name'} ? ' sort-active' : ''">
                         <a th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}">
@@ -472,10 +475,28 @@
             </thead>
             <tbody>
                 <tr th:each="p : ${productos}">
+                    <td style="text-align:center">
+                        <input type="checkbox" class="product-checkbox"
+                               th:data-name="${p.name}"
+                               th:data-sub="${p.subCategory}"
+                               onchange="actualizarBarraSeleccion()">
+                    </td>
                     <td th:text="${p.name}">Nombre</td>
                     <td th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</td>
-                    <td th:text="${p.stock} ?: 0"
-                        th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}"></td>
+                    <td>
+                        <span class="stock-ajuste"
+                              th:class="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}">
+                            <button class="btn-stock btn-stock-minus"
+                                    th:data-name="${p.name}"
+                                    th:data-sub="${p.subCategory}"
+                                    onclick="ajustarStock(this, -1)">−</button>
+                            <span class="stock-valor" th:id="'stock-' + ${pStat.index}" th:text="${p.stock} ?: 0">0</span>
+                            <button class="btn-stock btn-stock-plus"
+                                    th:data-name="${p.name}"
+                                    th:data-sub="${p.subCategory}"
+                                    onclick="ajustarStock(this, 1)">+</button>
+                        </span>
+                    </td>
                     <td>
                         <span class="badge"
                               th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')"
@@ -484,17 +505,8 @@
                     <td th:text="${p.subCategory} ?: '-'">Sub</td>
                     <td th:text="${p.linea != null} ? ${p.linea.displayName} : '-'">Línea</td>
 
-
-
-
                     <td>
                         <a class="btn-editar" th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️ Editar</a>
-                        <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
-                            <input type="hidden" name="name" th:value="${p.name}"/>
-                            <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
-                            <button class="btn-eliminar" type="submit"
-                                    onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
-                        </form>
                     </td>
                 </tr>
             </tbody>
@@ -576,7 +588,11 @@
     </div>
 
     <div th:each="p : ${productos}" class="product-card">
-        <div class="product-card-header">
+        <div class="product-card-header" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" class="product-checkbox"
+                   th:data-name="${p.name}"
+                   th:data-sub="${p.subCategory}"
+                   onchange="actualizarBarraSeleccion()">
             <span class="product-card-name" th:text="${p.name}">Nombre</span>
             <span class="badge"
                   th:classappend="${p.category.name() == 'AVON'} ? 'badge-avon' : (${p.category.name() == 'NATURA'} ? 'badge-natura' : 'badge-saphirus')">
@@ -591,8 +607,17 @@
             </div>
             <div class="product-card-field">
                 Stock
-                <span th:text="${p.stock}"
-                      th:classappend="${p.stock == 0 ? 'text-red' : (p.stock >= 1 and p.stock <= 5 ? 'text-yellow' : 'text-green')}">0</span>
+                <span class="stock-ajuste">
+                    <button class="btn-stock btn-stock-minus"
+                            th:data-name="${p.name}"
+                            th:data-sub="${p.subCategory}"
+                            onclick="ajustarStock(this, -1)">−</button>
+                    <span class="stock-valor" th:id="'stock-m-' + ${pStat.index}" th:text="${p.stock}">0</span>
+                    <button class="btn-stock btn-stock-plus"
+                            th:data-name="${p.name}"
+                            th:data-sub="${p.subCategory}"
+                            onclick="ajustarStock(this, 1)">+</button>
+                </span>
             </div>
             <div class="product-card-field">
                 Línea
@@ -601,12 +626,6 @@
         </div>
         <div class="product-card-actions">
             <a class="btn-editar" th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️ Editar</a>
-            <form th:action="@{/productos/eliminar}" method="post" style="flex:1">
-                <input type="hidden" name="name" th:value="${p.name}"/>
-                <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
-                <button class="btn-eliminar" type="submit" style="width:100%"
-                        onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
-            </form>
         </div>
     </div>
     <p th:if="${productos == null or #lists.isEmpty(productos)}"
@@ -630,6 +649,34 @@
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
        th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">Siguiente →</a>
+</div>
+
+<div id="batchBar" class="batch-bar" style="display:none;">
+    <span id="batchCount" class="batch-count">0 seleccionados</span>
+    <button class="batch-btn" onclick="abrirEdicionMasiva()">✏️ Editar seleccionados</button>
+    <button class="batch-btn batch-btn-secondary" onclick="deseleccionarTodos()">Cancelar</button>
+</div>
+
+<!-- MODAL EDICIÓN MASIVA -->
+<div class="modal-overlay" id="modal-batch" onclick="if(event.target===this)cerrarEdicionMasiva()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="cerrarEdicionMasiva()">✕</button>
+        <h2>Editar productos seleccionados</h2>
+        <p style="font-size:0.9rem;color:#6b7280;margin-bottom:16px;" id="batchModalCount">0 productos</p>
+        <div class="modal-form-group">
+            <label for="batchPrice">Nuevo precio (dejar vacío para mantener)</label>
+            <input type="number" id="batchPrice" step="0.01" placeholder="Ej: 1500">
+        </div>
+        <div class="modal-form-group">
+            <label for="batchCostPrice">Nuevo precio de costo (dejar vacío para mantener)</label>
+            <input type="number" id="batchCostPrice" step="0.01" placeholder="Ej: 800">
+        </div>
+        <div class="modal-form-group">
+            <label for="batchStock">Nuevo stock (dejar vacío para mantener)</label>
+            <input type="number" id="batchStock" step="1" placeholder="Ej: 10">
+        </div>
+        <button class="modal-btn" onclick="aplicarEdicionMasiva()">Aplicar cambios</button>
+    </div>
 </div>
 
 <div class="estadisticas">
@@ -777,6 +824,126 @@
         window.location.href = url.toString();
     }
 
+    function ajustarStock(btn, direccion) {
+        const name = btn.dataset.name;
+        const sub = btn.dataset.sub;
+        const cantidad = direccion > 0
+            ? prompt('Cantidad a AGREGAR a "' + name + '":', '1')
+            : prompt('Cantidad a RETIRAR de "' + name + '":', '1');
+        if (!cantidad) return;
+        const num = parseInt(cantidad);
+        if (isNaN(num) || num <= 0) { alert('Ingresá un número válido'); return; }
+        const params = new URLSearchParams();
+        params.set('name', name);
+        params.set('subCategory', sub);
+        params.set('cantidad', direccion > 0 ? num : -num);
+        fetch('/productos/ajustar-stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // update all matching stock spans
+                document.querySelectorAll('.stock-valor').forEach(el => {
+                    const parent = el.closest('tr') || el.closest('.product-card');
+                    if (parent) {
+                        const cb = parent.querySelector('.product-checkbox');
+                        if (cb && cb.dataset.name === name && cb.dataset.sub === sub) {
+                            el.textContent = data.nuevoStock;
+                        }
+                    }
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(err => alert('Error de conexión: ' + err.message));
+    }
+
+    function getProductosSeleccionados() {
+        const checks = document.querySelectorAll('.product-checkbox:checked');
+        return Array.from(checks).map(cb => ({
+            name: cb.dataset.name,
+            subCategory: cb.dataset.sub
+        }));
+    }
+
+    function actualizarBarraSeleccion() {
+        const seleccionados = getProductosSeleccionados();
+        const bar = document.getElementById('batchBar');
+        const count = document.getElementById('batchCount');
+        if (seleccionados.length > 0) {
+            bar.style.display = 'flex';
+            count.textContent = seleccionados.length + ' seleccionados';
+        } else {
+            bar.style.display = 'none';
+        }
+    }
+
+    function toggleSeleccionarTodos(selectAll) {
+        document.querySelectorAll('.product-checkbox').forEach(cb => {
+            cb.checked = selectAll.checked;
+        });
+        actualizarBarraSeleccion();
+    }
+
+    function deseleccionarTodos() {
+        document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAll').checked = false;
+        actualizarBarraSeleccion();
+    }
+
+    function abrirEdicionMasiva() {
+        const seleccionados = getProductosSeleccionados();
+        if (seleccionados.length === 0) return;
+        document.getElementById('batchModalCount').textContent = seleccionados.length + ' productos';
+        document.getElementById('batchPrice').value = '';
+        document.getElementById('batchCostPrice').value = '';
+        document.getElementById('batchStock').value = '';
+        document.getElementById('modal-batch').classList.add('open');
+    }
+
+    function cerrarEdicionMasiva() {
+        document.getElementById('modal-batch').classList.remove('open');
+    }
+
+    function aplicarEdicionMasiva() {
+        const seleccionados = getProductosSeleccionados();
+        if (seleccionados.length === 0) return;
+        const items = seleccionados.map(p => p.name + '|' + p.subCategory).join(',');
+        const price = document.getElementById('batchPrice').value;
+        const costPrice = document.getElementById('batchCostPrice').value;
+        const stock = document.getElementById('batchStock').value;
+
+        const params = new URLSearchParams();
+        params.set('items', items);
+        if (price) params.set('price', price);
+        if (costPrice) params.set('costPrice', costPrice);
+        if (stock) params.set('stock', stock);
+
+        fetch('/productos/editar-masivo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        })
+        .then(r => r.json())
+        .then(data => {
+            cerrarEdicionMasiva();
+            deseleccionarTodos();
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(err => {
+            alert('Error de conexión: ' + err.message);
+        });
+    }
+
     function openModal(e) {
         e.preventDefault();
         document.getElementById('modal-precios').classList.add('open');
@@ -877,6 +1044,59 @@
     .modal-btn:hover { background: #1d4ed8; }
     .stat-item[onclick] { cursor: pointer; }
     .stat-item[onclick]:hover { opacity: 0.8; }
+
+    .stock-ajuste { display: inline-flex; align-items: center; gap: 4px; }
+    .stock-valor { min-width: 24px; text-align: center; font-weight: 600; font-size: 0.95rem; }
+    .btn-stock {
+        width: 26px; height: 26px;
+        border: 1.5px solid #dce1ec;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: .15s;
+    }
+    .btn-stock:hover { border-color: #2563eb; background: #eff6ff; }
+    .btn-stock-plus { color: #059669; }
+    .btn-stock-plus:hover { border-color: #059669; background: #ecfdf5; }
+    .btn-stock-minus { color: #dc2626; }
+    .btn-stock-minus:hover { border-color: #dc2626; background: #fef2f2; }
+
+    .batch-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #1e3a8a;
+        color: white;
+        padding: 14px 30px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        z-index: 999;
+        box-shadow: 0 -4px 15px rgba(0,0,0,.2);
+        flex-wrap: wrap;
+    }
+    .batch-count { font-size: 1rem; font-weight: 600; }
+    .batch-btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: #2563eb;
+        color: white;
+    }
+    .batch-btn:hover { background: #1d4ed8; }
+    .batch-btn-secondary {
+        background: transparent;
+        border: 1.5px solid rgba(255,255,255,.4);
+    }
+    .batch-btn-secondary:hover { background: rgba(255,255,255,.1); }
 </style>
 
 </body>

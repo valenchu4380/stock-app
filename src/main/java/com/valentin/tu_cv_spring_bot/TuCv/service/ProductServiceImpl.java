@@ -194,7 +194,24 @@ public int countSinStock(String name, String category, String subCategory, Strin
         return productRepository.getLineaCosts();
     }
 
+    @Override
+    public void batchUpdateFields(List<String> items, Double price, Double costPrice, Integer stock) throws InvalidProductException {
+        for (String item : items) {
+            String[] parts = item.split("\\|", 2);
+            if (parts.length != 2) continue;
+            String name = parts[0].trim();
+            try {
+                SubCategory subCategory = SubCategory.valueOf(parts[1].trim());
+                productRepository.updateFields(name, subCategory, price, costPrice, stock);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Subcategoría inválida en batch: " + parts[1]);
+            }
+        }
+    }
 
-
+    @Override
+    public void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException {
+        productRepository.updateFields(name, subCategory, price, costPrice, stock);
+    }
 
 }

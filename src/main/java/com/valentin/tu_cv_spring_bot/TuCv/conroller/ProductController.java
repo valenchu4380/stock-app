@@ -197,6 +197,56 @@ public class ProductController {
         return "redirect:/productos";
     }
 
+    @PostMapping("/editar-masivo")
+    @ResponseBody
+    public Map<String, Object> editarMasivo(@RequestParam String items,
+                                             @RequestParam(required = false) String price,
+                                             @RequestParam(required = false) String costPrice,
+                                             @RequestParam(required = false) String stock) {
+        List<String> itemList = List.of(items.split(","));
+        Double p = (price != null && !price.isBlank()) ? Double.parseDouble(price) : null;
+        Double cp = (costPrice != null && !costPrice.isBlank()) ? Double.parseDouble(costPrice) : null;
+        Integer s = (stock != null && !stock.isBlank()) ? Integer.parseInt(stock) : null;
+        try {
+            productService.batchUpdateFields(itemList, p, cp, s);
+            return Map.of("success", true, "message", "Productos actualizados correctamente");
+        } catch (Exception e) {
+            return Map.of("success", false, "message", "Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/ajustar-stock")
+    @ResponseBody
+    public Map<String, Object> ajustarStock(@RequestParam String name,
+                                             @RequestParam String subCategory,
+                                             @RequestParam int cantidad) {
+        try {
+            SubCategory sub = SubCategory.valueOf(subCategory.trim());
+            List<Product> matches = productService.findBynameAndSubCategoryForUpdate(name, sub);
+            if (matches.isEmpty()) {
+                return Map.of("success", false, "message", "Producto no encontrado");
+            }
+            Product p = matches.get(0);
+            int nuevoStock = Math.max(0, p.getStock() + cantidad);
+            productService.updateFields(name, sub, null, null, nuevoStock);
+
+            Movement m = new Movement();
+            m.setProductName(p.getName());
+            m.setProductSubCategory(sub.name());
+            m.setAction(cantidad > 0 ? "STOCK_IN" : "STOCK_OUT");
+            m.setOldStock(p.getStock());
+            m.setNewStock(nuevoStock);
+            m.setOldPrice(p.getPrice());
+            m.setNewPrice(p.getPrice());
+            m.setTimestamp(LocalDateTime.now());
+            movementService.save(m);
+
+            return Map.of("success", true, "nuevoStock", nuevoStock);
+        } catch (Exception e) {
+            return Map.of("success", false, "message", "Error: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/eliminar")
     public String eliminar(@RequestParam String name,
                            @RequestParam String subCategory,

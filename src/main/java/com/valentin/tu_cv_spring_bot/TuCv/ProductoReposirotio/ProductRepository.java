@@ -30,6 +30,8 @@ public interface ProductRepository {
 
     boolean existsBynameAndSubCategory(String name, SubCategory subCategory);
 
+    void updateFields(String name, SubCategory subCategory, Double newPrice, Double newCostPrice, Integer newStock);
+
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
 
     void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
