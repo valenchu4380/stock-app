@@ -488,7 +488,7 @@
 
 
                     <td>
-                        <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+                        <a class="btn-editar" th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️ Editar</a>
                         <form th:action="@{/productos/eliminar}" method="post" style="display:inline">
                             <input type="hidden" name="name" th:value="${p.name}"/>
                             <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>
@@ -600,7 +600,7 @@
             </div>
         </div>
         <div class="product-card-actions">
-            <a class="btn-editar" th:href="@{/productos/editar/{n}(n=${p.name})}">✏️ Editar</a>
+            <a class="btn-editar" th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️ Editar</a>
             <form th:action="@{/productos/eliminar}" method="post" style="flex:1">
                 <input type="hidden" name="name" th:value="${p.name}"/>
                 <input type="hidden" name="subCategory" th:value="${p.subCategory}"/>

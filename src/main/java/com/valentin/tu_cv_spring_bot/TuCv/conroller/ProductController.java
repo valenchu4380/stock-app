@@ -141,10 +141,23 @@ public class ProductController {
         return "redirect:/productos";
     }
 
-    @GetMapping("/editar/{name}")
-    public String formEditar(@PathVariable String name, Model model) {
-        productService.getByname(name).ifPresent(p ->
-            model.addAttribute("product", p));
+    @GetMapping({"/editar/{name}/{subCategory}", "/editar/{name}"})
+    public String formEditar(@PathVariable String name,
+                             @PathVariable(required = false) String subCategory,
+                             Model model) {
+        if (subCategory != null && !subCategory.isBlank()) {
+            try {
+                SubCategory sc = SubCategory.valueOf(subCategory);
+                productService.findBynameAndSubCategoryForUpdate(name, sc)
+                    .stream().findFirst().ifPresent(p -> model.addAttribute("product", p));
+            } catch (IllegalArgumentException e) {
+                productService.getByname(name).ifPresent(p ->
+                    model.addAttribute("product", p));
+            }
+        } else {
+            productService.getByname(name).ifPresent(p ->
+                model.addAttribute("product", p));
+        }
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
         model.addAttribute("lineas", productService.findAllLineas());
