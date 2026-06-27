@@ -49,6 +49,7 @@ public class ProductRepositoryImpl implements ProductRepository {
              Statement st = con.createStatement()) {
             st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS cost_price DOUBLE PRECISION DEFAULT 0");
             st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS linea VARCHAR(255) DEFAULT ''");
+            st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS imagen VARCHAR(500) DEFAULT ''");
         } catch (SQLException e) {
             System.out.println("Nota: " + e.getMessage());
         }
@@ -149,12 +150,14 @@ public class ProductRepositoryImpl implements ProductRepository {
         if (linea != null && !linea.isBlank()) {
             try { lineaEnum = Linea.valueOf(linea); } catch (IllegalArgumentException e) { lineaEnum = null; }
         }
-        return new Product(name, price, costPrice, stock, category, subCategory, lineaEnum);
+        String imagen = rs.getString("imagen");
+        if (imagen == null) imagen = "";
+        return new Product(name, price, costPrice, stock, category, subCategory, lineaEnum, imagen);
     }
 
     @Override
     public void save(Product product) {
-        String sql = "INSERT INTO products(name, price, cost_price, stock, category, subcategory, linea) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products(name, price, cost_price, stock, category, subcategory, linea, imagen) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, product.getName().trim());
@@ -164,6 +167,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setString(5, product.getCategory().name());
             st.setString(6, product.getSubCategory().name());
             st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
+            st.setString(8, product.getImagen() != null ? product.getImagen() : "");
             st.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -188,7 +192,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 @Override
 public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-    String sql = "UPDATE products SET name=?, price=?, cost_price=?, stock=?, category=?, subCategory=?, linea=? WHERE name=? AND subCategory=?";
+    String sql = "UPDATE products SET name=?, price=?, cost_price=?, stock=?, category=?, subCategory=?, linea=?, imagen=? WHERE name=? AND subCategory=?";
     try (Connection con = getConnection();
          PreparedStatement st = con.prepareStatement(sql)) {
         st.setString(1, product.getName().trim());
@@ -198,8 +202,9 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
         st.setString(5, product.getCategory().name());
         st.setString(6, product.getSubCategory().name());
         st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
-        st.setString(8, oldName.trim());
-        st.setString(9, oldSubCategory.name());
+        st.setString(8, product.getImagen() != null ? product.getImagen() : "");
+        st.setString(9, oldName.trim());
+        st.setString(10, oldSubCategory.name());
         int rows = st.executeUpdate();
         if (rows == 0) throw new ProductNotFoundException("Producto no encontrado: " + oldName);
     } catch (SQLException e) {

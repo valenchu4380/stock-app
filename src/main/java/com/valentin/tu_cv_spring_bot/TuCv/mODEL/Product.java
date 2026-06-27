@@ -26,4 +26,5 @@ public class Product {
     private ProductCategory category;
     private SubCategory subCategory;
     private Linea linea;
+    private String imagen;
 }

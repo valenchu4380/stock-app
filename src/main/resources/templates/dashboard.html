@@ -133,6 +133,33 @@
         }
         .filtros-dash .limpiar:hover { background: #f3f4f6; }
 
+        .acciones-rapidas {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .accion-card {
+            flex: 1;
+            min-width: 140px;
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+            text-decoration: none;
+            color: #374151;
+            text-align: center;
+            transition: .2s;
+            border: 1.5px solid transparent;
+        }
+        .accion-card:hover {
+            border-color: #bfdbfe;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,.1);
+        }
+        .accion-icon { display: block; font-size: 1.8rem; margin-bottom: 8px; }
+        .accion-texto { font-weight: 600; font-size: 0.9rem; }
+
         @media (max-width: 768px) {
             .charts-grid { grid-template-columns: 1fr; }
             .hero h1 { font-size: 1.4rem; }
@@ -149,7 +176,28 @@
 </div>
 
 <div class="container">
-    <a class="volver" th:href="@{/productos}">← Volver a Productos</a>
+    <div class="acciones-rapidas">
+        <a class="accion-card" th:href="@{/productos/nuevo}">
+            <span class="accion-icon">➕</span>
+            <span class="accion-texto">Agregar producto</span>
+        </a>
+        <a class="accion-card" th:href="@{/productos}">
+            <span class="accion-icon">📋</span>
+            <span class="accion-texto">Listado de productos</span>
+        </a>
+        <a class="accion-card" th:href="@{/productos/movimientos}">
+            <span class="accion-icon">📜</span>
+            <span class="accion-texto">Movimientos</span>
+        </a>
+        <a class="accion-card" th:href="@{/productos/lineas}">
+            <span class="accion-icon">🏷️</span>
+            <span class="accion-texto">Líneas</span>
+        </a>
+        <a class="accion-card" href="#" onclick="openModal(event)">
+            <span class="accion-icon">💰</span>
+            <span class="accion-texto">Actualizar Precios</span>
+        </a>
+    </div>
 
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
 
@@ -412,6 +460,99 @@
                 }
             }
         });
+    }
+</script>
+
+<!-- MODAL ACTUALIZAR PRECIOS -->
+<div class="modal-overlay" id="modal-precios" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>Actualizar Precios por Subcategoría</h2>
+        <form th:action="@{/productos/actualizar-precios-sub}" method="post">
+            <div class="modal-form-group">
+                <label for="modal-sub">Subcategoría</label>
+                <select id="modal-sub" name="subCategory" required>
+                    <option value="">-- Seleccioná --</option>
+                    <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"></option>
+                </select>
+            </div>
+            <div class="modal-form-group">
+                <label for="modal-pct">Porcentaje (%)</label>
+                <input type="number" id="modal-pct" name="porcentaje" step="0.01" required
+                       placeholder="Ej: 10 para aumentar, -10 para disminuir"/>
+                <span class="modal-help">Positivo para aumentar, negativo para disminuir</span>
+            </div>
+            <button class="modal-btn" type="submit">Actualizar Precios</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+        background: white;
+        padding: 35px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 450px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #6b7280;
+    }
+    .modal-close:hover { color: #1f2937; }
+    .modal-content h2 { font-size: 1.2rem; color: #1e3a8a; margin-bottom: 20px; }
+    .modal-form-group { margin-bottom: 18px; }
+    .modal-form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .modal-form-group select,
+    .modal-form-group input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #dce1ec;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+    .modal-form-group select:focus,
+    .modal-form-group input:focus { border-color: #2563eb; outline: none; }
+    .modal-help { display: block; font-size: 0.78rem; color: #9ca3af; margin-top: 4px; }
+    .modal-btn {
+        width: 100%;
+        padding: 12px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .modal-btn:hover { background: #1d4ed8; }
+</style>
+
+<script>
+    function openModal(e) {
+        e.preventDefault();
+        document.getElementById('modal-precios').classList.add('open');
+    }
+    function closeModal() {
+        document.getElementById('modal-precios').classList.remove('open');
     }
 </script>
 
