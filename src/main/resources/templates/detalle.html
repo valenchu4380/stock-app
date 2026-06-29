@@ -313,7 +313,7 @@
                 descripción
             </div>
 
-            <div class="detalle-botones">
+            <div class="detalle-botones" th:if="${product.stock > 0}">
                 <div class="qty-selector">
                     <button class="qty-minus" onclick="cambiarQty(-1)">−</button>
                     <span id="detalleQty">1</span>
@@ -324,7 +324,12 @@
                         th:data-sub="${product.subCategory}"
                         th:data-price="${product.price}"
                         th:data-imagen="${product.imagen != null ? product.imagen : ''}"
+                        th:data-stock="${product.stock}"
                         onclick="agregarAlCarrito(this)">🛒 Agregar al carrito</button>
+                <a class="btn btn-volver" th:href="@{/productos}">← Volver</a>
+            </div>
+            <div class="detalle-botones" th:if="${product.stock == 0}">
+                <span style="padding:12px 0;font-weight:600;color:#dc2626;">❌ Sin stock — no disponible</span>
                 <a class="btn btn-volver" th:href="@{/productos}">← Volver</a>
             </div>
         </div>
@@ -342,6 +347,8 @@
         const span = document.getElementById('detalleQty');
         let qty = parseInt(span.textContent) + delta;
         if (qty < 1) qty = 1;
+        const max = parseInt(document.querySelector('.btn-carrito').dataset.stock);
+        if (qty > max) qty = max;
         span.textContent = qty;
     }
     function agregarAlCarrito(btn) {

@@ -101,8 +101,10 @@
             overflow: hidden;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
             transition: transform .15s, box-shadow .15s;
+            position: relative;
         }
-        .producto-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+        .producto-card.sin-stock { opacity: .55; pointer-events: none; }
+        .producto-card.sin-stock:hover { transform: none; box-shadow: none; }
         .card-img {
             width: 100%;
             height: 200px;
@@ -338,6 +340,7 @@
 
 <div class="productos-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
     <a class="producto-card" th:each="p : ${productos}"
+       th:classappend="${p.stock == 0} ? 'sin-stock'"
        th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">
         <div class="card-img">
             <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
