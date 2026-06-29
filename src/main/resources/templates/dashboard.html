@@ -8,10 +8,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f5f7fb; }
+        :root {
+            --color-fondo: #F9F3EC;
+            --color-crema: #F5EFE6;
+            --color-melocoton: #EDD5CB;
+            --color-rosa-claro: #E8C4C4;
+            --color-rosa-borde: #D4B8AE;
+            --color-rosa: #C97B7B;
+            --color-verde-claro: #A8C4A2;
+            --color-verde: #7D9E78;
+            --color-texto: #5C4A3A;
+            --color-texto-oscuro: #3B2E24;
+        }
+
+        body { background: var(--color-fondo); }
 
         .hero {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(135deg, var(--color-rosa), #B06060);
             color: white;
             text-align: center;
             padding: 40px 20px;
@@ -25,15 +38,15 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
-            background: white;
-            border: 1.5px solid #dce1ec;
+            background: var(--color-crema);
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
-            color: #374151;
+            color: var(--color-texto);
             font-weight: 600;
             transition: .2s;
         }
-        .volver:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+        .volver:hover { background: #eff6ff; border-color: var(--color-rosa-borde); color: var(--color-rosa); }
 
         .stats-grid {
             display: grid;
@@ -42,16 +55,16 @@
             margin-bottom: 30px;
         }
         .stat-card {
-            background: white;
+            background: var(--color-crema);
             padding: 22px;
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.06);
             text-align: center;
         }
         .stat-card .num { font-size: 1.8rem; font-weight: 700; }
-        .stat-card .label { font-size: 0.82rem; color: #6b7280; margin-top: 4px; }
-        .stat-card .num.green { color: #059669; }
-        .stat-card .num.blue  { color: #2563eb; }
+        .stat-card .label { font-size: 0.82rem; color: var(--color-texto); margin-top: 4px; }
+        .stat-card .num.green { color: var(--color-verde); }
+        .stat-card .num.blue  { color: var(--color-rosa); }
         .stat-card .num.amber { color: #d97706; }
         .stat-card .num.red   { color: #dc2626; }
         .stat-card .num.purple { color: #7c3aed; }
@@ -63,17 +76,17 @@
             margin-bottom: 30px;
         }
         .chart-card {
-            background: white;
+            background: var(--color-crema);
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.06);
             padding: 20px;
         }
         .chart-card h3 {
             font-size: 1rem;
-            color: #1e3a8a;
+            color: var(--color-texto-oscuro);
             margin-bottom: 14px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--color-rosa-borde);
         }
         .chart-card.full { grid-column: 1 / -1; }
         .chart-card canvas { max-height: 320px; }
@@ -87,7 +100,7 @@
         .mensaje.err { background: #fee2e2; color: #991b1b; }
 
         .filtros-dash {
-            background: white;
+            background: var(--color-crema);
             padding: 18px 22px;
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.06);
@@ -100,19 +113,19 @@
         .filtros-dash input,
         .filtros-dash select {
             padding: 10px 14px;
-            border: 1.5px solid #dce1ec;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             font-size: 0.9rem;
             outline: none;
-            background: #fafafa;
+            background: var(--color-crema);
         }
         .filtros-dash input:focus,
-        .filtros-dash select:focus { border-color: #2563eb; }
+        .filtros-dash select:focus { border-color: var(--color-rosa); }
         .filtros-dash input { flex: 1; min-width: 160px; }
         .filtros-dash select { min-width: 140px; }
         .filtros-dash button {
             padding: 10px 24px;
-            background: #2563eb;
+            background: var(--color-rosa);
             color: white;
             border: none;
             border-radius: 10px;
@@ -120,18 +133,18 @@
             cursor: pointer;
             font-size: 0.9rem;
         }
-        .filtros-dash button:hover { background: #1d4ed8; }
+        .filtros-dash button:hover { background: #B06060; }
         .filtros-dash .limpiar {
             padding: 10px 18px;
-            background: white;
-            color: #374151;
-            border: 1.5px solid #dce1ec;
+            background: var(--color-crema);
+            color: var(--color-texto);
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
         }
-        .filtros-dash .limpiar:hover { background: #f3f4f6; }
+        .filtros-dash .limpiar:hover { background: var(--color-crema); }
 
         .acciones-rapidas {
             display: flex;
@@ -142,18 +155,18 @@
         .accion-card {
             flex: 1;
             min-width: 140px;
-            background: white;
+            background: var(--color-crema);
             padding: 20px;
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.06);
             text-decoration: none;
-            color: #374151;
+            color: var(--color-texto);
             text-align: center;
             transition: .2s;
             border: 1.5px solid transparent;
         }
         .accion-card:hover {
-            border-color: #bfdbfe;
+            border-color: var(--color-rosa-borde);
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0,0,0,.1);
         }
@@ -341,7 +354,7 @@
 
 <style>
     .gestion-section {
-        background: white;
+        background: var(--color-crema);
         border-radius: 14px;
         box-shadow: 0 3px 12px rgba(0,0,0,.06);
         padding: 22px;
@@ -355,17 +368,17 @@
         flex-wrap: wrap;
         gap: 10px;
     }
-    .gestion-header h2 { font-size: 1.1rem; color: #1e3a8a; }
+    .gestion-header h2 { font-size: 1.1rem; color: var(--color-texto-oscuro); }
     .gestion-nuevo {
         padding: 8px 20px;
-        background: #2563eb;
+        background: var(--color-rosa);
         color: white;
         border-radius: 10px;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.85rem;
     }
-    .gestion-nuevo:hover { background: #1d4ed8; }
+    .gestion-nuevo:hover { background: #B06060; }
     .gestion-tabla-wrapper { overflow-x: auto; }
     .gestion-tabla {
         width: 100%;
@@ -378,30 +391,30 @@
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: .04em;
-        color: #2563eb;
-        border-bottom: 2px solid #f1f5f9;
+        color: var(--color-rosa);
+        border-bottom: 2px solid var(--color-rosa-borde);
         font-weight: 700;
         white-space: nowrap;
     }
     .gestion-tabla td {
         padding: 10px 12px;
-        color: #374151;
-        border-bottom: 1px solid #f1f5f9;
+        color: var(--color-texto);
+        border-bottom: 1px solid var(--color-rosa-borde);
         vertical-align: middle;
     }
-    .gestion-tabla tr:hover td { background: #fafbfc; }
+    .gestion-tabla tr:hover td { background: var(--color-melocoton); }
     .gestion-img {
         width: 42px;
         height: 42px;
         border-radius: 8px;
         overflow: hidden;
-        background: #f3f4f6;
+        background: var(--color-crema);
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .gestion-img img { width: 100%; height: 100%; object-fit: cover; }
-    .gestion-nombre { font-weight: 600; color: #1e3a8a; margin-bottom: 3px; }
+    .gestion-nombre { font-weight: 600; color: var(--color-texto-oscuro); margin-bottom: 3px; }
     .gestion-marca {
         display: inline-block;
         padding: 1px 8px;
@@ -410,16 +423,16 @@
         font-weight: 700;
         text-transform: uppercase;
     }
-    .gestion-marca-avon     { background: #fce7f3; color: #9d174d; }
-    .gestion-marca-natura   { background: #d1fae5; color: #065f46; }
-    .gestion-marca-saphirus { background: #ede9fe; color: #4c1d95; }
+    .gestion-marca-avon     { background: var(--color-rosa-claro); color: var(--color-rosa); }
+    .gestion-marca-natura   { background: var(--color-verde-claro); color: var(--color-verde); }
+    .gestion-marca-saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
     .gestion-precio { font-weight: 700; white-space: nowrap; }
     .gestion-stock { display: inline-flex; align-items: center; gap: 6px; }
     .gestion-stock-btn {
         width: 26px; height: 24px;
-        border: 1.5px solid #dce1ec;
+        border: 1.5px solid var(--color-rosa-borde);
         border-radius: 6px;
-        background: white;
+        background: var(--color-crema);
         cursor: pointer;
         font-size: 0.95rem;
         font-weight: 700;
@@ -428,11 +441,11 @@
         justify-content: center;
         line-height: 1;
     }
-    .gestion-stock-btn:hover { border-color: #2563eb; background: #eff6ff; }
-    .gestion-stock-plus { color: #059669; }
-    .gestion-stock-plus:hover { border-color: #059669; background: #ecfdf5; }
+    .gestion-stock-btn:hover { border-color: var(--color-rosa); background: #eff6ff; }
+    .gestion-stock-plus { color: var(--color-verde); }
+    .gestion-stock-plus:hover { border-color: var(--color-verde); background: var(--color-verde-claro); }
     .gestion-stock-minus { color: #dc2626; }
-    .gestion-stock-minus:hover { border-color: #dc2626; background: #fef2f2; }
+    .gestion-stock-minus:hover { border-color: #dc2626; background: var(--color-melocoton); }
     .gestion-stock-valor {
         min-width: 28px;
         text-align: center;
@@ -445,22 +458,22 @@
         align-items: center;
         justify-content: center;
         width: 32px; height: 32px;
-        border: 1.5px solid #dce1ec;
+        border: 1.5px solid var(--color-rosa-borde);
         border-radius: 8px;
-        background: white;
+        background: var(--color-crema);
         cursor: pointer;
         text-decoration: none;
         font-size: 0.85rem;
         transition: .15s;
     }
-    .gestion-btn:hover { border-color: #2563eb; background: #eff6ff; }
-    .gestion-btn-edit:hover { border-color: #2563eb; }
-    .gestion-btn-view:hover { border-color: #059669; }
+    .gestion-btn:hover { border-color: var(--color-rosa); background: var(--color-melocoton); }
+    .gestion-btn-edit:hover { border-color: var(--color-rosa); }
+    .gestion-btn-view:hover { border-color: var(--color-verde); }
     .gestion-btn-delete { border-color: transparent; color: #dc2626; }
-    .gestion-btn-delete:hover { border-color: #dc2626; background: #fef2f2; }
+    .gestion-btn-delete:hover { border-color: #dc2626; background: var(--color-melocoton); }
     .text-red    { color: #dc2626; font-weight: bold; }
     .text-yellow { color: #e6b800; font-weight: bold; }
-    .text-green  { color: #059669; font-weight: bold; }
+    .text-green  { color: var(--color-verde); font-weight: bold; }
 </style>
 
 <script>
@@ -521,8 +534,8 @@
                 datasets: [{
                     label: 'Ganancia ($)',
                     data: ganancias,
-                    backgroundColor: ganancias.map(v => v >= 0 ? 'rgba(5, 150, 105, .75)' : 'rgba(220, 38, 38, .75)'),
-                    borderColor: ganancias.map(v => v >= 0 ? '#059669' : '#dc2626'),
+                    backgroundColor: ganancias.map(v => v >= 0 ? 'rgba(125, 158, 120, .75)' : 'rgba(220, 38, 38, .75)'),
+                    borderColor: ganancias.map(v => v >= 0 ? '#7D9E78' : '#dc2626'),
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -565,8 +578,8 @@
                     {
                         label: 'Venta total ($)',
                         data: ventas,
-                        backgroundColor: 'rgba(37, 99, 235, .7)',
-                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(201, 123, 123, .7)',
+                        borderColor: '#C97B7B',
                         borderWidth: 1,
                         borderRadius: 4
                     }
@@ -600,8 +613,8 @@
                 datasets: [{
                     label: 'Margen (%)',
                     data: margenes,
-                    backgroundColor: margenes.map(v => v >= 30 ? 'rgba(5, 150, 105, .75)' : v >= 15 ? 'rgba(217, 119, 6, .75)' : 'rgba(220, 38, 38, .75)'),
-                    borderColor: margenes.map(v => v >= 30 ? '#059669' : v >= 15 ? '#d97706' : '#dc2626'),
+                    backgroundColor: margenes.map(v => v >= 30 ? 'rgba(125, 158, 120, .75)' : v >= 15 ? 'rgba(217, 119, 6, .75)' : 'rgba(220, 38, 38, .75)'),
+                    borderColor: margenes.map(v => v >= 30 ? '#7D9E78' : v >= 15 ? '#d97706' : '#dc2626'),
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -628,7 +641,7 @@
     }
 
     if (catLabels && catLabels.length) {
-        const colores = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
+        const colores = ['#C97B7B', '#7D9E78', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
         new Chart(document.getElementById('chartCat'), {
             type: 'doughnut',
             data: {
@@ -660,7 +673,7 @@
     }
 
     if (lineaLabels && lineaLabels.length) {
-        const colores = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ea580c', '#be185d'];
+        const colores = ['#C97B7B', '#7D9E78', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ea580c', '#be185d'];
         new Chart(document.getElementById('chartLinea'), {
             type: 'bar',
             data: {
@@ -668,8 +681,8 @@
                 datasets: [{
                     label: 'Ganancia ($)',
                     data: lineaGanancias,
-                    backgroundColor: brandGanancias.map(v => v >= 0 ? 'rgba(5, 150, 105, .75)' : 'rgba(220, 38, 38, .75)'),
-                    borderColor: brandGanancias.map(v => v >= 0 ? '#059669' : '#dc2626'),
+                    backgroundColor: brandGanancias.map(v => v >= 0 ? 'rgba(125, 158, 120, .75)' : 'rgba(220, 38, 38, .75)'),
+                    borderColor: brandGanancias.map(v => v >= 0 ? '#7D9E78' : '#dc2626'),
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -730,7 +743,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal-content {
-        background: white;
+        background: var(--color-crema);
         padding: 35px;
         border-radius: 15px;
         width: 90%;
@@ -746,27 +759,27 @@
         border: none;
         font-size: 1.3rem;
         cursor: pointer;
-        color: #6b7280;
+        color: var(--color-texto);
     }
     .modal-close:hover { color: #1f2937; }
-    .modal-content h2 { font-size: 1.2rem; color: #1e3a8a; margin-bottom: 20px; }
+    .modal-content h2 { font-size: 1.2rem; color: var(--color-texto-oscuro); margin-bottom: 20px; }
     .modal-form-group { margin-bottom: 18px; }
-    .modal-form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .modal-form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--color-texto); margin-bottom: 6px; }
     .modal-form-group select,
     .modal-form-group input {
         width: 100%;
         padding: 11px 14px;
-        border: 1.5px solid #dce1ec;
+        border: 1.5px solid var(--color-rosa-borde);
         border-radius: 10px;
         font-size: 1rem;
     }
     .modal-form-group select:focus,
-    .modal-form-group input:focus { border-color: #2563eb; outline: none; }
-    .modal-help { display: block; font-size: 0.78rem; color: #9ca3af; margin-top: 4px; }
+    .modal-form-group input:focus { border-color: var(--color-rosa); outline: none; }
+    .modal-help { display: block; font-size: 0.78rem; color: var(--color-texto); margin-top: 4px; }
     .modal-btn {
         width: 100%;
         padding: 12px;
-        background: #2563eb;
+        background: var(--color-rosa);
         color: white;
         border: none;
         border-radius: 10px;
@@ -774,7 +787,7 @@
         font-weight: 600;
         cursor: pointer;
     }
-    .modal-btn:hover { background: #1d4ed8; }
+    .modal-btn:hover { background: #B06060; }
 </style>
 
 <script>

@@ -6,11 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos</title>
     <style>
+        :root {
+            --color-fondo: #F9F3EC;
+            --color-crema: #F5EFE6;
+            --color-melocoton: #EDD5CB;
+            --color-rosa-claro: #E8C4C4;
+            --color-rosa-borde: #D4B8AE;
+            --color-rosa: #C97B7B;
+            --color-verde-claro: #A8C4A2;
+            --color-verde: #7D9E78;
+            --color-texto: #5C4A3A;
+            --color-texto-oscuro: #3B2E24;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f5f7fb; }
+        body { background: var(--color-fondo); }
 
         .hero {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(135deg, var(--color-rosa), #B06060);
             color: white;
             text-align: center;
             padding: 40px 20px 30px;
@@ -58,12 +70,12 @@
         .search-bar input {
             flex: 1;
             padding: 12px 18px;
-            border: 1.5px solid #dce1ec;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             font-size: 1rem;
             outline: none;
         }
-        .search-bar input:focus { border-color: #2563eb; }
+        .search-bar input:focus { border-color: var(--color-rosa); }
 
         .productos-grid {
             width: 80%;
@@ -73,7 +85,7 @@
             gap: 16px;
         }
         .producto-card {
-            background: white;
+            background: var(--color-crema);
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
@@ -94,7 +106,7 @@
         .card-img img { width: 100%; height: 100%; object-fit: contain; }
         .card-img-placeholder {
             font-size: 3rem;
-            color: #d1d5db;
+            color: var(--color-rosa-borde);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,7 +116,7 @@
         .card-title {
             font-size: 0.95rem;
             font-weight: 700;
-            color: #1e3a8a;
+            color: var(--color-texto-oscuro);
             margin-bottom: 6px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -127,23 +139,23 @@
             letter-spacing: .04em;
             margin-bottom: 10px;
         }
-        .card-brand.avon     { background: #fce7f3; color: #9d174d; }
-        .card-brand.natura   { background: #d1fae5; color: #065f46; }
-        .card-brand.saphirus { background: #ede9fe; color: #4c1d95; }
+        .card-brand.avon     { background: var(--color-rosa-claro); color: var(--color-rosa); }
+        .card-brand.natura   { background: var(--color-verde-claro); color: var(--color-verde); }
+        .card-brand.saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
         .card-sub {
             font-size: 0.75rem;
-            color: #9ca3af;
+            color: var(--color-texto);
             margin-bottom: 6px;
         }
         .card-linea {
             font-size: 0.72rem;
-            color: #6b7280;
+            color: var(--color-texto);
             margin-bottom: 8px;
         }
         .card-price {
             font-size: 1.25rem;
             font-weight: 800;
-            color: #1f2937;
+            color: var(--color-texto-oscuro);
             margin-bottom: 6px;
         }
         .card-stock-status {
@@ -151,7 +163,7 @@
             font-weight: 600;
             margin-bottom: 10px;
         }
-        .text-green { color: #059669; }
+        .text-green { color: var(--color-verde); }
         .text-yellow { color: #e6b800; }
         .text-red { color: #dc2626; }
         a.producto-card { cursor: pointer; color: inherit; text-decoration: none; display: block; }
@@ -166,15 +178,15 @@
         }
         .filtros-bar select {
             padding: 10px 14px;
-            border: 1.5px solid #dce1ec;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             font-size: 0.88rem;
-            color: #374151;
-            background: white;
+            color: var(--color-texto);
+            background: var(--color-crema);
             outline: none;
             min-width: 140px;
         }
-        .filtros-bar select:focus { border-color: #2563eb; }
+        .filtros-bar select:focus { border-color: var(--color-rosa); }
 
         .paginacion {
             width: 80%;
@@ -186,9 +198,9 @@
             flex-wrap: wrap;
         }
         .pag-btn {
-            background: white;
-            border: 1.5px solid #dce1ec;
-            color: #374151;
+            background: var(--color-crema);
+            border: 1.5px solid var(--color-rosa-borde);
+            color: var(--color-texto);
             padding: 8px 14px;
             border-radius: 8px;
             font-size: 0.9rem;
@@ -197,31 +209,31 @@
             text-decoration: none;
             transition: .2s;
         }
-        .pag-btn:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
-        .pag-btn.active { background: #2563eb; border-color: #2563eb; color: white; cursor: default; }
+        .pag-btn:hover { background: var(--color-melocoton); border-color: var(--color-rosa-borde); color: var(--color-rosa); }
+        .pag-btn.active { background: var(--color-rosa); border-color: var(--color-rosa); color: white; cursor: default; }
         .pag-btn.disabled { opacity: .4; pointer-events: none; }
 
         .btn-orden {
-            background: white;
-            border: 1.5px solid #dce1ec;
+            background: var(--color-crema);
+            border: 1.5px solid var(--color-rosa-borde);
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
-            color: #2563eb;
+            color: var(--color-rosa);
             cursor: pointer;
             text-decoration: none;
         }
-        .btn-orden:hover { background: #eff6ff; }
-        .btn-orden.sort-active { background: #eff6ff; border-color: #2563eb; }
+        .btn-orden:hover { background: var(--color-melocoton); }
+        .btn-orden.sort-active { background: var(--color-melocoton); border-color: var(--color-rosa); }
 
         .empty-state {
             width: 80%;
             margin: 20px auto;
             text-align: center;
-            color: #9ca3af;
+            color: var(--color-texto);
             padding: 40px 0;
-            background: white;
+            background: var(--color-crema);
             border-radius: 15px;
         }
 

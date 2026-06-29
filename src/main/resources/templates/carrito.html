@@ -7,10 +7,24 @@
     <title>Carrito</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f5f7fb; min-height: 100vh; }
+
+        :root {
+            --color-fondo: #F9F3EC;
+            --color-crema: #F5EFE6;
+            --color-melocoton: #EDD5CB;
+            --color-rosa-claro: #E8C4C4;
+            --color-rosa-borde: #D4B8AE;
+            --color-rosa: #C97B7B;
+            --color-verde-claro: #A8C4A2;
+            --color-verde: #7D9E78;
+            --color-texto: #5C4A3A;
+            --color-texto-oscuro: #3B2E24;
+        }
+
+        body { background: var(--color-fondo); min-height: 100vh; }
 
         .hero {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(135deg, var(--color-rosa), #B06060);
             color: white;
             text-align: center;
             padding: 30px 20px;
@@ -26,39 +40,39 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
-            background: white;
-            border: 1.5px solid #dce1ec;
+            background: var(--color-crema);
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
-            color: #374151;
+            color: var(--color-texto);
             font-weight: 600;
             font-size: 0.9rem;
         }
-        .btn-volver:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+        .btn-volver:hover { background: var(--color-melocoton); border-color: var(--color-rosa-borde); color: var(--color-rosa); }
 
         .cart-empty {
             text-align: center;
             padding: 60px 20px;
-            background: white;
+            background: var(--color-crema);
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
         }
         .cart-empty .icon { font-size: 4rem; margin-bottom: 16px; }
-        .cart-empty p { color: #6b7280; font-size: 1.1rem; margin-bottom: 20px; }
+        .cart-empty p { color: var(--color-texto); font-size: 1.1rem; margin-bottom: 20px; }
         .cart-empty a {
             display: inline-block;
             padding: 12px 28px;
-            background: #2563eb;
+            background: var(--color-rosa);
             color: white;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
         }
-        .cart-empty a:hover { background: #1d4ed8; }
+        .cart-empty a:hover { background: #B06060; }
 
         .cart-items { display: flex; flex-direction: column; gap: 12px; }
         .cart-item {
-            background: white;
+            background: var(--color-crema);
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
             padding: 16px 20px;
@@ -71,14 +85,14 @@
             height: 60px;
             border-radius: 10px;
             overflow: hidden;
-            background: #f3f4f6;
+            background: var(--color-crema);
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .cart-item-img img { width: 100%; height: 100%; object-fit: contain; }
-        .cart-item-img .placeholder { font-size: 1.5rem; color: #d1d5db; }
+        .cart-item-img .placeholder { font-size: 1.5rem; color: var(--color-rosa-borde); }
 
         .cart-item-info {
             flex: 1;
@@ -86,17 +100,17 @@
         }
         .cart-item-name {
             font-weight: 700;
-            color: #1e3a8a;
+            color: var(--color-texto-oscuro);
             font-size: 0.95rem;
             margin-bottom: 4px;
         }
         .cart-item-sub {
             font-size: 0.78rem;
-            color: #9ca3af;
+            color: var(--color-texto);
         }
         .cart-item-price {
             font-weight: 800;
-            color: #1f2937;
+            color: var(--color-texto-oscuro);
             font-size: 1rem;
             white-space: nowrap;
         }
@@ -108,7 +122,7 @@
         }
         .qty-btn {
             width: 30px; height: 30px;
-            border: 1.5px solid #dce1ec;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 8px;
             background: white;
             cursor: pointer;
@@ -117,13 +131,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #374151;
+            color: var(--color-texto);
         }
-        .qty-btn:hover { border-color: #2563eb; background: #eff6ff; }
+        .qty-btn:hover { border-color: var(--color-rosa); background: var(--color-melocoton); }
         .qty-btn-minus { color: #dc2626; }
-        .qty-btn-minus:hover { border-color: #dc2626; background: #fef2f2; }
-        .qty-btn-plus { color: #059669; }
-        .qty-btn-plus:hover { border-color: #059669; background: #ecfdf5; }
+        .qty-btn-minus:hover { border-color: #dc2626; background: var(--color-melocoton); }
+        .qty-btn-plus { color: var(--color-verde); }
+        .qty-btn-plus:hover { border-color: var(--color-verde); background: var(--color-verde-claro); }
         .qty-num {
             min-width: 28px;
             text-align: center;
@@ -133,7 +147,7 @@
         .qty-remove {
             background: none;
             border: none;
-            color: #9ca3af;
+            color: var(--color-texto);
             cursor: pointer;
             font-size: 1.2rem;
             padding: 4px;
@@ -141,7 +155,7 @@
         .qty-remove:hover { color: #dc2626; }
 
         .cart-resumen {
-            background: white;
+            background: var(--color-crema);
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
             padding: 22px 24px;
@@ -152,8 +166,8 @@
             flex-wrap: wrap;
             gap: 16px;
         }
-        .cart-total-label { font-size: 0.9rem; color: #6b7280; }
-        .cart-total-number { font-size: 1.6rem; font-weight: 800; color: #1f2937; }
+        .cart-total-label { font-size: 0.9rem; color: var(--color-texto); }
+        .cart-total-number { font-size: 1.6rem; font-weight: 800; color: var(--color-texto-oscuro); }
         .btn-whatsapp-enviar {
             display: inline-flex;
             align-items: center;
@@ -176,15 +190,15 @@
         }
         .btn-limpiar {
             padding: 10px 20px;
-            background: white;
+            background: var(--color-crema);
             color: #dc2626;
-            border: 1.5px solid #dce1ec;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
         }
-        .btn-limpiar:hover { border-color: #dc2626; background: #fef2f2; }
+        .btn-limpiar:hover { border-color: #dc2626; background: var(--color-melocoton); }
 
         @media (max-width: 768px) {
             .container { width: 92%; }
