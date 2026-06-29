@@ -23,7 +23,7 @@
             position: absolute;
             top: 20px;
             right: 10%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
             color: white;
@@ -43,7 +43,7 @@
             min-width: 18px;
             height: 18px;
             border-radius: 9px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 0 4px;
@@ -226,21 +226,28 @@
         }
 
         @media (max-width: 768px) {
-            .hero { padding: 25px 16px; }
-            .hero h1 { font-size: 1.4rem; }
-            .search-bar { width: 92%; }
+            .hero { padding: 24px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+            .hero-text { text-align: left; }
+            .hero h1 { font-size: 1.3rem; }
+            .hero p { font-size: 0.82rem; margin-top: 4px; }
+            .search-bar { width: 92%; margin-top: 14px; }
             .productos-grid { width: 92%; grid-template-columns: 1fr; }
-            .filtros-bar { width: 92%; }
+            .filtros-bar { width: 92%; flex-direction: column; align-items: stretch; margin-top: 14px; gap: 8px; }
+            .filtros-bar select { width: 100%; min-width: unset; }
+            .filtros-bar .btn-orden { text-align: center; }
             .paginacion { width: 92%; }
             .empty-state { width: 92%; }
+            .cart-icon { position: static; font-size: 1rem; padding: 6px 12px; flex-shrink: 0; }
         }
     </style>
 </head>
 <body>
 
 <div class="hero">
-    <h1>Nuestros Productos</h1>
-    <p>Encontrá todo lo que buscás en perfumería y más</p>
+    <div class="hero-text">
+        <h1>Nuestros Productos</h1>
+        <p>Encontrá todo lo que buscás en perfumería y más</p>
+    </div>
     <a class="cart-icon" th:href="@{/productos/carrito}">
         🛒 <span class="cart-count" id="cartCount">0</span>
     </a>
