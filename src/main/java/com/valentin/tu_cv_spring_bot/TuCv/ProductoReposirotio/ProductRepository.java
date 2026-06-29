@@ -35,6 +35,7 @@ public interface ProductRepository {
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
 
     void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
+    void reduceStock(String name, String subCategory, int cantidad);
 
     List<Product> findAllPaged(int offset, int limit) throws InvalidProductException;
 

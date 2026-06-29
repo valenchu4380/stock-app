@@ -4,7 +4,7 @@
 <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos</title>
+    <title>SobreVivi | Productos</title>
     <style>
         :root {
             --color-fondo: #F9F3EC;
@@ -22,14 +22,25 @@
         body { background: var(--color-fondo); }
 
         .hero {
-            background: linear-gradient(135deg, var(--color-rosa), #B06060);
+            background: linear-gradient(135deg, var(--color-rosa), #A85555);
             color: white;
             text-align: center;
-            padding: 40px 20px 30px;
+            padding: 28px 20px 30px;
             position: relative;
         }
-        .hero h1 { font-size: 1.8rem; }
-        .hero p { margin-top: 6px; font-size: 1rem; opacity: .85; }
+        .hero-brand {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
+        }
+        .hero-brand-sub {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            opacity: .65;
+            margin-top: 2px;
+        }
 
         .cart-icon {
             position: absolute;
@@ -238,10 +249,13 @@
         }
 
         @media (max-width: 768px) {
-            .hero { padding: 24px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
-            .hero-text { text-align: left; }
-            .hero h1 { font-size: 1.3rem; }
-            .hero p { font-size: 0.82rem; margin-top: 4px; }
+            .hero { padding: 28px 16px 24px; }
+            .hero-brand { font-size: 1.6rem; }
+            .hero-brand-sub { font-size: 0.65rem; }
+            .hero-tagline { font-size: 0.8rem; }
+            .hero h1 { font-size: 0.95rem; }
+            .hero p { font-size: 0.78rem; }
+            .cart-icon { position: static; font-size: 1rem; padding: 6px 12px; margin-top: 16px; display: inline-flex; }
             .search-bar { width: 92%; margin-top: 14px; }
             .productos-grid { width: 92%; grid-template-columns: 1fr; }
             .filtros-bar { width: 92%; flex-direction: column; align-items: stretch; margin-top: 14px; gap: 8px; }
@@ -257,8 +271,8 @@
 
 <div class="hero">
     <div class="hero-text">
-        <h1>Nuestros Productos</h1>
-        <p>Encontrá todo lo que buscás en perfumería y más</p>
+    <div class="hero-brand">SobreVivi</div>
+        <p style="margin-top:8px;font-size:0.85rem;opacity:.65;">Encontrá todo lo que buscás en perfumería y más</p>
     </div>
     <a class="cart-icon" th:href="@{/productos/carrito}">
         🛒 <span class="cart-count" id="cartCount">0</span>

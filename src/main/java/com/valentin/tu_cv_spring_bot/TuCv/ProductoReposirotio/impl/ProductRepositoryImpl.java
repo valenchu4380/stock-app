@@ -232,6 +232,20 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
     }
 
     @Override
+    public void reduceStock(String name, String subCategory, int cantidad) {
+        String sql = "UPDATE products SET stock = GREATEST(0, stock - ?) WHERE LOWER(name) = LOWER(?) AND LOWER(subcategory) = LOWER(?)";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, cantidad);
+            st.setString(2, name.trim());
+            st.setString(3, subCategory.trim());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error reducing stock: " + e.getMessage());
+        }
+    }
+
+    @Override
     public boolean existsByname(String name) {
         String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
         try (Connection con = getConnection();

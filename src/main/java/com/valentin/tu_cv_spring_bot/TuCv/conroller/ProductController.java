@@ -4,11 +4,13 @@ import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Orden;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.service.LineaDetectionService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.MovementService;
+import com.valentin.tu_cv_spring_bot.TuCv.service.OrdenService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class ProductController {
     private final ProductService productService;
     private final MovementService movementService;
     private final LineaDetectionService lineaDetectionService;
+    private final OrdenService ordenService;
 
     @Value("${whatsapp.number:5491123456789}")
     private String whatsappNumber;
@@ -626,6 +629,46 @@ public class ProductController {
                 });
         model.addAttribute("Categorys", ProductCategory.values());
         return "index";
+    }
+
+    @PostMapping("/compras/crear")
+    @ResponseBody
+    public Map<String, Object> crearOrden(@RequestParam String itemsJson, @RequestParam double total) {
+        try {
+            Orden o = ordenService.crear(itemsJson, total);
+            return Map.of("success", true, "id", o.getId());
+        } catch (Exception e) {
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    @PostMapping("/compras/{id}/completar")
+    public String completarOrden(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            ordenService.completar(id);
+            ra.addFlashAttribute("mensaje", "Orden completada y stock actualizado");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al completar: " + e.getMessage());
+        }
+        return "redirect:/productos/compras";
+    }
+
+    @PostMapping("/compras/{id}/cancelar")
+    public String cancelarOrden(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            ordenService.cancelar(id);
+            ra.addFlashAttribute("mensaje", "Orden cancelada");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al cancelar: " + e.getMessage());
+        }
+        return "redirect:/productos/compras";
+    }
+
+    @GetMapping("/compras")
+    public String compras(Model model) {
+        List<Orden> ordenes = ordenService.listar();
+        model.addAttribute("ordenes", ordenes);
+        return "compras";
     }
 
 }

@@ -27,9 +27,23 @@
             background: linear-gradient(135deg, var(--color-rosa), #B06060);
             color: white;
             text-align: center;
-            padding: 40px 20px;
+            padding: 28px 20px 30px;
+            position: relative;
         }
-        .hero h1 { font-size: 2rem; }
+        .hero-brand {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
+        }
+        .hero-brand-sub {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            opacity: .65;
+            margin-top: 2px;
+        }
+        .hero p { font-size: 0.85rem; opacity: .65; margin-top: 8px; }
         .hero p { margin-top: 6px; font-size: 1rem; opacity: .85; }
 
         .container { width: 92%; max-width: 1300px; margin: 30px auto; }
@@ -175,7 +189,8 @@
 
         @media (max-width: 768px) {
             .charts-grid { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 1.4rem; }
+            .hero-brand { font-size: 1.6rem; }
+            .hero-brand-sub { font-size: 0.65rem; }
             .hero { padding: 25px 16px; }
             .stat-card .num { font-size: 1.4rem; }
         }
@@ -184,7 +199,8 @@
 <body>
 
 <div class="hero">
-    <h1>Dashboard Financiero</h1>
+    <div class="hero-brand">SobreVivi</div>
+    <div class="hero-brand-sub">Dashboard Financiero</div>
     <p>Análisis de precios, costos y rentabilidad</p>
 </div>
 
@@ -205,6 +221,10 @@
         <a class="accion-card" th:href="@{/productos/lineas}">
             <span class="accion-icon">🏷️</span>
             <span class="accion-texto">Líneas</span>
+        </a>
+        <a class="accion-card" th:href="@{/productos/compras}">
+            <span class="accion-icon">🛒</span>
+            <span class="accion-texto">Compras</span>
         </a>
         <a class="accion-card" href="#" onclick="openModal(event)">
             <span class="accion-icon">💰</span>
@@ -286,6 +306,9 @@
         <div class="gestion-header">
             <h2>📦 Gestión de productos</h2>
             <a class="gestion-nuevo" th:href="@{/productos/nuevo}">+ Nuevo</a>
+        </div>
+        <div class="gestion-buscar">
+            <input type="text" id="gestionSearch" placeholder="Buscar producto en la tabla..." oninput="filtrarTabla()">
         </div>
         <div class="gestion-tabla-wrapper">
             <table class="gestion-tabla">
@@ -369,6 +392,14 @@
         gap: 10px;
     }
     .gestion-header h2 { font-size: 1.1rem; color: var(--color-texto-oscuro); }
+    .gestion-buscar { margin-bottom: 12px; }
+    .gestion-buscar input {
+        width: 100%; max-width: 400px; padding: 10px 14px;
+        border: 1.5px solid var(--color-rosa-borde); border-radius: 10px;
+        font-size: 0.88rem; background: white; color: var(--color-texto);
+        outline: none;
+    }
+    .gestion-buscar input:focus { border-color: var(--color-rosa); }
     .gestion-nuevo {
         padding: 8px 20px;
         background: var(--color-rosa);
@@ -797,6 +828,15 @@
     }
     function closeModal() {
         document.getElementById('modal-precios').classList.remove('open');
+    }
+    function filtrarTabla() {
+        const input = document.getElementById('gestionSearch');
+        const filtro = input.value.toLowerCase();
+        const rows = document.querySelectorAll('.gestion-tabla tbody tr');
+        rows.forEach(row => {
+            const texto = row.textContent.toLowerCase();
+            row.style.display = texto.includes(filtro) ? '' : 'none';
+        });
     }
 </script>
 

@@ -4,7 +4,7 @@
 <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito</title>
+    <title>SobreVivi | Carrito</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
@@ -27,9 +27,22 @@
             background: linear-gradient(135deg, var(--color-rosa), #B06060);
             color: white;
             text-align: center;
-            padding: 30px 20px;
+            padding: 28px 20px 30px;
+            position: relative;
         }
-        .hero h1 { font-size: 1.6rem; }
+        .hero-brand {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
+        }
+        .hero-brand-sub {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            opacity: .65;
+            margin-top: 2px;
+        }
 
         .container {
             width: 80%;
@@ -201,6 +214,10 @@
         .btn-limpiar:hover { border-color: #dc2626; background: var(--color-melocoton); }
 
         @media (max-width: 768px) {
+            .hero { padding: 28px 16px 24px; }
+            .hero-brand { font-size: 1.6rem; }
+            .hero-brand-sub { font-size: 0.65rem; }
+            .container { width: 92%; }
             .container { width: 92%; }
             .cart-item { flex-wrap: wrap; }
             .cart-item-info { min-width: 100%; order: -1; }
@@ -211,7 +228,8 @@
 <body>
 
 <div class="hero">
-    <h1>🛒 Tu carrito</h1>
+    <div class="hero-brand">SobreVivi</div>
+    <div class="hero-brand-sub">🛒 Tu carrito</div>
 </div>
 
 <div class="container">
@@ -233,16 +251,16 @@
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <button class="btn-limpiar" onclick="limpiarCarrito()">Vaciar carrito</button>
-                <a class="btn-whatsapp-enviar" id="btnWhatsApp" target="_blank">
+                <button class="btn-whatsapp-enviar" id="btnWhatsApp" onclick="enviarPedido()">
                     💬 Enviar pedido por WhatsApp
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const WHATSAPP_NUM = '543854088612';
+    const WHATSAPP_NUM = [[${whatsappNum}]];
 
     function getCarrito() {
         try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
@@ -250,6 +268,41 @@
 
     function guardarCarrito(items) {
         localStorage.setItem('carrito', JSON.stringify(items));
+    }
+
+    function enviarPedido() {
+        const items = getCarrito();
+        if (items.length === 0) return;
+        const itemsJson = JSON.stringify(items.map(i => ({
+            name: i.name,
+            subCategory: i.subCategory,
+            cantidad: i.cantidad,
+            price: i.price
+        })));
+        const total = items.reduce((s, i) => s + i.price * i.cantidad, 0);
+        const btn = document.getElementById('btnWhatsApp');
+        btn.disabled = true;
+        btn.textContent = '⌛ Guardando...';
+        fetch('[[@{/productos/compras/crear}]]', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'itemsJson=' + encodeURIComponent(itemsJson) + '&total=' + total
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                const msg = items.map(i =>
+                    '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
+                ).join('%0A');
+                const totalMsg = '%0A%0ATotal: $' + total.toFixed(2);
+                window.open('https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:%0A' + msg + totalMsg, '_blank');
+            } else {
+                alert('Error al guardar: ' + (data.message || 'desconocido'));
+            }
+        }).catch(e => {
+            alert('Error al conectar con el servidor: ' + e.message);
+        }).finally(() => {
+            btn.disabled = false;
+            btn.textContent = '💬 Enviar pedido por WhatsApp';
+        });
     }
 
     function renderizarCarrito() {
@@ -289,13 +342,6 @@
 
         const total = items.reduce((s, i) => s + i.price * i.cantidad, 0);
         document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
-
-        const msg = items.map(i =>
-            '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
-        ).join('%0A');
-        const totalMsg = '%0A%0ATotal: $' + total.toFixed(2);
-        const url = 'https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:%0A' + msg + totalMsg;
-        document.getElementById('btnWhatsApp').href = url;
     }
 
     function cambiarCantidad(index, delta) {

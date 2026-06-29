@@ -4,7 +4,7 @@
 <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${product != null} ? ${product.name} : 'Producto'">Producto</title>
+    <title th:text="'SobreVivi | ' + (${product != null} ? ${product.name} : 'Producto')">SobreVivi | Producto</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
@@ -26,10 +26,22 @@
         .nav-bar {
             background: white;
             border-bottom: 1px solid var(--color-rosa-borde);
-            padding: 16px 10%;
+            padding: 14px 10%;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+        }
+        .nav-bar .brand {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--color-rosa);
+            text-decoration: none;
+            letter-spacing: -.01em;
+        }
+        .nav-bar .sep {
+            color: var(--color-rosa-borde);
+            font-size: 0.85rem;
+            margin: 0 4px;
         }
         .nav-bar a {
             color: var(--color-rosa);
@@ -221,8 +233,11 @@
 <body>
 
 <div class="nav-bar">
-    <a th:href="@{/productos}">← Productos</a>
-    <span th:if="${product != null}">/ <span th:text="${product.name}">nombre</span></span>
+    <a class="brand" th:href="@{/productos}">SobreVivi</a>
+    <span class="sep">›</span>
+    <a th:href="@{/productos}">Productos</a>
+    <span class="sep" th:if="${product != null}">›</span>
+    <span th:if="${product != null}" style="color:var(--color-texto);font-size:0.88rem;font-weight:500;"><span th:text="${product.name}">nombre</span></span>
 </div>
 
 <div class="detalle-container">
