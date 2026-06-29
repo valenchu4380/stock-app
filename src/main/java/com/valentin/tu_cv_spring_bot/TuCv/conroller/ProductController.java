@@ -41,7 +41,7 @@ public class ProductController {
     private final LineaDetectionService lineaDetectionService;
     private final OrdenService ordenService;
 
-    @Value("${whatsapp.number:5491123456789}")
+    @Value("${whatsapp.number:543854088612}")
     private String whatsappNumber;
 
     @GetMapping
