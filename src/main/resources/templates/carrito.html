@@ -291,9 +291,9 @@
             if (data.success) {
                 const msg = items.map(i =>
                     '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
-                ).join('%0A');
-                const totalMsg = '%0A%0ATotal: $' + total.toFixed(2);
-                window.open('https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:%0A' + msg + totalMsg, '_blank');
+                ).join('\n');
+                const totalMsg = '\n\nTotal: $' + total.toFixed(2);
+                window.location.href = 'https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:\n' + encodeURIComponent(msg + totalMsg);
             } else {
                 alert('Error al guardar: ' + (data.message || 'desconocido'));
             }
