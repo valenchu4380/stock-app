@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f7fb; min-height: 100vh; }
+
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .hero h1 { font-size: 1.6rem; }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        .btn-volver {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: white;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .btn-volver:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+
+        .cart-empty {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+        .cart-empty .icon { font-size: 4rem; margin-bottom: 16px; }
+        .cart-empty p { color: #6b7280; font-size: 1.1rem; margin-bottom: 20px; }
+        .cart-empty a {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .cart-empty a:hover { background: #1d4ed8; }
+
+        .cart-items { display: flex; flex-direction: column; gap: 12px; }
+        .cart-item {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f3f4f6;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-item-img img { width: 100%; height: 100%; object-fit: contain; }
+        .cart-item-img .placeholder { font-size: 1.5rem; color: #d1d5db; }
+
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .cart-item-name {
+            font-weight: 700;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .cart-item-sub {
+            font-size: 0.78rem;
+            color: #9ca3af;
+        }
+        .cart-item-price {
+            font-weight: 800;
+            color: #1f2937;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .qty-btn {
+            width: 30px; height: 30px;
+            border: 1.5px solid #dce1ec;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+        }
+        .qty-btn:hover { border-color: #2563eb; background: #eff6ff; }
+        .qty-btn-minus { color: #dc2626; }
+        .qty-btn-minus:hover { border-color: #dc2626; background: #fef2f2; }
+        .qty-btn-plus { color: #059669; }
+        .qty-btn-plus:hover { border-color: #059669; background: #ecfdf5; }
+        .qty-num {
+            min-width: 28px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .qty-remove {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+        }
+        .qty-remove:hover { color: #dc2626; }
+
+        .cart-resumen {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            padding: 22px 24px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .cart-total-label { font-size: 0.9rem; color: #6b7280; }
+        .cart-total-number { font-size: 1.6rem; font-weight: 800; color: #1f2937; }
+        .btn-whatsapp-enviar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: .15s;
+        }
+        .btn-whatsapp-enviar:hover { background: #1da851; }
+        .btn-whatsapp-enviar:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+        .btn-limpiar {
+            padding: 10px 20px;
+            background: white;
+            color: #dc2626;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-limpiar:hover { border-color: #dc2626; background: #fef2f2; }
+
+        @media (max-width: 768px) {
+            .container { width: 92%; }
+            .cart-item { flex-wrap: wrap; }
+            .cart-item-info { min-width: 100%; order: -1; }
+            .cart-resumen { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>🛒 Tu carrito</h1>
+</div>
+
+<div class="container">
+    <a class="btn-volver" th:href="@{/productos}">← Seguir comprando</a>
+
+    <div class="cart-empty" id="cartEmpty">
+        <div class="icon">🛒</div>
+        <p>Tu carrito está vacío</p>
+        <a th:href="@{/productos}">Ver productos</a>
+    </div>
+
+    <div id="cartContent" style="display:none;">
+        <div class="cart-items" id="cartItems"></div>
+
+        <div class="cart-resumen">
+            <div>
+                <div class="cart-total-label">Total</div>
+                <div class="cart-total-number" id="cartTotal">$0.00</div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn-limpiar" onclick="limpiarCarrito()">Vaciar carrito</button>
+                <a class="btn-whatsapp-enviar" id="btnWhatsApp" target="_blank">
+                    💬 Enviar pedido por WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WHATSAPP_NUM = '543854088612';
+
+    function getCarrito() {
+        try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
+    }
+
+    function guardarCarrito(items) {
+        localStorage.setItem('carrito', JSON.stringify(items));
+    }
+
+    function renderizarCarrito() {
+        const items = getCarrito();
+        const empty = document.getElementById('cartEmpty');
+        const content = document.getElementById('cartContent');
+        const container = document.getElementById('cartItems');
+
+        if (items.length === 0) {
+            empty.style.display = 'block';
+            content.style.display = 'none';
+            return;
+        }
+        empty.style.display = 'none';
+        content.style.display = 'block';
+
+        container.innerHTML = items.map((item, i) => `
+            <div class="cart-item" data-index="${i}">
+                <div class="cart-item-img">
+                    ${item.imagen
+                        ? '<img src="' + item.imagen + '">'
+                        : '<span class="placeholder">📦</span>'}
+                </div>
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-sub">${item.subCategory ? item.subCategory.replace(/_/g, ' ') : ''}</div>
+                </div>
+                <div class="cart-item-price">$${(item.price * item.cantidad).toFixed(2)}</div>
+                <div class="cart-item-qty">
+                    <button class="qty-btn qty-btn-minus" onclick="cambiarCantidad(${i}, -1)">−</button>
+                    <span class="qty-num">${item.cantidad}</span>
+                    <button class="qty-btn qty-btn-plus" onclick="cambiarCantidad(${i}, 1)">+</button>
+                    <button class="qty-remove" onclick="eliminarDelCarrito(${i})">✕</button>
+                </div>
+            </div>
+        `).join('');
+
+        const total = items.reduce((s, i) => s + i.price * i.cantidad, 0);
+        document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+
+        const msg = items.map(i =>
+            '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
+        ).join('%0A');
+        const totalMsg = '%0A%0ATotal: $' + total.toFixed(2);
+        const url = 'https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:%0A' + msg + totalMsg;
+        document.getElementById('btnWhatsApp').href = url;
+    }
+
+    function cambiarCantidad(index, delta) {
+        const items = getCarrito();
+        if (!items[index]) return;
+        items[index].cantidad = Math.max(1, items[index].cantidad + delta);
+        guardarCarrito(items);
+        renderizarCarrito();
+        actualizarContadorGlobal();
+    }
+
+    function eliminarDelCarrito(index) {
+        const items = getCarrito();
+        items.splice(index, 1);
+        guardarCarrito(items);
+        renderizarCarrito();
+        actualizarContadorGlobal();
+    }
+
+    function limpiarCarrito() {
+        if (!confirm('¿Vaciar carrito?')) return;
+        guardarCarrito([]);
+        renderizarCarrito();
+        actualizarContadorGlobal();
+    }
+
+    function actualizarContadorGlobal() {
+        const items = getCarrito();
+        const total = items.reduce((s, i) => s + i.cantidad, 0);
+        const el = document.getElementById('cartCount');
+        if (el) el.textContent = total;
+    }
+
+    renderizarCarrito();
+</script>
+
+</body>
+</html>

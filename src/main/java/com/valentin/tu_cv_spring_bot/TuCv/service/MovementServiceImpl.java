@@ -25,6 +25,11 @@ public class MovementServiceImpl implements MovementService {
     }
 
     @Override
+    public List<Movement> getByProductName(String productName, String subCategory) {
+        return movementRepository.findByProductName(productName, subCategory);
+    }
+
+    @Override
     public int getTotalPages(int size) {
         int total = movementRepository.countAll();
         return (int) Math.ceil((double) total / size);

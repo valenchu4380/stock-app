@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,6 +37,9 @@ public class ProductController {
     private final ProductService productService;
     private final MovementService movementService;
     private final LineaDetectionService lineaDetectionService;
+
+    @Value("${whatsapp.number:5491123456789}")
+    private String whatsappNumber;
 
     @GetMapping
     public String index(
@@ -509,6 +513,7 @@ public class ProductController {
             model.addAttribute("filtroSub",      subCategory);
             model.addAttribute("Categorys",      ProductCategory.values());
             model.addAttribute("SubCategorys",   SubCategory.values());
+            model.addAttribute("productos",      todos);
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar dashboard: " + e.getMessage());
@@ -516,6 +521,93 @@ public class ProductController {
             model.addAttribute("SubCategorys", SubCategory.values());
         }
         return "dashboard";
+    }
+
+    @GetMapping("/detalle/{name}/{subCategory}")
+    public String detalle(@PathVariable String name,
+                          @PathVariable String subCategory,
+                          Model model) {
+        try {
+            SubCategory sub = SubCategory.valueOf(subCategory);
+            List<Product> matches = productService.findBynameAndSubCategoryForUpdate(name, sub);
+            if (!matches.isEmpty()) {
+                Product p = matches.get(0);
+                model.addAttribute("product", p);
+                model.addAttribute("descripcion", generarDescripcion(p));
+                model.addAttribute("whatsappNum", whatsappNumber);
+                String msg = "Hola! Quiero comprar " + p.getName() + " de $" + String.format("%.2f", p.getPrice());
+                model.addAttribute("whatsappUrl", "https://wa.me/" + whatsappNumber + "?text=" + java.net.URLEncoder.encode(msg, java.nio.charset.StandardCharsets.UTF_8));
+            } else {
+                model.addAttribute("error", "Producto no encontrado");
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Error: " + e.getMessage());
+        }
+        return "detalle";
+    }
+
+    private String generarDescripcion(Product p) {
+        String sub = p.getSubCategory() != null ? p.getSubCategory().name() : "";
+        String linea = p.getLinea() != null ? p.getLinea().getDisplayName() : "";
+        String cat = p.getCategory() != null ? p.getCategory().name() : "";
+
+        String desc = switch (sub) {
+            case "PERFUME" ->
+                "Fragancia \"" + p.getName() + "\" de " + cat + ". " +
+                (linea.isEmpty() ? "" : "Pertenece a la línea " + linea + ". ") +
+                "Ideal para regalar o para uso personal.";
+            case "MAQUILLAJE" ->
+                p.getName() + " — Maquillaje " + cat + ". " +
+                (linea.isEmpty() ? "" : "De la línea " + linea + ". ") +
+                "Perfecto para resaltar tu belleza.";
+            case "CABELLO" ->
+                p.getName() + " — Cuidado capilar " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Producto de calidad para el cabello.";
+            case "CREMA" ->
+                p.getName() + " — Crema " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Nutre e hidrata tu piel.";
+            case "CUIDADO_DIARIO" ->
+                p.getName() + " — Cuidado diario " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Ideal para tu rutina diaria.";
+            case "TEXTIL" ->
+                p.getName() + " — Textil " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Perfecto para el cuidado de tus prendas.";
+            case "AEROSOL" ->
+                p.getName() + " — Aerosol " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Frescura en cada uso.";
+            case "DIFUSOR" ->
+                p.getName() + " — Difusor " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Ambientá tu hogar con esta fragancia.";
+            case "JABON" ->
+                p.getName() + " — Jabón " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Suavidad y frescura para tu piel.";
+            case "PERFUME_PISO" ->
+                p.getName() + " — Perfume para piso " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Dejá tu hogar con un aroma increíble.";
+            case "SAHUMERIO" ->
+                p.getName() + " — Sahumerio " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                "Aromas naturales para tu espacio.";
+            default ->
+                p.getName() + " — Producto " + cat + ". " +
+                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
+                (sub.isEmpty() ? "" : "Subcategoría: " + sub.replace("_", " ") + ". ");
+        };
+        return desc.trim();
+    }
+
+    @GetMapping("/carrito")
+    public String carrito(Model model) {
+        model.addAttribute("whatsappNum", whatsappNumber);
+        return "carrito";
     }
 
     @GetMapping("/buscar")

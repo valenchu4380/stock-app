@@ -6,5 +6,6 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
 public interface MovementRepository {
     void save(Movement movement);
     List<Movement> findAllPaged(int offset, int limit);
+    List<Movement> findByProductName(String productName, String subCategory);
     int countAll();
 }

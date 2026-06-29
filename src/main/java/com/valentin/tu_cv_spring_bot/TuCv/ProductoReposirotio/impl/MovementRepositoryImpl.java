@@ -88,6 +88,22 @@ public class MovementRepositoryImpl implements MovementRepository {
     }
 
     @Override
+    public List<Movement> findByProductName(String productName, String subCategory) {
+        List<Movement> movements = new ArrayList<>();
+        String sql = "SELECT * FROM movements WHERE LOWER(product_name) = LOWER(?) AND product_sub_category = ? ORDER BY timestamp DESC LIMIT 50";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, productName.trim());
+            st.setString(2, subCategory);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) movements.add(mapResult(rs));
+        } catch (SQLException e) {
+            System.out.println("Error finding movements by product: " + e.getMessage());
+        }
+        return movements;
+    }
+
+    @Override
     public int countAll() {
         String sql = "SELECT COUNT(*) FROM movements";
         try (Connection con = getConnection();

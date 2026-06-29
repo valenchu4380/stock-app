@@ -4,14 +4,54 @@
 <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Stock</title>
+    <title>Productos</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f5f7fb; }
 
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            text-align: center;
+            padding: 40px 20px 30px;
+            position: relative;
+        }
+        .hero h1 { font-size: 1.8rem; }
+        .hero p { margin-top: 6px; font-size: 1rem; opacity: .85; }
+
+        .cart-icon {
+            position: absolute;
+            top: 20px;
+            right: 10%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.3rem;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.15);
+            transition: .15s;
+        }
+        .cart-icon:hover { background: rgba(255,255,255,.25); }
+        .cart-count {
+            background: #dc2626;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
         .search-bar {
             width: 80%;
-            margin: 30px auto 0;
+            margin: 24px auto 0;
             display: flex;
             gap: 10px;
         }
@@ -24,16 +64,6 @@
             outline: none;
         }
         .search-bar input:focus { border-color: #2563eb; }
-
-        .mensaje {
-            width: 80%;
-            margin: 20px auto 0;
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-size: 0.95rem;
-        }
-        .mensaje.ok  { background: #d1fae5; color: #065f46; }
-        .mensaje.err { background: #fee2e2; color: #991b1b; }
 
         .productos-grid {
             width: 80%;
@@ -48,7 +78,6 @@
             overflow: hidden;
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
             transition: transform .15s, box-shadow .15s;
-            position: relative;
         }
         .producto-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
         .card-img {
@@ -59,9 +88,9 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            position: relative;
             padding: 8px;
         }
+        .card-img a { display: contents; }
         .card-img img { width: 100%; height: 100%; object-fit: contain; }
         .card-img-placeholder {
             font-size: 3rem;
@@ -70,14 +99,6 @@
             align-items: center;
             justify-content: center;
             width: 100%; height: 100%;
-        }
-        .card-checkbox {
-            position: absolute;
-            top: 10px; left: 10px;
-            z-index: 2;
-            width: 20px; height: 20px;
-            accent-color: #2563eb;
-            cursor: pointer;
         }
         .card-body { padding: 14px 16px 16px; }
         .card-title {
@@ -91,6 +112,11 @@
             overflow: hidden;
             line-height: 1.3;
         }
+        .card-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .card-title a:hover { text-decoration: underline; }
         .card-brand {
             display: inline-block;
             padding: 2px 10px;
@@ -107,72 +133,28 @@
         .card-sub {
             font-size: 0.75rem;
             color: #9ca3af;
+            margin-bottom: 6px;
+        }
+        .card-linea {
+            font-size: 0.72rem;
+            color: #6b7280;
             margin-bottom: 8px;
         }
         .card-price {
             font-size: 1.25rem;
             font-weight: 800;
             color: #1f2937;
-            margin-bottom: 10px;
-        }
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            border-top: 1px solid #f3f4f6;
-            padding-top: 12px;
-        }
-        .card-stock {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .card-stock .stock-valor {
-            min-width: 30px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        .card-stock .btn-stock {
-            width: 28px; height: 26px;
-            border: 1.5px solid #dce1ec;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            transition: .15s;
-        }
-        .card-stock .btn-stock:hover { border-color: #2563eb; background: #eff6ff; }
-        .card-stock .btn-stock-plus { color: #059669; }
-        .card-stock .btn-stock-plus:hover { border-color: #059669; background: #ecfdf5; }
-        .card-stock .btn-stock-minus { color: #dc2626; }
-        .card-stock .btn-stock-minus:hover { border-color: #dc2626; background: #fef2f2; }
-        .card-edit {
-            padding: 6px 14px;
-            background: #eff6ff;
-            color: #2563eb;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: .15s;
-            white-space: nowrap;
-        }
-        .card-edit:hover { background: #dbeafe; }
-        .card-linea {
-            font-size: 0.72rem;
-            color: #6b7280;
             margin-bottom: 6px;
         }
-        .text-red    { color: #dc2626; font-weight: bold; }
-        .text-yellow { color: #e6b800; font-weight: bold; }
-        .text-green  { color: #059669; font-weight: bold; }
+        .card-stock-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .text-green { color: #059669; }
+        .text-yellow { color: #e6b800; }
+        .text-red { color: #dc2626; }
+        a.producto-card { cursor: pointer; color: inherit; text-decoration: none; display: block; }
 
         .filtros-bar {
             width: 80%;
@@ -196,7 +178,7 @@
 
         .paginacion {
             width: 80%;
-            margin: 10px auto 20px;
+            margin: 10px auto 30px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -233,81 +215,53 @@
         .btn-orden:hover { background: #eff6ff; }
         .btn-orden.sort-active { background: #eff6ff; border-color: #2563eb; }
 
-        .mobile-filtros {
-            display: none;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        .mobile-filtro-select {
-            flex: 1;
-            min-width: 120px;
-            padding: 8px 12px;
-            border: 1.5px solid #dce1ec;
-            border-radius: 10px;
-            font-size: 0.88rem;
-            color: #374151;
-            background: white;
-            outline: none;
-        }
-        .mobile-filtro-select:focus { border-color: #2563eb; }
-
-        .estadisticas {
+        .empty-state {
             width: 80%;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
+            margin: 20px auto;
             text-align: center;
-            flex-wrap: wrap;
+            color: #9ca3af;
+            padding: 40px 0;
+            background: white;
+            border-radius: 15px;
         }
-        .stat-item p:first-child { font-size: 2rem; font-weight: 700; color: #2563eb; }
-        .stat-item p:last-child  { font-size: 0.9rem; color: #6b7280; margin-top: 4px; }
 
         @media (max-width: 768px) {
+            .hero { padding: 25px 16px; }
+            .hero h1 { font-size: 1.4rem; }
             .search-bar { width: 92%; }
-            .mensaje { width: 92%; }
             .productos-grid { width: 92%; grid-template-columns: 1fr; }
             .filtros-bar { width: 92%; }
             .paginacion { width: 92%; }
-            .estadisticas { width: 92%; gap: 20px; padding: 20px; }
+            .empty-state { width: 92%; }
         }
     </style>
 </head>
 <body>
 
-<div style="width:80%; margin: 30px auto 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-    <h1 style="font-size:1.5rem; color:#1e3a8a;">Productos</h1>
-    <a th:href="@{/productos/dashboard}" style="padding:8px 18px; background:#2563eb; color:white; border-radius:10px; text-decoration:none; font-weight:600; font-size:0.9rem;">📊 Dashboard</a>
+<div class="hero">
+    <h1>Nuestros Productos</h1>
+    <p>Encontrá todo lo que buscás en perfumería y más</p>
+    <a class="cart-icon" th:href="@{/productos/carrito}">
+        🛒 <span class="cart-count" id="cartCount">0</span>
+    </a>
 </div>
 
-<!-- Formulario principal de búsqueda y filtros -->
-<form id="filtroForm" th:action="@{/productos}" method="get" style="width:80%; margin: 30px auto 0;">
+<form id="filtroForm" th:action="@{/productos}" method="get" style="width:80%; margin: 0 auto;">
     <input type="hidden" name="page" value="0"/>
     <input type="hidden" id="hiddenCategory" name="category" th:value="${filtroCategory}"/>
     <input type="hidden" id="hiddenSub" name="subCategory" th:value="${filtroSub}"/>
-    <input type="hidden" id="hiddenLinea" name="linea" th:value="${filtroLinea}"/>
     <input type="hidden" name="sortBy"  th:value="${sortBy}"/>
     <input type="hidden" name="sortDir" th:value="${sortDir}"/>
-    <input type="hidden" name="stockBajo" th:value="${stockBajo}"/>
     <div class="search-bar">
         <input type="text"
                id="searchInput"
                name="name"
                th:value="${filtroName}"
-               placeholder="Buscar producto por nombre..."
+               placeholder="Buscá por nombre de producto..."
                autocomplete="off"/>
     </div>
 </form>
 
-<div class="mensaje ok"  th:if="${mensaje}" th:text="${mensaje}"></div>
-<div class="mensaje err" th:if="${error}"   th:text="${error}"></div>
-
-<!-- FILTROS RÁPIDOS -->
 <div class="filtros-bar">
     <select id="filtro-cat" onchange="aplicarFiltros()">
         <option value="" th:selected="${filtroCategory == null or filtroCategory == ''}">Todas las categorías</option>
@@ -329,125 +283,55 @@
         <option value="PERFUME_PISO"   th:selected="${filtroSub == 'PERFUME_PISO'}">Perfume para piso</option>
         <option value="SAHUMERIO"      th:selected="${filtroSub == 'SAHUMERIO'}">Sahumerio</option>
     </select>
-    <a class="pag-btn" th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir='asc', stockBajo=${stockBajo}, linea=${filtroLinea})}" th:classappend="(${sortBy} == 'name') ? ' active' : ''">Nombre ↑↓</a>
-    <a class="pag-btn" th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}" th:classappend="(${sortBy} == 'price') ? ' active' : ''">Precio ↑↓</a>
-    <a class="pag-btn" th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='stock', sortDir=${sortBy == 'stock' ? sortDirNext : 'asc'}, stockBajo=${stockBajo}, linea=${filtroLinea})}" th:classappend="(${sortBy} == 'stock') ? ' active' : ''">Stock ↑↓</a>
+    <a class="btn-orden" th:classappend="(${sortBy} == 'name') ? ' sort-active' : ''"
+       th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">Nombre ↑↓</a>
+    <a class="btn-orden" th:classappend="(${sortBy} == 'price') ? ' sort-active' : ''"
+       th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">Precio ↑↓</a>
 </div>
 
-<!-- PAGINACIÓN TOP -->
 <div class="paginacion" th:if="${totalPaginas > 1}">
     <a class="pag-btn"
        th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">←</a>
+       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">←</a>
     <a th:each="i : ${#numbers.sequence(pageStart, pageEnd)}"
        class="pag-btn"
        th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}"
+       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
        th:text="${i + 1}">1</a>
     <a class="pag-btn"
        th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir}, stockBajo=${stockBajo}, linea=${filtroLinea})}">→</a>
+       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">→</a>
 </div>
 
-<!-- GRILLA DE PRODUCTOS -->
 <div class="productos-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
-    <div class="producto-card" th:each="p : ${productos}">
+    <a class="producto-card" th:each="p : ${productos}"
+       th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">
         <div class="card-img">
             <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
                  th:src="${p.imagen}">
             <div th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" class="card-img-placeholder">📦</div>
-            <input type="checkbox" class="card-checkbox product-checkbox"
-                   th:data-name="${p.name}"
-                   th:data-sub="${p.subCategory}"
-                   onchange="actualizarBarraSeleccion()">
         </div>
         <div class="card-body">
             <div class="card-title" th:text="${p.name}">Nombre</div>
             <span class="card-brand"
                   th:classappend="${p.category.name() == 'AVON'} ? 'avon' : (${p.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
                   th:text="${p.category}">AVON</span>
-            <div class="card-sub" th:text="${p.subCategory} ?: '-'">Subcategoría</div>
+            <div class="card-sub" th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">Subcategoría</div>
             <div class="card-linea" th:text="${p.linea != null} ? ${p.linea.displayName} : ''">Línea</div>
             <div class="card-price" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</div>
-            <div class="card-footer">
-                <div class="card-stock">
-                    <button class="btn-stock btn-stock-minus"
-                            th:data-name="${p.name}"
-                            th:data-sub="${p.subCategory}"
-                            onclick="ajustarStock(this, -1)">−</button>
-                    <span class="stock-valor"
-                          th:id="'stock-' + ${pStat.index}"
-                          th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')"
-                          th:text="${p.stock}">0</span>
-                    <button class="btn-stock btn-stock-plus"
-                            th:data-name="${p.name}"
-                            th:data-sub="${p.subCategory}"
-                            onclick="ajustarStock(this, 1)">+</button>
-                </div>
-                <a class="card-edit" th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️</a>
+            <div class="card-stock-status"
+                 th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')">
+                <span th:if="${p.stock == 0}">🔴 Sin stock</span>
+                <span th:if="${p.stock == 1}">🟡 Última unidad</span>
+                <span th:if="${p.stock >= 2 and p.stock <= 5}">🟡 Stock limitado</span>
+                <span th:if="${p.stock > 5}">🟢 En stock</span>
             </div>
         </div>
-    </div>
+    </a>
 </div>
-<p th:if="${productos == null or #lists.isEmpty(productos)}"
-   style="width:80%; margin: 20px auto; text-align:center; color:#9ca3af; padding: 40px 0; background:white; border-radius:15px;">
+
+<div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
     No se encontraron productos.
-</p>
-
-<div id="batchBar" class="batch-bar" style="display:none;">
-    <span id="batchCount" class="batch-count">0 seleccionados</span>
-    <button class="batch-btn" onclick="abrirEdicionMasiva()">✏️ Editar seleccionados</button>
-    <button class="batch-btn batch-btn-secondary" onclick="deseleccionarTodos()">Cancelar</button>
-</div>
-
-<!-- MODAL EDICIÓN MASIVA -->
-<div class="modal-overlay" id="modal-batch" onclick="if(event.target===this)cerrarEdicionMasiva()">
-    <div class="modal-content">
-        <button class="modal-close" onclick="cerrarEdicionMasiva()">✕</button>
-        <h2>Editar productos seleccionados</h2>
-        <p style="font-size:0.9rem;color:#6b7280;margin-bottom:16px;" id="batchModalCount">0 productos</p>
-        <div class="modal-form-group">
-            <label for="batchPrice">Nuevo precio (dejar vacío para mantener)</label>
-            <input type="number" id="batchPrice" step="0.01" placeholder="Ej: 1500">
-        </div>
-        <div class="modal-form-group">
-            <label for="batchCostPrice">Nuevo precio de costo (dejar vacío para mantener)</label>
-            <input type="number" id="batchCostPrice" step="0.01" placeholder="Ej: 800">
-        </div>
-        <div class="modal-form-group">
-            <label for="batchStock">Nuevo stock (dejar vacío para mantener)</label>
-            <input type="number" id="batchStock" step="1" placeholder="Ej: 10">
-        </div>
-        <button class="modal-btn" onclick="aplicarEdicionMasiva()">Aplicar cambios</button>
-    </div>
-</div>
-
-<div class="estadisticas">
-    <div class="stat-item">
-        <p th:text="${totalRegistros != null ? totalRegistros : 0}">0</p>
-        <p>Productos registrados</p>
-    </div>
-    <div class="stat-item">
-        <p th:text="${totalStock != null ? totalStock : 0}">0</p>
-        <p>Unidades en stock</p>
-    </div>
-    <div class="stat-item">
-        <p th:text="${inventario != null ? '$' + #numbers.formatDecimal(inventario, 1, 2) : '$0'}">$0</p>
-        <p>Valor inventario</p>
-    </div>
-    <div class="stat-item">
-        <p th:text="${stockNull != null ? stockNull : 0}">0</p>
-        <p>Productos sin stock</p>
-    </div>
-    <div class="stat-item" style="cursor:pointer;" onclick="toggleStockBajo()">
-        <p th:text="${stockBajoCount != null ? stockBajoCount : 0}"
-           style="color: #e6b800 !important;">0</p>
-        <p>
-            Stock bajo
-            <span th:if="${stockBajo}" style="font-size:0.7rem;display:block;color:#2563eb;">(filtrando)</span>
-            <span th:unless="${stockBajo}" style="font-size:0.7rem;display:block;color:#6b7280;">click para filtrar</span>
-        </p>
-    </div>
 </div>
 
 <script>
@@ -481,241 +365,23 @@
         });
         document.getElementById('hiddenCategory').value = cat;
         document.getElementById('hiddenSub').value = sub;
-        document.getElementById('hiddenLinea').value = '';
         document.querySelector('#filtroForm input[name="page"]').value = '0';
         document.getElementById('filtroForm').submit();
     }
 
-    function toggleStockBajo() {
-        const url = new URL(window.location);
-        const current = url.searchParams.get('stockBajo') === 'true';
-        url.searchParams.set('stockBajo', (!current).toString());
-        url.searchParams.set('page', '0');
-        window.location.href = url.toString();
+    function getCarrito() {
+        try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
     }
 
-    function ajustarStock(btn, direccion) {
-        const name = btn.dataset.name;
-        const sub = btn.dataset.sub;
-        const cantidad = direccion > 0
-            ? prompt('Cantidad a AGREGAR a "' + name + '":', '1')
-            : prompt('Cantidad a RETIRAR de "' + name + '":', '1');
-        if (!cantidad) return;
-        const num = parseInt(cantidad);
-        if (isNaN(num) || num <= 0) { alert('Ingresá un número válido'); return; }
-        const params = new URLSearchParams();
-        params.set('name', name);
-        params.set('subCategory', sub);
-        params.set('cantidad', direccion > 0 ? num : -num);
-        fetch('/productos/ajustar-stock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.stock-valor').forEach(el => {
-                    const card = el.closest('.producto-card');
-                    if (card) {
-                        const cb = card.querySelector('.product-checkbox');
-                        if (cb && cb.dataset.name === name && cb.dataset.sub === sub) {
-                            el.textContent = data.nuevoStock;
-                        }
-                    }
-                });
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(err => alert('Error de conexión: ' + err.message));
+    function actualizarContador() {
+        const items = getCarrito();
+        const total = items.reduce((s, i) => s + i.cantidad, 0);
+        const el = document.getElementById('cartCount');
+        if (el) el.textContent = total;
     }
 
-    function getProductosSeleccionados() {
-        const checks = document.querySelectorAll('.product-checkbox:checked');
-        return Array.from(checks).map(cb => ({
-            name: cb.dataset.name,
-            subCategory: cb.dataset.sub
-        }));
-    }
-
-    function actualizarBarraSeleccion() {
-        const seleccionados = getProductosSeleccionados();
-        const bar = document.getElementById('batchBar');
-        const count = document.getElementById('batchCount');
-        if (seleccionados.length > 0) {
-            bar.style.display = 'flex';
-            count.textContent = seleccionados.length + ' seleccionados';
-        } else {
-            bar.style.display = 'none';
-        }
-    }
-
-    function deseleccionarTodos() {
-        document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = false);
-        actualizarBarraSeleccion();
-    }
-
-    function abrirEdicionMasiva() {
-        const seleccionados = getProductosSeleccionados();
-        if (seleccionados.length === 0) return;
-        document.getElementById('batchModalCount').textContent = seleccionados.length + ' productos';
-        document.getElementById('batchPrice').value = '';
-        document.getElementById('batchCostPrice').value = '';
-        document.getElementById('batchStock').value = '';
-        document.getElementById('modal-batch').classList.add('open');
-    }
-
-    function cerrarEdicionMasiva() {
-        document.getElementById('modal-batch').classList.remove('open');
-    }
-
-    function aplicarEdicionMasiva() {
-        const seleccionados = getProductosSeleccionados();
-        if (seleccionados.length === 0) return;
-        const items = seleccionados.map(p => p.name + '|' + p.subCategory).join(',');
-        const price = document.getElementById('batchPrice').value;
-        const costPrice = document.getElementById('batchCostPrice').value;
-        const stock = document.getElementById('batchStock').value;
-
-        const params = new URLSearchParams();
-        params.set('items', items);
-        if (price) params.set('price', price);
-        if (costPrice) params.set('costPrice', costPrice);
-        if (stock) params.set('stock', stock);
-
-        fetch('/productos/editar-masivo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-        })
-        .then(r => r.json())
-        .then(data => {
-            cerrarEdicionMasiva();
-            deseleccionarTodos();
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(err => {
-            alert('Error de conexión: ' + err.message);
-        });
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const catSel = document.getElementById('filtro-cat');
-        const subSel = document.getElementById('filtro-sub');
-        const catActual = document.getElementById('hiddenCategory')?.value || '';
-        const subActual = document.getElementById('hiddenSub')?.value || '';
-        if (catSel) catSel.value = catActual;
-        if (subSel) {
-            const opciones = catActual && subPorCat[catActual] ? subPorCat[catActual] : ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO','TEXTIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO'];
-            subSel.innerHTML = '<option value="">Todas las subcategorías</option>';
-            opciones.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s; opt.textContent = s.replace(/_/g, ' ');
-                if (s === subActual) opt.selected = true;
-                subSel.appendChild(opt);
-            });
-        }
-    });
-
+    actualizarContador();
 </script>
-
-<style>
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,.5);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal-content {
-        background: white;
-        padding: 35px;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 450px;
-        position: relative;
-        box-shadow: 0 20px 60px rgba(0,0,0,.2);
-    }
-    .modal-close {
-        position: absolute;
-        top: 12px;
-        right: 16px;
-        background: none;
-        border: none;
-        font-size: 1.3rem;
-        cursor: pointer;
-        color: #6b7280;
-    }
-    .modal-close:hover { color: #1f2937; }
-    .modal-content h2 { font-size: 1.2rem; color: #1e3a8a; margin-bottom: 20px; }
-    .modal-form-group { margin-bottom: 18px; }
-    .modal-form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
-    .modal-form-group select,
-    .modal-form-group input {
-        width: 100%;
-        padding: 11px 14px;
-        border: 1.5px solid #dce1ec;
-        border-radius: 10px;
-        font-size: 1rem;
-    }
-    .modal-form-group select:focus,
-    .modal-form-group input:focus { border-color: #2563eb; outline: none; }
-    .modal-help { display: block; font-size: 0.78rem; color: #9ca3af; margin-top: 4px; }
-    .modal-btn {
-        width: 100%;
-        padding: 12px;
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-    }
-    .modal-btn:hover { background: #1d4ed8; }
-    .stat-item[onclick] { cursor: pointer; }
-    .stat-item[onclick]:hover { opacity: 0.8; }
-
-    .batch-bar {
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
-        background: #1e3a8a;
-        color: white;
-        padding: 14px 30px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        z-index: 999;
-        box-shadow: 0 -4px 15px rgba(0,0,0,.2);
-        flex-wrap: wrap;
-    }
-    .batch-count { font-size: 1rem; font-weight: 600; }
-    .batch-btn {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        background: #2563eb;
-        color: white;
-    }
-    .batch-btn:hover { background: #1d4ed8; }
-    .batch-btn-secondary {
-        background: transparent;
-        border: 1.5px solid rgba(255,255,255,.4);
-    }
-    .batch-btn-secondary:hover { background: rgba(255,255,255,.1); }
-</style>
 
 </body>
 </html>

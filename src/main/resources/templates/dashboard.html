@@ -269,7 +269,238 @@
             <canvas id="chartLinea"></canvas>
         </div>
     </div>
+    <div class="gestion-section" th:if="${productos != null and !#lists.isEmpty(productos)}">
+        <div class="gestion-header">
+            <h2>📦 Gestión de productos</h2>
+            <a class="gestion-nuevo" th:href="@{/productos/nuevo}">+ Nuevo</a>
+        </div>
+        <div class="gestion-tabla-wrapper">
+            <table class="gestion-tabla">
+                <thead>
+                    <tr>
+                        <th style="width:50px;"></th>
+                        <th>Producto</th>
+                        <th>Subcategoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th style="width:140px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${productos}">
+                        <td>
+                            <div class="gestion-img">
+                                <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}" th:src="${p.imagen}">
+                                <span th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" style="font-size:1.2rem;">📦</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="gestion-nombre" th:text="${p.name}">nombre</div>
+                            <span class="gestion-marca"
+                                  th:classappend="${p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
+                                  th:text="${p.category}">CAT</span>
+                        </td>
+                        <td th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">sub</td>
+                        <td class="gestion-precio" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0</td>
+                        <td>
+                            <div class="gestion-stock">
+                                <button class="gestion-stock-btn gestion-stock-minus"
+                                        th:data-name="${p.name}"
+                                        th:data-sub="${p.subCategory}"
+                                        onclick="ajustarStockDash(this, -1)">−</button>
+                                <span class="gestion-stock-valor"
+                                      th:id="'dstock-' + ${pStat.index}"
+                                      th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')"
+                                      th:text="${p.stock}">0</span>
+                                <button class="gestion-stock-btn gestion-stock-plus"
+                                        th:data-name="${p.name}"
+                                        th:data-sub="${p.subCategory}"
+                                        onclick="ajustarStockDash(this, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="gestion-acciones">
+                                <a class="gestion-btn gestion-btn-edit"
+                                   th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️</a>
+                                <a class="gestion-btn gestion-btn-view"
+                                   th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
+                                <form th:action="@{/productos/eliminar}" method="post" style="display:inline;"
+                                      onsubmit="return confirm('¿Eliminar ${p.name}?')">
+                                    <input type="hidden" name="name" th:value="${p.name}">
+                                    <input type="hidden" name="subCategory" th:value="${p.subCategory}">
+                                    <button class="gestion-btn gestion-btn-delete" type="submit">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<style>
+    .gestion-section {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        padding: 22px;
+        margin-bottom: 30px;
+    }
+    .gestion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .gestion-header h2 { font-size: 1.1rem; color: #1e3a8a; }
+    .gestion-nuevo {
+        padding: 8px 20px;
+        background: #2563eb;
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .gestion-nuevo:hover { background: #1d4ed8; }
+    .gestion-tabla-wrapper { overflow-x: auto; }
+    .gestion-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+    .gestion-tabla th {
+        text-align: left;
+        padding: 10px 12px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #2563eb;
+        border-bottom: 2px solid #f1f5f9;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .gestion-tabla td {
+        padding: 10px 12px;
+        color: #374151;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .gestion-tabla tr:hover td { background: #fafbfc; }
+    .gestion-img {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .gestion-img img { width: 100%; height: 100%; object-fit: cover; }
+    .gestion-nombre { font-weight: 600; color: #1e3a8a; margin-bottom: 3px; }
+    .gestion-marca {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .gestion-marca-avon     { background: #fce7f3; color: #9d174d; }
+    .gestion-marca-natura   { background: #d1fae5; color: #065f46; }
+    .gestion-marca-saphirus { background: #ede9fe; color: #4c1d95; }
+    .gestion-precio { font-weight: 700; white-space: nowrap; }
+    .gestion-stock { display: inline-flex; align-items: center; gap: 6px; }
+    .gestion-stock-btn {
+        width: 26px; height: 24px;
+        border: 1.5px solid #dce1ec;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .gestion-stock-btn:hover { border-color: #2563eb; background: #eff6ff; }
+    .gestion-stock-plus { color: #059669; }
+    .gestion-stock-plus:hover { border-color: #059669; background: #ecfdf5; }
+    .gestion-stock-minus { color: #dc2626; }
+    .gestion-stock-minus:hover { border-color: #dc2626; background: #fef2f2; }
+    .gestion-stock-valor {
+        min-width: 28px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .gestion-acciones { display: flex; gap: 4px; }
+    .gestion-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px; height: 32px;
+        border: 1.5px solid #dce1ec;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: .15s;
+    }
+    .gestion-btn:hover { border-color: #2563eb; background: #eff6ff; }
+    .gestion-btn-edit:hover { border-color: #2563eb; }
+    .gestion-btn-view:hover { border-color: #059669; }
+    .gestion-btn-delete { border-color: transparent; color: #dc2626; }
+    .gestion-btn-delete:hover { border-color: #dc2626; background: #fef2f2; }
+    .text-red    { color: #dc2626; font-weight: bold; }
+    .text-yellow { color: #e6b800; font-weight: bold; }
+    .text-green  { color: #059669; font-weight: bold; }
+</style>
+
+<script>
+    function ajustarStockDash(btn, direccion) {
+        const name = btn.dataset.name;
+        const sub = btn.dataset.sub;
+        const cantidad = direccion > 0
+            ? prompt('Cantidad a AGREGAR a "' + name + '":', '1')
+            : prompt('Cantidad a RETIRAR de "' + name + '":', '1');
+        if (!cantidad) return;
+        const num = parseInt(cantidad);
+        if (isNaN(num) || num <= 0) { alert('Ingresá un número válido'); return; }
+        const params = new URLSearchParams();
+        params.set('name', name);
+        params.set('subCategory', sub);
+        params.set('cantidad', direccion > 0 ? num : -num);
+        fetch('/productos/ajustar-stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('.gestion-stock-valor').forEach(el => {
+                    const tr = el.closest('tr');
+                    if (tr) {
+                        const cb = tr.querySelector('[data-name="' + name + '"][data-sub="' + sub + '"]');
+                        if (cb) {
+                            el.textContent = data.nuevoStock;
+                        }
+                    }
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(err => alert('Error de conexión: ' + err.message));
+    }
+</script>
 
 <script th:inline="javascript">
     const labels         = /*[[${labels}]]*/ [];
