@@ -293,6 +293,9 @@
                     '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
                 ).join('\n');
                 const totalMsg = '\n\nTotal: $' + total.toFixed(2);
+                guardarCarrito([]);
+                renderizarCarrito();
+                actualizarContadorGlobal();
                 window.location.href = 'https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:\n' + encodeURIComponent(msg + totalMsg);
             } else {
                 alert('Error al guardar: ' + (data.message || 'desconocido'));
