@@ -133,19 +133,25 @@
             gap: 8px;
             font-size: 0.95rem;
             font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 10px;
+            width: fit-content;
         }
+        .detalle-stock.stock-red { background: #fee2e2; color: #991b1b; }
+        .detalle-stock.stock-yellow { background: #fef9c3; color: #854d0e; }
+        .detalle-stock.stock-green { background: #dcfce7; color: #166534; }
         .detalle-stock .dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             display: inline-block;
         }
-        .dot-green { background: var(--color-verde); }
-        .dot-yellow { background: #e6b800; }
-        .dot-red { background: #dc2626; }
-        .text-red { color: #dc2626; }
-        .text-yellow { color: #e6b800; }
-        .text-green { color: var(--color-verde); }
+        .dot-green { background: #166534; }
+        .dot-yellow { background: #854d0e; }
+        .dot-red { background: #991b1b; }
+        .text-red { color: #991b1b; }
+        .text-yellow { color: #854d0e; }
+        .text-green { color: #166534; }
 
         .detalle-sub {
             font-size: 0.85rem;
@@ -293,7 +299,7 @@
             <div class="detalle-cuotas" th:text="'Hasta 3 cuotas de $' + ${#numbers.formatDecimal(product.price / 3, 1, 2)}">cuotas</div>
 
             <div class="detalle-stock"
-                 th:classappend="${product.stock == 0} ? 'text-red' : (${product.stock <= 5} ? 'text-yellow' : 'text-green')">
+                 th:classappend="${product.stock == 0} ? 'stock-red' : (${product.stock <= 5} ? 'stock-yellow' : 'stock-green')">
                 <span class="dot"
                       th:classappend="${product.stock == 0} ? 'dot-red' : (${product.stock <= 5} ? 'dot-yellow' : 'dot-green')"></span>
                 <span th:if="${product.stock == 0}">Sin stock</span>
