@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Order(1)
 public class AdminFilter implements Filter {
 
-    @Value("${admin.secret}")
+    @Value("${admin.secret:}")
     private String adminSecret;
 
     private String expectedHash;
@@ -49,6 +49,12 @@ public class AdminFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         String path = req.getRequestURI();
         String method = req.getMethod();
+
+        // Si no hay secret configurado, no proteger rutas admin
+        if (adminSecret == null || adminSecret.isEmpty()) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         if (!isAdminPath(path, method)) {
             chain.doFilter(request, response);

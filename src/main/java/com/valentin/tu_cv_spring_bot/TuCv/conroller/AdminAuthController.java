@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/admin")
 public class AdminAuthController {
 
-    @Value("${admin.secret}")
+    @Value("${admin.secret:}")
     private String adminSecret;
 
     @GetMapping("/login")
@@ -33,7 +33,7 @@ public class AdminAuthController {
                        HttpServletResponse res,
                        Model model) {
         if (!adminSecret.equals(password)) {
-            model.addAttribute("error", "Contraseña incorrecta");
+            model.addAttribute("error", "Contraseï¿½a incorrecta");
             return "admin-login";
         }
 
