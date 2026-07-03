@@ -213,6 +213,56 @@
         }
         .btn-limpiar:hover { border-color: #dc2626; background: var(--color-melocoton); }
 
+        .gift-banner {
+            background: linear-gradient(135deg, #FFF5E6, #FFE0B2);
+            border: 2px dashed var(--color-rosa);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: giftPulse 2s ease-in-out infinite;
+        }
+        @keyframes giftPulse {
+            0%, 100% { border-color: var(--color-rosa); }
+            50% { border-color: #FFD700; }
+        }
+        .gift-banner-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+        .gift-banner-img img { width: 100%; height: 100%; object-fit: contain; }
+        .gift-banner-info { flex: 1; }
+        .gift-banner-title {
+            font-weight: 800;
+            color: var(--color-rosa);
+            font-size: 1rem;
+        }
+        .gift-banner-sub {
+            font-size: 0.82rem;
+            color: var(--color-texto);
+            margin-top: 2px;
+        }
+        .gift-banner-amount {
+            font-weight: 700;
+            color: var(--color-verde);
+            font-size: 0.85rem;
+            background: #E8F5E9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
         @media (max-width: 768px) {
             .hero { padding: 28px 16px 24px; }
             .hero-brand { font-size: 1.6rem; }
@@ -244,6 +294,17 @@
     <div id="cartContent" style="display:none;">
         <div class="cart-items" id="cartItems"></div>
 
+        <div id="giftBanner" class="gift-banner" style="display:none;">
+            <div class="gift-banner-img" id="giftImg">
+                <span>🧶</span>
+            </div>
+            <div class="gift-banner-info">
+                <div class="gift-banner-title" id="giftName">🎁 Tejido de regalo</div>
+                <div class="gift-banner-sub">Por compras mayores a $50.000 — ¡te lo regalamos!</div>
+            </div>
+            <div class="gift-banner-amount">GRATIS</div>
+        </div>
+
         <div class="cart-resumen">
             <div>
                 <div class="cart-total-label">Total</div>
@@ -261,6 +322,24 @@
 
 <script>
     const WHATSAPP_NUM = [[${whatsappNum}]];
+
+    // ── Promo apertura: tejido gratis ──
+    const PROMO = {
+        active: true,
+        minTotal: 50000,
+        name: '🎁 Tejido de regalo',
+        image: '', // <-- poné acá la URL de la imagen cuando la subas
+        emoji: '🧶',
+        // Fin de la promo: domingo 5 jul a las 23:59
+        endDate: new Date(2026, 6, 5, 23, 59, 0) // mes 6 = julio
+    };
+    function promoActiva() {
+        if (!PROMO.active) return false;
+        const ahora = new Date();
+        // Arrancó el viernes 3 de julio
+        const start = new Date(2026, 6, 3, 0, 0, 0);
+        return ahora >= start && ahora <= PROMO.endDate;
+    }
 
     function getCarrito() {
         try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
@@ -292,7 +371,11 @@
                 const msg = items.map(i =>
                     '• ' + i.name + ' x' + i.cantidad + ' = $' + (i.price * i.cantidad).toFixed(2)
                 ).join('\n');
-                const totalMsg = '\n\nTotal: $' + total.toFixed(2);
+                let giftMsg = '';
+                if (promoActiva() && total >= PROMO.minTotal) {
+                    giftMsg = '\n🎁 + ' + PROMO.name + ' (GRATIS)';
+                }
+                const totalMsg = '\n\nTotal: $' + total.toFixed(2) + giftMsg;
                 guardarCarrito([]);
                 renderizarCarrito();
                 actualizarContadorGlobal();
@@ -345,6 +428,21 @@
 
         const total = items.reduce((s, i) => s + i.price * i.cantidad, 0);
         document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+
+        // ── Gift banner ──
+        const giftBanner = document.getElementById('giftBanner');
+        if (promoActiva() && total >= PROMO.minTotal) {
+            const imgEl = document.getElementById('giftImg');
+            if (PROMO.image) {
+                imgEl.innerHTML = '<img src="' + PROMO.image + '" alt="' + PROMO.name + '">';
+            } else {
+                imgEl.innerHTML = '<span>' + PROMO.emoji + '</span>';
+            }
+            document.getElementById('giftName').textContent = PROMO.name;
+            giftBanner.style.display = 'flex';
+        } else {
+            giftBanner.style.display = 'none';
+        }
     }
 
     function cambiarCantidad(index, delta) {
