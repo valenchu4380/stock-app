@@ -244,6 +244,57 @@
         }
         .btn-whatsapp:hover { background: #1da851; }
 
+        .gift-banner {
+            background: linear-gradient(135deg, #FFF5E6, #FFE0B2);
+            border: 2px dashed var(--color-rosa);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: giftPulse 2s ease-in-out infinite;
+        }
+        @keyframes giftPulse {
+            0%, 100% { border-color: var(--color-rosa); }
+            50% { border-color: #FFD700; }
+        }
+        .gift-banner-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+        .gift-banner-img img { width: 100%; height: 100%; object-fit: contain; }
+        .gift-banner-info { flex: 1; }
+        .gift-banner-title {
+            font-weight: 800;
+            color: var(--color-rosa);
+            font-size: 0.95rem;
+        }
+        .gift-banner-sub {
+            font-size: 0.8rem;
+            color: var(--color-texto);
+            margin-top: 2px;
+        }
+        .gift-banner-progress {
+            font-weight: 700;
+            color: var(--color-verde);
+            font-size: 0.85rem;
+            background: #E8F5E9;
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .mensaje {
             padding: 14px 20px;
             border-radius: 10px;
@@ -280,6 +331,18 @@
 
 <div class="detalle-container">
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+
+    <!-- ── Gift promo banner (visible on load) ── -->
+    <div id="giftBanner" class="gift-banner" style="display:none;">
+        <div class="gift-banner-img" id="giftImg">
+            <span>🧶</span>
+        </div>
+        <div class="gift-banner-info">
+            <div class="gift-banner-title" id="giftBannerTitle">🎁 Tejido de regalo</div>
+            <div class="gift-banner-sub" id="giftBannerSub">¡Sumá productos a tu carrito y llegá a los $50.000 para llevarte un tejido gratis!</div>
+        </div>
+        <div class="gift-banner-progress" id="giftBannerProgress">GRATIS</div>
+    </div>
 
     <div class="detalle-card" th:if="${product != null}">
         <div class="detalle-imagen">
@@ -343,6 +406,74 @@
 </div>
 
 <script>
+    // ── Promo apertura: tejido gratis ──
+    const PROMO = {
+        active: true,
+        minTotal: 50000,
+        name: '🎁 Tejido de regalo',
+        image: '', // poné la URL de la imagen acá
+        emoji: '🧶',
+        endDate: new Date(2026, 6, 5, 23, 59, 0)
+    };
+    function promoActiva() {
+        if (!PROMO.active) return false;
+        const ahora = new Date();
+        const start = new Date(2026, 6, 3, 0, 0, 0);
+        return ahora >= start && ahora <= PROMO.endDate;
+    }
+    function actualizarPromoBanner(precioProducto, cantidad) {
+        const banner = document.getElementById('giftBanner');
+        if (!banner) return;
+        if (!promoActiva()) { banner.style.display = 'none'; return; }
+
+        const items = (function() {
+            try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
+        })();
+        const totalCarrito = items.reduce((s, i) => s + i.price * i.cantidad, 0);
+        const totalConProducto = totalCarrito + (precioProducto || 0) * (cantidad || 1);
+        const faltan = PROMO.minTotal - totalConProducto;
+
+        // Actualizar imagen
+        const imgEl = document.getElementById('giftImg');
+        if (PROMO.image) {
+            imgEl.innerHTML = '<img src="' + PROMO.image + '" alt="' + PROMO.name + '">';
+        } else {
+            imgEl.innerHTML = '<span>' + PROMO.emoji + '</span>';
+        }
+
+        const titleEl = document.getElementById('giftBannerTitle');
+        const subEl = document.getElementById('giftBannerSub');
+        const progressEl = document.getElementById('giftBannerProgress');
+
+        if (totalConProducto >= PROMO.minTotal) {
+            titleEl.textContent = '🎁 ¡' + PROMO.name + ' asegurado!';
+            subEl.textContent = 'Completá el pedido y te lo llevás gratis.';
+            progressEl.textContent = '✅ LO TENÉS';
+            progressEl.style.background = '#E8F5E9';
+            progressEl.style.color = '#166534';
+        } else if (totalCarrito >= PROMO.minTotal) {
+            titleEl.textContent = '🎁 ¡Ya tenés tu ' + PROMO.name + '!';
+            subEl.textContent = 'Agregá este producto y completá el pedido.';
+            progressEl.textContent = '✅ LO TENÉS';
+            progressEl.style.background = '#E8F5E9';
+            progressEl.style.color = '#166534';
+        } else if (faltan > 0 && faltan <= 15000) {
+            titleEl.textContent = '🎁 ¡Te faltan $' + faltan.toFixed(0) + ' para tu ' + PROMO.name + '!';
+            subEl.textContent = 'Agregá este producto y acercate al regalo.';
+            progressEl.textContent = '💰 $' + faltan.toFixed(0);
+            progressEl.style.background = '#FFF3CD';
+            progressEl.style.color = '#856404';
+        } else {
+            titleEl.textContent = '🎁 ' + PROMO.name + ' en compras mayores a $' + PROMO.minTotal.toLocaleString();
+            subEl.textContent = 'Sumá productos a tu carrito y llevate un tejido GRATIS.';
+            progressEl.textContent = '🎯 $' + PROMO.minTotal.toLocaleString();
+            progressEl.style.background = '#E8F5E9';
+            progressEl.style.color = '#166534';
+        }
+
+        banner.style.display = 'flex';
+    }
+
     function getCarrito() {
         try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
     }
@@ -356,6 +487,7 @@
         const max = parseInt(document.querySelector('.btn-carrito').dataset.stock);
         if (qty > max) qty = max;
         span.textContent = qty;
+        actualizarPromoBanner(parseFloat(document.querySelector('.btn-carrito').dataset.price), qty);
     }
     function agregarAlCarrito(btn) {
         const name = btn.dataset.name;
@@ -385,7 +517,16 @@
         const old = btn.innerHTML;
         btn.innerHTML = '✓ Agregado';
         setTimeout(() => btn.innerHTML = old, 1000);
+        actualizarPromoBanner(price, 1);
     }
+
+    // Inicializar banner al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.querySelector('.btn-carrito');
+        if (btn) {
+            actualizarPromoBanner(parseFloat(btn.dataset.price), parseInt(document.getElementById('detalleQty').textContent));
+        }
+    });
 </script>
 </body>
 </html>
