@@ -3,6 +3,8 @@ package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.impl;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.MovementRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Repository
 public class MovementRepositoryImpl implements MovementRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(MovementRepositoryImpl.class);
 
     private final DataSource dataSource;
 
@@ -38,7 +42,7 @@ public class MovementRepositoryImpl implements MovementRepository {
              Statement st = con.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
-            System.out.println("Error creating movements table: " + e.getMessage());
+            log.warn("Error creating movements table: {}", e.getMessage());
         }
     }
 
@@ -65,7 +69,8 @@ public class MovementRepositoryImpl implements MovementRepository {
             st.setTimestamp(8, Timestamp.valueOf(movement.getTimestamp() != null ? movement.getTimestamp() : LocalDateTime.now()));
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error saving movement: " + e.getMessage());
+            log.error("Error saving movement", e);
+            throw new RuntimeException("Error saving movement: " + e.getMessage(), e);
         }
     }
 
@@ -82,7 +87,7 @@ public class MovementRepositoryImpl implements MovementRepository {
                 movements.add(mapResult(rs));
             }
         } catch (SQLException e) {
-            System.out.println("Error finding movements: " + e.getMessage());
+            log.error("Error finding movements", e);
         }
         return movements;
     }
@@ -98,7 +103,7 @@ public class MovementRepositoryImpl implements MovementRepository {
             ResultSet rs = st.executeQuery();
             while (rs.next()) movements.add(mapResult(rs));
         } catch (SQLException e) {
-            System.out.println("Error finding movements by product: " + e.getMessage());
+            log.error("Error finding movements by product: {}", productName, e);
         }
         return movements;
     }
@@ -111,7 +116,7 @@ public class MovementRepositoryImpl implements MovementRepository {
              ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
-            System.out.println("Error counting movements: " + e.getMessage());
+            log.error("Error counting movements", e);
         }
         return 0;
     }

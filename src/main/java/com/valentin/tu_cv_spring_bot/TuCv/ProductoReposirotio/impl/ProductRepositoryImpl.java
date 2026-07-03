@@ -17,6 +17,8 @@ import java.util.List;
 
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -31,6 +33,8 @@ import java.util.Optional;
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductRepositoryImpl.class);
+
     // Spring Boot inyecta el DataSource automaticamente con los datos
     // de application.properties — no necesitas HikariCP manual
     private final DataSource dataSource;
@@ -38,7 +42,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     public ProductRepositoryImpl(DataSource dataSource) {
         if (dataSource == null) {
-            System.out.println("¡ERROR: El DataSource es nulo!");
+            log.warn("DataSource es nulo en ProductRepositoryImpl");
         }
         this.dataSource = dataSource;
         migrarColumnaCostPrice();
@@ -51,7 +55,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS linea VARCHAR(255) DEFAULT ''");
             st.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS imagen VARCHAR(500) DEFAULT ''");
         } catch (SQLException e) {
-            System.out.println("Nota: " + e.getMessage());
+            log.warn("Nota al migrar columna cost_price: {}", e.getMessage());
         }
     }
 
@@ -69,7 +73,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setString(2, linea);
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error updating linea cost for {}", linea, e);
+            throw new RuntimeException("Error updating linea cost: " + e.getMessage(), e);
         }
     }
 
@@ -89,7 +94,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 list.add(new LineaCost(lineaEnum, rs.getDouble("cost_price"), rs.getInt("cnt")));
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error getting linea costs", e);
         }
         return list;
     }
@@ -111,7 +116,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 products.add(mapResult(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error finding all products", e);
         }
         return products;
     }
@@ -128,7 +133,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 return Optional.of(mapResult(rs));
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error finding product by name: {}", name, e);
         }
         return Optional.empty();
     }
@@ -170,7 +175,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setString(8, product.getImagen() != null ? product.getImagen() : "");
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error saving product: {}", product.getName(), e);
+            throw new RuntimeException("Error saving product: " + e.getMessage(), e);
         }
     }
 
@@ -187,30 +193,33 @@ public class ProductRepositoryImpl implements ProductRepository {
                 throw new ProductNotFoundException("Producto no encontrado: " + name);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error deleting product: {}", name, e);
+            throw new RuntimeException("Error deleting product: " + e.getMessage(), e);
         }
     }
-@Override
-public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
-    String sql = "UPDATE products SET name=?, price=?, cost_price=?, stock=?, category=?, subCategory=?, linea=?, imagen=? WHERE name=? AND subCategory=?";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
-        st.setString(1, product.getName().trim());
-        st.setDouble(2, product.getPrice());
-        st.setDouble(3, product.getCostPrice());
-        st.setInt(4, product.getStock());
-        st.setString(5, product.getCategory().name());
-        st.setString(6, product.getSubCategory().name());
-        st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
-        st.setString(8, product.getImagen() != null ? product.getImagen() : "");
-        st.setString(9, oldName.trim());
-        st.setString(10, oldSubCategory.name());
-        int rows = st.executeUpdate();
-        if (rows == 0) throw new ProductNotFoundException("Producto no encontrado: " + oldName);
-    } catch (SQLException e) {
-        System.out.println("Error SQL: " + e.getMessage());
+
+    @Override
+    public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException {
+        String sql = "UPDATE products SET name=?, price=?, cost_price=?, stock=?, category=?, subCategory=?, linea=?, imagen=? WHERE name=? AND subCategory=?";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, product.getName().trim());
+            st.setDouble(2, product.getPrice());
+            st.setDouble(3, product.getCostPrice());
+            st.setInt(4, product.getStock());
+            st.setString(5, product.getCategory().name());
+            st.setString(6, product.getSubCategory().name());
+            st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
+            st.setString(8, product.getImagen() != null ? product.getImagen() : "");
+            st.setString(9, oldName.trim());
+            st.setString(10, oldSubCategory.name());
+            int rows = st.executeUpdate();
+            if (rows == 0) throw new ProductNotFoundException("Producto no encontrado: " + oldName);
+        } catch (SQLException e) {
+            log.error("Error updating product: {}", oldName, e);
+            throw new RuntimeException("Error updating product: " + e.getMessage(), e);
+        }
     }
-}
 
     @Override
     public void updateFields(String name, SubCategory subCategory, Double newPrice, Double newCostPrice, Integer newStock) {
@@ -227,7 +236,8 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             st.setString(5, subCategory.name());
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error batch update: " + e.getMessage());
+            log.error("Error batch updating fields for: {}", name, e);
+            throw new RuntimeException("Error batch updating fields: " + e.getMessage(), e);
         }
     }
 
@@ -241,7 +251,8 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             st.setString(3, subCategory.trim());
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error reducing stock: " + e.getMessage());
+            log.error("Error reducing stock for: {}", name, e);
+            throw new RuntimeException("Error reducing stock: " + e.getMessage(), e);
         }
     }
 
@@ -257,27 +268,25 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error checking if product exists: {}", name, e);
         }
         return false;
     }
 
     @Override
     public boolean existsBynameAndSubCategory(String name, SubCategory subCategory) {
-        // Buscamos si existe la combinación exacta de nombre + subcategoría
         String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?) AND subCategory = ?";
         try (Connection con = getConnection();
                 PreparedStatement st = con.prepareStatement(sql)) {
 
             st.setString(1, name.trim().toLowerCase());
-            st.setString(2, subCategory.name()); // Convertimos el Enum a String
-
+            st.setString(2, subCategory.name());
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            System.out.println("Error en existsBynameAndSubCategory: " + e.getMessage());
+            log.error("Error checking exists by name and subcategory: {}, {}", name, subCategory, e);
         }
         return false;
     }
@@ -310,7 +319,7 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             ResultSet rs = st.executeQuery();
             while (rs.next()) products.add(mapResult(rs));
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            log.error("Error finding filtered products", e);
         }
         return products;
     }
@@ -325,7 +334,8 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             st.setString(2, Category.name());
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error en SQL: " + e.getMessage());
+            log.error("Error updating prices by category: {}", Category, e);
+            throw new RuntimeException("Error updating prices by category: " + e.getMessage(), e);
         }
     }
 
@@ -339,7 +349,8 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
             st.setString(2, subCategory.name());
             st.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error en SQL: " + e.getMessage());
+            log.error("Error updating prices by subcategory: {}", subCategory, e);
+            throw new RuntimeException("Error updating prices by subcategory: " + e.getMessage(), e);
         }
     }
 
@@ -365,272 +376,270 @@ public void update(Product product, String oldName, SubCategory oldSubCategory) 
                 products.add(mapResult(rs));
             }
         } catch (SQLException e) {
-            System.out.println("Error en SQL: " + e.getMessage());
+            log.error("Error finding by name and subcategory for update: {}, {}", name, subCategory, e);
         }
         return products;
     }
 
     @Override
-public List<Product> findAllPaged(int offset, int limit) throws InvalidProductException {
-    List<Product> products = new ArrayList<>();
-    String sql = "SELECT * FROM products ORDER BY name LIMIT ? OFFSET ?";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql)) {
-        st.setInt(1, limit);
-        st.setInt(2, offset);
-        ResultSet rs = st.executeQuery();
-        while (rs.next()) {
-            products.add(mapResult(rs));
+    public List<Product> findAllPaged(int offset, int limit) throws InvalidProductException {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products ORDER BY name LIMIT ? OFFSET ?";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, limit);
+            st.setInt(2, offset);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                products.add(mapResult(rs));
+            }
+        } catch (SQLException e) {
+            log.error("Error finding all paged products", e);
         }
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        return products;
     }
-    return products;
-}
 
-@Override
-public int countAll() {
-    String sql = "SELECT COUNT(*) FROM products";
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql);
-         ResultSet rs = st.executeQuery()) {
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
+    @Override
+    public int countAll() {
+        String sql = "SELECT COUNT(*) FROM products";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            log.error("Error counting all products", e);
+        }
+        return 0;
     }
-    return 0;
-}
 
-@Override
+    @Override
     public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
-    List<Product> products = new ArrayList<>();
-    StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
-    List<Object> params = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
+        List<Object> params = new ArrayList<>();
 
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
-    }
-    if (category != null && !category.isBlank()) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank()) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    if (stockBajo) {
-        sql.append(" AND stock >= 0 AND stock <= ?");
-        params.add(1);
-    }
-
-    String col = switch (sortBy != null ? sortBy : "") {
-        case "price" -> "price";
-        case "stock" -> "stock";
-        default      -> "name";
-    };
-    String dir = "desc".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
-    sql.append(" ORDER BY ").append(col).append(" ").append(dir);
-    sql.append(" LIMIT ? OFFSET ?");
-    params.add(limit);
-    params.add(offset);
-
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-        ResultSet rs = st.executeQuery();
-        while (rs.next()) products.add(mapResult(rs));
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    return products;
-}
-@Override
-    public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");
-    List<Object> params = new ArrayList<>();
-
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
-    }
-    if (category != null && !category.isBlank() && !category.equals("TODAS")) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank() && !subCategory.equals("TODAS")) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    if (stockBajo) {
-        sql.append(" AND stock >= 0 AND stock <= ?");
-        params.add(1);
-    }
-
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) {
-            st.setObject(i + 1, params.get(i));
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
         }
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    return 0;
-}
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
 
-@Override
+        String col = switch (sortBy != null ? sortBy : "") {
+            case "price" -> "price";
+            case "stock" -> "stock";
+            default      -> "name";
+        };
+        String dir = "desc".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
+        sql.append(" ORDER BY ").append(col).append(" ").append(dir);
+        sql.append(" LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) products.add(mapResult(rs));
+        } catch (SQLException e) {
+            log.error("Error finding paged filtered products", e);
+        }
+        return products;
+    }
+
+    @Override
+    public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                st.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            log.error("Error counting filtered products", e);
+        }
+        return 0;
+    }
+
+    @Override
     public int countStockBajo(String name, String category, String subCategory, String linea) {
-    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock >= 0 AND stock <= 1");
-    List<Object> params = new ArrayList<>();
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock >= 0 AND stock <= 1");
+        List<Object> params = new ArrayList<>();
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            log.error("Error counting low stock products", e);
+        }
+        return 0;
     }
-    if (category != null && !category.isBlank()) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank()) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    return 0;
-}
 
-
-@Override
+    @Override
     public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(price * stock), 0) FROM products WHERE 1=1");
-    List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(price * stock), 0) FROM products WHERE 1=1");
+        List<Object> params = new ArrayList<>();
 
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
-    }
-    if (category != null && !category.isBlank()) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank()) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    if (stockBajo) {
-        sql.append(" AND stock >= 0 AND stock <= ?");
-        params.add(1);
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) return rs.getDouble(1);
+        } catch (SQLException e) {
+            log.error("Error summing inventory", e);
+        }
+        return 0.0;
     }
 
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return rs.getDouble(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    return 0.0;
-}
-
-@Override
+    @Override
     public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(stock), 0) FROM products WHERE 1=1");
-    List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(stock), 0) FROM products WHERE 1=1");
+        List<Object> params = new ArrayList<>();
 
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
-    }
-    if (category != null && !category.isBlank()) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank()) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    if (stockBajo) {
-        sql.append(" AND stock >= 0 AND stock <= ?");
-        params.add(1);
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            log.error("Error summing stock", e);
+        }
+        return 0;
     }
 
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    return 0;
-}
-
-@Override
+    @Override
     public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
-    List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
+        List<Object> params = new ArrayList<>();
 
-    if (name != null && !name.isBlank()) {
-        sql.append(" AND LOWER(name) LIKE ?");
-        params.add("%" + name.trim().toLowerCase() + "%");
-    }
-    if (category != null && !category.isBlank()) {
-        sql.append(" AND category = ?");
-        params.add(category);
-    }
-    if (subCategory != null && !subCategory.isBlank()) {
-        sql.append(" AND subcategory = ?");
-        params.add(subCategory);
-    }
-    if (linea != null && !linea.isBlank()) {
-        sql.append(" AND LOWER(linea) = LOWER(?)");
-        params.add(linea.trim().toLowerCase());
-    }
-    if (stockBajo) {
-        sql.append(" AND stock >= 0 AND stock <= ?");
-        params.add(1);
-    }
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim().toLowerCase());
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
 
-    try (Connection con = getConnection();
-         PreparedStatement st = con.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            log.error("Error counting out-of-stock products", e);
+        }
+        return 0;
     }
-    return 0;
-}
-
-
 
 }

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobreVivi | Acceso</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        :root {
+            --color-fondo: #F9F3EC;
+            --color-crema: #F5EFE6;
+            --color-melocoton: #EDD5CB;
+            --color-rosa-claro: #E8C4C4;
+            --color-rosa-borde: #D4B8AE;
+            --color-rosa: #C97B7B;
+            --color-verde-claro: #A8C4A2;
+            --color-verde: #7D9E78;
+            --color-texto: #5C4A3A;
+            --color-texto-oscuro: #3B2E24;
+        }
+        body {
+            background: var(--color-fondo);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: var(--color-crema);
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.1);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .login-brand {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--color-rosa);
+            letter-spacing: -.02em;
+            margin-bottom: 4px;
+        }
+        .login-sub {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--color-texto);
+            opacity: .6;
+            margin-bottom: 24px;
+        }
+        .login-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-texto-oscuro);
+            margin-bottom: 20px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--color-rosa-borde);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            outline: none;
+            margin-bottom: 16px;
+        }
+        .login-input:focus { border-color: var(--color-rosa); }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--color-rosa);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .15s;
+        }
+        .login-btn:hover { background: #B06060; }
+        .login-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .login-back {
+            display: block;
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: var(--color-rosa);
+            text-decoration: none;
+        }
+        .login-back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-brand">SobreVivi</div>
+        <div class="login-sub">Gestión</div>
+        <div class="login-title">Accedé al panel</div>
+
+        <div class="login-error" th:if="${error != null}" th:text="${error}">Error</div>
+
+        <form method="post" th:action="@{/admin/auth}">
+            <input type="hidden" name="redirect" value="/productos"/>
+            <input class="login-input" type="password" name="password" placeholder="Contraseña" autofocus/>
+            <button class="login-btn" type="submit">Ingresar</button>
+        </form>
+
+        <a class="login-back" th:href="@{/productos}">? Volver a la tienda</a>
+    </div>
+</body>
+</html>

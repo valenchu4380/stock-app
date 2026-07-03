@@ -3,7 +3,10 @@ package com.valentin.tu_cv_spring_bot.TuCv.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.PostConstruct;
 
@@ -19,8 +22,11 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductRepository productRepository;
     private final LineaDetectionService lineaDetectionService;
@@ -29,26 +35,30 @@ public class ProductServiceImpl implements ProductService {
     public void asignarLineasExistentes() {
         try {
             List<Product> todos = productRepository.findAll();
-            boolean hayCambios = false;
+            int asignados = 0;
             for (Product p : todos) {
                 if (p.getLinea() == null) {
-                    Linea detected = lineaDetectionService.detectarLinea(
-                        p.getName(),
-                        p.getCategory() != null ? p.getCategory().name() : null,
-                        p.getSubCategory() != null ? p.getSubCategory().name() : null
-                    );
-                    if (detected != null) {
-                        p.setLinea(detected);
-                        productRepository.update(p, p.getName(), p.getSubCategory());
-                        hayCambios = true;
+                    try {
+                        Linea detected = lineaDetectionService.detectarLinea(
+                            p.getName(),
+                            p.getCategory() != null ? p.getCategory().name() : null,
+                            p.getSubCategory() != null ? p.getSubCategory().name() : null
+                        );
+                        if (detected != null) {
+                            p.setLinea(detected);
+                            productRepository.update(p, p.getName(), p.getSubCategory());
+                            asignados++;
+                        }
+                    } catch (Exception e) {
+                        log.warn("Error asignando línea a producto '{}': {}", p.getName(), e.getMessage());
                     }
                 }
             }
-            if (hayCambios) {
-                System.out.println("Líneas asignadas automáticamente a productos existentes.");
+            if (asignados > 0) {
+                log.info("Líneas asignadas automáticamente a {} productos existentes.", asignados);
             }
         } catch (Exception e) {
-            System.out.println("Error al asignar líneas: " + e.getMessage());
+            log.error("Error al asignar líneas en startup", e);
         }
     }
 
@@ -62,60 +72,61 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByname(name);
     }
 
-  @Override
- public void save(Product product) throws InvalidProductException {
-     ProductValidator.validate(product);
+    @Override
+    public void save(Product product) throws InvalidProductException {
+        ProductValidator.validate(product);
 
-     if (product.getLinea() == null) {
-         Linea detected = lineaDetectionService.detectarLinea(
-             product.getName(),
-             product.getCategory() != null ? product.getCategory().name() : null,
-             product.getSubCategory() != null ? product.getSubCategory().name() : null
-         );
-         product.setLinea(detected);
-     }
+        if (product.getLinea() == null) {
+            Linea detected = lineaDetectionService.detectarLinea(
+                product.getName(),
+                product.getCategory() != null ? product.getCategory().name() : null,
+                product.getSubCategory() != null ? product.getSubCategory().name() : null
+            );
+            product.setLinea(detected);
+        }
 
-     boolean existe = productRepository.existsBynameAndSubCategory(
-         product.getName(), 
-         product.getSubCategory()
-     );
+        boolean existe = productRepository.existsBynameAndSubCategory(
+            product.getName(),
+            product.getSubCategory()
+        );
 
-     if (existe) {
-         throw new InvalidProductException("Ya existe un producto con el nombre '" + 
-             product.getName() + "' en la subcategoría " + product.getSubCategory());
-     }
+        if (existe) {
+            throw new InvalidProductException("Ya existe un producto con el nombre '" +
+                product.getName() + "' en la subcategoría " + product.getSubCategory());
+        }
 
-     productRepository.save(product);
- }
+        productRepository.save(product);
+    }
 
     @Override
     public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
         if (!productRepository.existsByname(name)) {
             throw new ProductNotFoundException("Producto no encontrado: " + name);
         }
-        productRepository.delete(name,subCategory);
+        productRepository.delete(name, subCategory);
     }
 
-@Override
-public void update(Product product, String oldName, SubCategory oldSubCategory) 
-        throws ProductNotFoundException, InvalidProductException {
-    
-    ProductValidator.validate(product);
+    @Override
+    public void update(Product product, String oldName, SubCategory oldSubCategory)
+            throws ProductNotFoundException, InvalidProductException {
 
-    if (product.getLinea() == null) {
-        Linea detected = lineaDetectionService.detectarLinea(
-            product.getName(),
-            product.getCategory() != null ? product.getCategory().name() : null,
-            product.getSubCategory() != null ? product.getSubCategory().name() : null
-        );
-        product.setLinea(detected);
+        ProductValidator.validate(product);
+
+        if (product.getLinea() == null) {
+            Linea detected = lineaDetectionService.detectarLinea(
+                product.getName(),
+                product.getCategory() != null ? product.getCategory().name() : null,
+                product.getSubCategory() != null ? product.getSubCategory().name() : null
+            );
+            product.setLinea(detected);
+        }
+
+        if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
+            throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
+        }
+        productRepository.update(product, oldName, oldSubCategory);
     }
 
-    if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
-        throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
-    }
-    productRepository.update(product, oldName, oldSubCategory);
-}
     @Override
     public List<Product> getAllFiltered(String name, String category, String subCategory, String linea) throws InvalidProductException {
         return productRepository.findAllFiltered(name, category, subCategory, linea);
@@ -143,36 +154,37 @@ public void update(Product product, String oldName, SubCategory oldSubCategory)
         return productRepository.findBynameAndSubCategoryForUpdate(name, subCategory);
     }
 
-@Override
-public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
-    int offset = page * size;
-    return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory, linea, sortBy, sortDir, stockBajo);
-}
+    @Override
+    public List<Product> getAllPaged(int page, int size, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
+        int offset = page * size;
+        return productRepository.findAllPagedFiltered(offset, size, name, category, subCategory, linea, sortBy, sortDir, stockBajo);
+    }
 
-@Override
-public int getTotalPages(int size, String name, String category, String subCategory, String linea, boolean stockBajo) {
-    int total = productRepository.countFiltered(name, category, subCategory, linea, stockBajo);
-    return (int) Math.ceil((double) total / size);
-}
-@Override
-public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    return productRepository.countFiltered(name, category, subCategory, linea, stockBajo);
-}
+    @Override
+    public int getTotalPages(int size, String name, String category, String subCategory, String linea, boolean stockBajo) {
+        int total = productRepository.countFiltered(name, category, subCategory, linea, stockBajo);
+        return (int) Math.ceil((double) total / size);
+    }
 
-@Override
-public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    return productRepository.sumInventario(name, category, subCategory, linea, stockBajo);
-}
+    @Override
+    public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
+        return productRepository.countFiltered(name, category, subCategory, linea, stockBajo);
+    }
 
-@Override
-public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    return productRepository.sumStock(name, category, subCategory, linea, stockBajo);
-}
+    @Override
+    public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
+        return productRepository.sumInventario(name, category, subCategory, linea, stockBajo);
+    }
 
-@Override
-public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-    return productRepository.countSinStock(name, category, subCategory, linea, stockBajo);
-}
+    @Override
+    public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
+        return productRepository.sumStock(name, category, subCategory, linea, stockBajo);
+    }
+
+    @Override
+    public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
+        return productRepository.countSinStock(name, category, subCategory, linea, stockBajo);
+    }
 
     @Override
     public int countStockBajo(String name, String category, String subCategory, String linea) {
@@ -204,7 +216,7 @@ public int countSinStock(String name, String category, String subCategory, Strin
                 SubCategory subCategory = SubCategory.valueOf(parts[1].trim());
                 productRepository.updateFields(name, subCategory, price, costPrice, stock);
             } catch (IllegalArgumentException e) {
-                System.out.println("Subcategoría inválida en batch: " + parts[1]);
+                log.warn("Subcategoría inválida en batch: {}", parts[1]);
             }
         }
     }

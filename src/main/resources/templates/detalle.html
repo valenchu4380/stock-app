@@ -362,13 +362,23 @@
         const sub = btn.dataset.sub;
         const price = parseFloat(btn.dataset.price);
         const imagen = btn.dataset.imagen;
+        const stock = parseInt(btn.dataset.stock);
         const cantidad = parseInt(document.getElementById('detalleQty').textContent);
         const items = getCarrito();
         const existente = items.find(i => i.name === name && i.subCategory === sub);
         if (existente) {
-            existente.cantidad += cantidad;
+            const nuevaCantidad = existente.cantidad + cantidad;
+            if (nuevaCantidad > stock) {
+                alert('Solo hay ' + stock + ' unidades disponibles de este producto. Ya tenés ' + existente.cantidad + ' en el carrito.');
+                return;
+            }
+            existente.cantidad = nuevaCantidad;
         } else {
-            items.push({ name, subCategory: sub, price, imagen, cantidad });
+            if (cantidad > stock) {
+                alert('Solo hay ' + stock + ' unidades disponibles.');
+                return;
+            }
+            items.push({ name, subCategory: sub, price, imagen, cantidad, stock });
         }
         guardarCarrito(items);
         document.getElementById('detalleQty').textContent = '1';

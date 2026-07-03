@@ -1,25 +1,32 @@
 package com.valentin.tu_cv_spring_bot.TuCv.service;
 
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.OrdenRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Orden;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.OrdenItem;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OrdenServiceImpl implements OrdenService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrdenServiceImpl.class);
+
     private final OrdenRepository ordenRepository;
     private final ProductRepository productRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
+    @Transactional
     public Orden crear(String itemsJson, double total) {
         Orden o = new Orden();
         o.setItemsJson(itemsJson);
@@ -54,46 +61,11 @@ public class OrdenServiceImpl implements OrdenService {
     }
 
     private List<OrdenItem> parseItems(String json) {
-        List<OrdenItem> items = new ArrayList<>();
-        json = json.trim();
-        if (json.startsWith("[") && json.endsWith("]")) {
-            json = json.substring(1, json.length() - 1).trim();
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<OrdenItem>>() {});
+        } catch (Exception e) {
+            log.error("Error parsing order items JSON: {}", json, e);
+            return List.of();
         }
-        if (json.isEmpty()) return items;
-
-        String[] parts = json.split("\\}\\s*,\\s*\\{");
-        for (String part : parts) {
-            items.add(parseItem(part));
-        }
-        return items;
-    }
-
-    private OrdenItem parseItem(String json) {
-        OrdenItem item = new OrdenItem();
-        item.setName(extractString(json, "name"));
-        item.setSubCategory(extractString(json, "subCategory"));
-        item.setCantidad(Integer.parseInt(extractNumber(json, "cantidad")));
-        item.setPrice(new BigDecimal(extractNumber(json, "price")));
-        return item;
-    }
-
-    private String extractString(String json, String key) {
-        String search = "\"" + key + "\":\"";
-        int start = json.indexOf(search);
-        if (start == -1) return "";
-        start += search.length();
-        int end = json.indexOf("\"", start);
-        return end > start ? json.substring(start, end) : "";
-    }
-
-    private String extractNumber(String json, String key) {
-        String search = "\"" + key + "\":";
-        int start = json.indexOf(search);
-        if (start == -1) return "0";
-        start += search.length();
-        int end = json.indexOf(",", start);
-        if (end == -1) end = json.indexOf("}", start);
-        if (end == -1) end = json.length();
-        return json.substring(start, end).trim();
     }
 }

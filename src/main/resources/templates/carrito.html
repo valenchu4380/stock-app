@@ -350,7 +350,13 @@
     function cambiarCantidad(index, delta) {
         const items = getCarrito();
         if (!items[index]) return;
-        items[index].cantidad = Math.max(1, items[index].cantidad + delta);
+        const nueva = items[index].cantidad + delta;
+        const max = items[index].stock;
+        if (max != null) {
+            items[index].cantidad = Math.max(1, Math.min(nueva, max));
+        } else {
+            items[index].cantidad = Math.max(1, nueva);
+        }
         guardarCarrito(items);
         renderizarCarrito();
         actualizarContadorGlobal();

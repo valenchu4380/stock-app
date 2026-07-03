@@ -3,6 +3,8 @@ package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.impl;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.OrdenRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Orden;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Repository
 public class OrdenRepositoryImpl implements OrdenRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(OrdenRepositoryImpl.class);
 
     private final DataSource dataSource;
 
@@ -35,7 +39,7 @@ public class OrdenRepositoryImpl implements OrdenRepository {
              Statement st = con.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
-            System.out.println("Error creating ordenes table: " + e.getMessage());
+            log.warn("Error creating ordenes table: {}", e.getMessage());
         }
     }
 
@@ -56,6 +60,7 @@ public class OrdenRepositoryImpl implements OrdenRepository {
             var rs = ps.getGeneratedKeys();
             if (rs.next()) orden.setId(rs.getLong(1));
         } catch (SQLException e) {
+            log.error("Error saving orden", e);
             throw new RuntimeException("Error saving orden", e);
         }
     }
@@ -69,6 +74,7 @@ public class OrdenRepositoryImpl implements OrdenRepository {
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
+            log.error("Error finding ordenes", e);
             throw new RuntimeException("Error finding ordenes", e);
         }
         return list;
@@ -84,6 +90,7 @@ public class OrdenRepositoryImpl implements OrdenRepository {
                 if (rs.next()) return map(rs);
             }
         } catch (SQLException e) {
+            log.error("Error finding orden by id: {}", id, e);
             throw new RuntimeException("Error finding orden", e);
         }
         return null;
@@ -99,6 +106,7 @@ public class OrdenRepositoryImpl implements OrdenRepository {
             ps.setLong(3, id);
             ps.executeUpdate();
         } catch (SQLException e) {
+            log.error("Error updating orden estado for id: {}", id, e);
             throw new RuntimeException("Error updating orden estado", e);
         }
     }
