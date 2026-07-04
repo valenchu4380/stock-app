@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="cardGrid">
+  <a class="producto-card" th:each="p : ${productos}"
+     th:classappend="${p.stock == 0} ? 'sin-stock'"
+     th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">
+    <div class="card-img">
+      <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}" th:src="${p.imagen}">
+      <div th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" class="card-img-placeholder">📦</div>
+    </div>
+    <div class="card-body">
+      <div class="card-title" th:text="${p.name}">Nombre</div>
+      <span class="card-brand"
+            th:classappend="${p.category.name() == 'AVON'} ? 'avon' : (${p.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
+            th:text="${p.category}">AVON</span>
+
+      <div class="card-price" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</div>
+      <div class="card-stock-status"
+           th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')">
+        <span th:if="${p.stock == 0}">🔴 Sin stock</span>
+        <span th:if="${p.stock == 1}">🟡 Última unidad</span>
+        <span th:if="${p.stock >= 2 and p.stock <= 5}">🟡 Stock limitado</span>
+        <span th:if="${p.stock > 5}">🟢 En stock</span>
+      </div>
+      <a th:href="@{https://wa.me/{num}(num=${whatsappNum}, text='Hola! Quiero comprar ' + ${p.name} + ' de $' + ${#numbers.formatDecimal(p.price, 1, 2)})}"
+         target="_blank"
+         onclick="event.stopPropagation()"
+         class="btn-comprar">💬 Comprar</a>
+    </div>
+  </a>
+</th:block>
+</html>

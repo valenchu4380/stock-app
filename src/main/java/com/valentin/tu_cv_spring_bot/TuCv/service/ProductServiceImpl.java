@@ -150,6 +150,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> findRelated(Product product, int limit) {
+        return productRepository.findRelated(product, limit);
+    }
+
+    @Override
     public List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory) {
         return productRepository.findBynameAndSubCategoryForUpdate(name, subCategory);
     }

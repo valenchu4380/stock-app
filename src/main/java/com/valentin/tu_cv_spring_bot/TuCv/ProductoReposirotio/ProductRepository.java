@@ -24,6 +24,8 @@ public interface ProductRepository {
 
     void actualizarpricePorCategory(ProductCategory Category, double porcentaje);
     void actualizarpricePorSubCategoria(SubCategory subCategory, double porcentaje);
+    List<Product> findRelated(Product product, int limit);
+
     List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory);
 
     boolean existsByname(String name);

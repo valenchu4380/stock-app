@@ -382,6 +382,49 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public List<Product> findRelated(Product product, int limit) {
+        List<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT * FROM products WHERE (LOWER(name) != LOWER(?) OR subcategory != ?) AND (");
+        List<Object> params = new ArrayList<>();
+        params.add(product.getName());
+        params.add(product.getSubCategory().name());
+
+        List<String> conditions = new ArrayList<>();
+        if (product.getLinea() != null) {
+            conditions.add("linea = ?");
+            params.add(product.getLinea().name());
+        }
+        if (product.getSubCategory() != null) {
+            conditions.add("subcategory = ?");
+            params.add(product.getSubCategory().name());
+        }
+        if (product.getCategory() != null) {
+            conditions.add("category = ?");
+            params.add(product.getCategory().name());
+        }
+        sql.append(String.join(" OR ", conditions));
+        sql.append(") ORDER BY ");
+        if (product.getLinea() != null) {
+            sql.append("CASE WHEN linea = ? THEN 0 ELSE 1 END, ");
+            params.add(product.getLinea().name());
+        }
+        sql.append("CASE WHEN subcategory = ? THEN 0 ELSE 1 END, name LIMIT ?");
+        params.add(product.getSubCategory().name());
+        params.add(limit);
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) products.add(mapResult(rs));
+        } catch (SQLException e) {
+            log.error("Error finding related products for: {}", product.getName(), e);
+        }
+        return products;
+    }
+
+    @Override
     public List<Product> findAllPaged(int offset, int limit) throws InvalidProductException {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products ORDER BY name LIMIT ? OFFSET ?";

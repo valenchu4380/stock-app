@@ -262,6 +262,21 @@
             border-radius: 20px;
             white-space: nowrap;
         }
+        .promo-countdown {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--color-rosa);
+            background: #FFF5E6;
+            padding: 4px 12px;
+            border-radius: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .promo-countdown.urgent { color: #dc2626; background: #fee2e2; animation: countPulse 1s ease-in-out infinite; }
+        @keyframes countPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .6; }
+        }
 
         @media (max-width: 768px) {
             .hero { padding: 28px 16px 24px; }
@@ -303,6 +318,7 @@
                 <div class="gift-banner-sub">Por compras mayores a $50.000 — ¡te lo regalamos!</div>
             </div>
             <div class="gift-banner-amount">GRATIS</div>
+            <div class="promo-countdown" id="countdown" style="display:none;"></div>
         </div>
 
         <div class="cart-resumen">
@@ -322,6 +338,31 @@
 
 <script>
     const WHATSAPP_NUM = [[${whatsappNum}]];
+
+    // ── Cuenta regresiva ──
+    function actualizarCountdown() {
+        const ahora = new Date();
+        const end = new Date(PROMO.endDate);
+        const diff = end - ahora;
+        const el = document.getElementById('countdown');
+        if (!el) return;
+        if (diff <= 0 || !promoActiva()) { el.style.display = 'none'; return; }
+        el.style.display = '';
+        const seg = Math.floor(diff / 1000) % 60;
+        const min = Math.floor(diff / (1000 * 60)) % 60;
+        const hor = Math.floor(diff / (1000 * 60 * 60)) % 24;
+        const dia = Math.floor(diff / (1000 * 60 * 60 * 24));
+        if (dia > 0) {
+            el.textContent = '⌛ ' + dia + 'd ' + hor + 'h ' + min + 'm';
+            el.className = 'promo-countdown';
+        } else if (hor > 0) {
+            el.textContent = '⌛ ' + hor + 'h ' + min + 'm ' + seg + 's';
+            el.className = 'promo-countdown urgent';
+        } else {
+            el.textContent = '⌛ ' + min + 'm ' + seg + 's';
+            el.className = 'promo-countdown urgent';
+        }
+    }
 
     // ── Promo apertura: tejido gratis ──
     const PROMO = {
@@ -483,6 +524,8 @@
     }
 
     renderizarCarrito();
+    actualizarCountdown();
+    setInterval(actualizarCountdown, 1000);
 </script>
 
 </body>

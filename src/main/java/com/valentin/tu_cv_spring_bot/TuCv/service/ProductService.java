@@ -19,6 +19,8 @@ public interface ProductService {
     void save(Product product) throws InvalidProductException;
     boolean actualizarpricesPorCategoria(ProductCategory categoria, double porcentaje) throws ProductNotFoundException;
     void actualizarpricesPorSubCategoria(SubCategory subCategory, double porcentaje) throws ProductNotFoundException;
+    List<Product> findRelated(Product product, int limit);
+
     List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory);
     void delete(String name, SubCategory subCategory) throws ProductNotFoundException;
     void update(Product product, String oldName, SubCategory oldSubCategory)

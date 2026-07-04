@@ -155,16 +155,7 @@
         .card-brand.avon     { background: var(--color-rosa-claro); color: var(--color-rosa); }
         .card-brand.natura   { background: var(--color-verde-claro); color: var(--color-verde); }
         .card-brand.saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
-        .card-sub {
-            font-size: 0.75rem;
-            color: var(--color-texto);
-            margin-bottom: 6px;
-        }
-        .card-linea {
-            font-size: 0.72rem;
-            color: var(--color-texto);
-            margin-bottom: 8px;
-        }
+
         .card-price {
             font-size: 1.25rem;
             font-weight: 800;
@@ -183,6 +174,23 @@
         .card-stock-status.text-yellow { background: #fef9c3; color: #854d0e; }
         .card-stock-status.text-red { background: #fee2e2; color: #991b1b; }
         a.producto-card { cursor: pointer; color: inherit; text-decoration: none; display: block; }
+
+        .btn-comprar {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #25D366;
+            color: white !important;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            transition: background .15s;
+        }
+        .btn-comprar:hover { background: #1da851; }
+        .producto-card.sin-stock .btn-comprar { pointer-events: auto; }
 
         .filtros-bar {
             width: 80%;
@@ -327,50 +335,17 @@
        th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">Precio ↑↓</a>
 </div>
 
-<div class="paginacion" th:if="${totalPaginas > 1}">
-    <a class="pag-btn"
-       th:classappend="${paginaActual == 0 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual - 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">←</a>
-    <a th:each="i : ${#numbers.sequence(pageStart, pageEnd)}"
-       class="pag-btn"
-       th:classappend="${i == paginaActual ? ' active' : ''}"
-       th:href="@{/productos(page=${i}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}"
-       th:text="${i + 1}">1</a>
-    <a class="pag-btn"
-       th:classappend="${paginaActual == totalPaginas - 1 ? ' disabled' : ''}"
-       th:href="@{/productos(page=${paginaActual + 1}, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy=${sortBy}, sortDir=${sortDir})}">→</a>
-</div>
-
 <div class="productos-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
-    <a class="producto-card" th:each="p : ${productos}"
-       th:classappend="${p.stock == 0} ? 'sin-stock'"
-       th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">
-        <div class="card-img">
-            <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
-                 th:src="${p.imagen}">
-            <div th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" class="card-img-placeholder">📦</div>
-        </div>
-        <div class="card-body">
-            <div class="card-title" th:text="${p.name}">Nombre</div>
-            <span class="card-brand"
-                  th:classappend="${p.category.name() == 'AVON'} ? 'avon' : (${p.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
-                  th:text="${p.category}">AVON</span>
-            <div class="card-sub" th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">Subcategoría</div>
-            <div class="card-linea" th:text="${p.linea != null} ? ${p.linea.displayName} : ''">Línea</div>
-            <div class="card-price" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0.00</div>
-            <div class="card-stock-status"
-                 th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')">
-                <span th:if="${p.stock == 0}">🔴 Sin stock</span>
-                <span th:if="${p.stock == 1}">🟡 Última unidad</span>
-                <span th:if="${p.stock >= 2 and p.stock <= 5}">🟡 Stock limitado</span>
-                <span th:if="${p.stock > 5}">🟢 En stock</span>
-            </div>
-        </div>
-    </a>
+    <th:block th:insert="fragments/producto-cards :: cardGrid"></th:block>
 </div>
 
 <div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
     No se encontraron productos.
+</div>
+
+<div id="scroll-sentinel" th:if="${productos != null and #lists.size(productos) >= 15}" style="text-align:center;padding:16px 0 32px;color:var(--color-texto);font-size:0.85rem;">
+    <div id="loading-spinner" style="display:none;">Cargando más productos…</div>
+    <div id="end-message" style="display:none;">Ya no hay más productos</div>
 </div>
 
 <script>
@@ -420,6 +395,44 @@
     }
 
     actualizarContador();
+
+    const sentinel = document.getElementById('scroll-sentinel');
+    if (sentinel) {
+        let currentPage = 0;
+        let loading = false;
+        let hasMore = true;
+
+        const observer = new IntersectionObserver(async (entries) => {
+            if (!entries[0].isIntersecting || loading || !hasMore) return;
+            loading = true;
+            document.getElementById('loading-spinner').style.display = 'block';
+
+            currentPage++;
+            const params = new URLSearchParams(window.location.search);
+            params.set('page', currentPage);
+
+            try {
+                const res = await fetch('/productos/mas?' + params.toString());
+                const html = await res.text();
+                if (html.trim()) {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    document.querySelector('.productos-grid').append(...temp.children);
+                } else {
+                    hasMore = false;
+                    observer.unobserve(sentinel);
+                    document.getElementById('end-message').style.display = 'block';
+                }
+            } catch (e) {
+                currentPage--;
+            } finally {
+                document.getElementById('loading-spinner').style.display = 'none';
+                loading = false;
+            }
+        });
+
+        observer.observe(sentinel);
+    }
 </script>
 
 </body>

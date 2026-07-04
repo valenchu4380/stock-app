@@ -113,7 +113,30 @@ public class ProductController {
         model.addAttribute("Categorys",    ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
         model.addAttribute("lineas", productService.findAllLineas());
+        model.addAttribute("whatsappNum", whatsappNumber);
         return "index";
+    }
+
+    @GetMapping("/mas")
+    public String mas(
+            @RequestParam(defaultValue = "0")    int page,
+            @RequestParam(defaultValue = "")     String name,
+            @RequestParam(defaultValue = "")     String category,
+            @RequestParam(defaultValue = "")     String subCategory,
+            @RequestParam(defaultValue = "")     String linea,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc")  String sortDir,
+            @RequestParam(defaultValue = "false") boolean stockBajo,
+            Model model) {
+        int size = 15;
+        try {
+            List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory, linea, sortBy, sortDir, stockBajo);
+            model.addAttribute("productos", listaProductos);
+        } catch (InvalidProductException e) {
+            model.addAttribute("productos", java.util.Collections.emptyList());
+        }
+        model.addAttribute("whatsappNum", whatsappNumber);
+        return "fragments/producto-cards :: cardGrid";
     }
 
     @GetMapping("/nuevo")
@@ -540,6 +563,8 @@ public class ProductController {
                 model.addAttribute("whatsappNum", whatsappNumber);
                 String msg = "Hola! Quiero comprar " + p.getName() + " de $" + String.format("%.2f", p.getPrice());
                 model.addAttribute("whatsappUrl", "https://wa.me/" + whatsappNumber + "?text=" + java.net.URLEncoder.encode(msg, java.nio.charset.StandardCharsets.UTF_8));
+                List<Product> relacionados = productService.findRelated(p, 4);
+                model.addAttribute("relacionados", relacionados);
             } else {
                 model.addAttribute("error", "Producto no encontrado");
             }
