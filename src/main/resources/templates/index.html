@@ -511,6 +511,13 @@
 </head>
 <body>
 
+<div class="hero">
+    <div class="hero-text">
+    <div class="hero-brand">SobreVivi</div>
+        <p style="margin-top:8px;font-size:1rem;opacity:.75;">Encontrá todo lo que buscás en perfumería y más</p>
+    </div>
+</div>
+
 <div class="sticky-bar">
     <form id="filtroForm" th:action="@{/productos}" method="get" style="flex:1;display:flex;">
     <input type="hidden" name="page" value="0"/>
@@ -531,13 +538,6 @@
     <a class="cart-icon focus-visible touch-target" href="#" id="cartIcon" aria-label="Abrir carrito, 0 items">
         🛒 <span class="cart-count" id="cartCount">0</span>
     </a>
-</div>
-
-<div class="hero">
-    <div class="hero-text">
-    <div class="hero-brand">SobreVivi</div>
-        <p style="margin-top:8px;font-size:1rem;opacity:.75;">Encontrá todo lo que buscás en perfumería y más</p>
-    </div>
 </div>
 
 <fieldset class="filtros-bar" role="group" aria-label="Filtros">
@@ -626,9 +626,13 @@
     // ── Cart overlay state ──
     var carritoAbierto = false;
     var iconoCarrito = null;
+    var savedScrollY = 0;
 
     function abrirCarrito() {
         iconoCarrito = document.activeElement;
+        savedScrollY = window.scrollY;
+        document.body.classList.add('no-scroll');
+        document.body.style.top = '-' + savedScrollY + 'px';
         var overlay = document.getElementById('cart-overlay');
         overlay.removeAttribute('hidden');
         carritoAbierto = true;
@@ -642,6 +646,9 @@
         var overlay = document.getElementById('cart-overlay');
         overlay.setAttribute('hidden', '');
         carritoAbierto = false;
+        document.body.classList.remove('no-scroll');
+        document.body.style.top = '';
+        window.scrollTo(0, savedScrollY);
         if (iconoCarrito && iconoCarrito.focus) {
             iconoCarrito.focus();
         }

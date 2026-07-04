@@ -106,8 +106,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--bg-primary, #fff);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: var(--color-fondo);
   padding: 0.75rem 5%;
   display: flex;
   align-items: center;
@@ -125,6 +124,22 @@ body {
   color: var(--color-texto-oscuro);
   background: var(--color-crema);
   flex-shrink: 0;
+}
+
+/* ── Body scroll lock for overlays ── */
+.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* ── Touch-action: remove 300ms tap delay on interactive elements ── */
+button, a, input, select, textarea,
+.qty-btn, .overlay-close, .overlay-item-remove,
+.btn-whatsapp-comprar {
+  touch-action: manipulation;
 }
 
 /* ── prefers-reduced-motion: kill all animations ── */
