@@ -1,30 +1,16 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SobreVivi | Carrito</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-
-        :root {
-            --color-fondo: #F9F3EC;
-            --color-crema: #F5EFE6;
-            --color-melocoton: #EDD5CB;
-            --color-rosa-claro: #E8C4C4;
-            --color-rosa-borde: #D4B8AE;
-            --color-rosa: #C97B7B;
-            --color-verde-claro: #A8C4A2;
-            --color-verde: #7D9E78;
-            --color-texto: #5C4A3A;
-            --color-texto-oscuro: #3B2E24;
-        }
-
         body { background: var(--color-fondo); min-height: 100vh; }
 
         .hero {
-            background: linear-gradient(135deg, var(--color-rosa), #B06060);
+            background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
             color: white;
             text-align: center;
             padding: 28px 20px 30px;
@@ -52,14 +38,15 @@
         .btn-volver {
             display: inline-block;
             margin-bottom: 20px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             background: var(--color-crema);
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
             color: var(--color-texto);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            min-height: var(--touch-min);
         }
         .btn-volver:hover { background: var(--color-melocoton); border-color: var(--color-rosa-borde); color: var(--color-rosa); }
 
@@ -71,7 +58,8 @@
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
         }
         .cart-empty .icon { font-size: 4rem; margin-bottom: 16px; }
-        .cart-empty p { color: var(--color-texto); font-size: 1.1rem; margin-bottom: 20px; }
+        .cart-empty p { color: var(--color-texto); font-size: 1.1rem; }
+        .cart-empty .cart-empty-sub { font-size: 0.9rem; color: var(--color-texto); margin: 8px 0 20px; opacity: .75; }
         .cart-empty a {
             display: inline-block;
             padding: 12px 28px;
@@ -81,7 +69,7 @@
             text-decoration: none;
             font-weight: 600;
         }
-        .cart-empty a:hover { background: #B06060; }
+        .cart-empty a:hover { background: var(--color-rosa-hover); }
 
         .cart-items { display: flex; flex-direction: column; gap: 12px; }
         .cart-item {
@@ -114,11 +102,11 @@
         .cart-item-name {
             font-weight: 700;
             color: var(--color-texto-oscuro);
-            font-size: 0.95rem;
+            font-size: 1rem;
             margin-bottom: 4px;
         }
         .cart-item-sub {
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             color: var(--color-texto);
         }
         .cart-item-price {
@@ -134,12 +122,12 @@
             gap: 6px;
         }
         .qty-btn {
-            width: 30px; height: 30px;
+            width: 44px; height: 44px;
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 8px;
             background: white;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -155,7 +143,7 @@
             min-width: 28px;
             text-align: center;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         .qty-remove {
             background: none;
@@ -164,6 +152,8 @@
             cursor: pointer;
             font-size: 1.2rem;
             padding: 4px;
+            min-height: var(--touch-min);
+            min-width: var(--touch-min);
         }
         .qty-remove:hover { color: #dc2626; }
 
@@ -179,8 +169,8 @@
             flex-wrap: wrap;
             gap: 16px;
         }
-        .cart-total-label { font-size: 0.9rem; color: var(--color-texto); }
-        .cart-total-number { font-size: 1.6rem; font-weight: 800; color: var(--color-texto-oscuro); }
+        .cart-total-label { font-size: 0.95rem; color: var(--color-texto); }
+        .cart-total-number { font-size: 1.8rem; font-weight: 800; color: var(--color-texto-oscuro); }
         .btn-whatsapp-enviar {
             display: inline-flex;
             align-items: center;
@@ -195,6 +185,7 @@
             cursor: pointer;
             text-decoration: none;
             transition: .15s;
+            min-height: var(--touch-min);
         }
         .btn-whatsapp-enviar:hover { background: #1da851; }
         .btn-whatsapp-enviar:disabled {
@@ -202,14 +193,15 @@
             cursor: not-allowed;
         }
         .btn-limpiar {
-            padding: 10px 20px;
+            padding: 12px 20px;
             background: var(--color-crema);
             color: #dc2626;
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
+            min-height: var(--touch-min);
         }
         .btn-limpiar:hover { border-color: #dc2626; background: var(--color-melocoton); }
 
@@ -249,21 +241,21 @@
             font-size: 1rem;
         }
         .gift-banner-sub {
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             color: var(--color-texto);
             margin-top: 2px;
         }
         .gift-banner-amount {
             font-weight: 700;
             color: var(--color-verde);
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             background: #E8F5E9;
             padding: 4px 12px;
             border-radius: 20px;
             white-space: nowrap;
         }
         .promo-countdown {
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--color-rosa);
             background: #FFF5E6;
@@ -278,11 +270,10 @@
             50% { opacity: .6; }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .hero { padding: 28px 16px 24px; }
             .hero-brand { font-size: 1.6rem; }
             .hero-brand-sub { font-size: 0.65rem; }
-            .container { width: 92%; }
             .container { width: 92%; }
             .cart-item { flex-wrap: wrap; }
             .cart-item-info { min-width: 100%; order: -1; }
@@ -292,17 +283,26 @@
 </head>
 <body>
 
+<nav aria-label="Breadcrumb">
+    <ol style="list-style:none;display:flex;gap:6px;padding:10px 4%;background:var(--color-crema);border-bottom:1px solid var(--color-rosa-borde);font-size:0.9rem;">
+        <li><a th:href="@{/productos}" style="color:var(--color-rosa);text-decoration:none;">Inicio</a></li>
+        <li><span style="color:var(--color-rosa-borde);">›</span></li>
+        <li aria-current="page" style="color:var(--color-texto);">Carrito</li>
+    </ol>
+</nav>
+
 <div class="hero">
     <div class="hero-brand">SobreVivi</div>
     <div class="hero-brand-sub">🛒 Tu carrito</div>
 </div>
 
 <div class="container">
-    <a class="btn-volver" th:href="@{/productos}">← Seguir comprando</a>
+    <a class="btn-volver touch-target focus-visible" th:href="@{/productos}">← Seguir comprando</a>
 
     <div class="cart-empty" id="cartEmpty">
         <div class="icon">🛒</div>
         <p>Tu carrito está vacío</p>
+        <p class="cart-empty-sub">Agregá productos desde la tienda y volvé para revisar tu pedido</p>
         <a th:href="@{/productos}">Ver productos</a>
     </div>
 
@@ -323,12 +323,12 @@
 
         <div class="cart-resumen">
             <div>
-                <div class="cart-total-label">Total</div>
-                <div class="cart-total-number" id="cartTotal">$0.00</div>
+                    <div class="cart-total-label">Total</div>
+                <div class="cart-total-number" id="cartTotal" aria-live="polite">$0.00</div>
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn-limpiar" onclick="limpiarCarrito()">Vaciar carrito</button>
-                <button class="btn-whatsapp-enviar" id="btnWhatsApp" onclick="enviarPedido()">
+                <button class="btn-limpiar touch-target focus-visible" onclick="limpiarCarrito()">Vaciar carrito</button>
+                <button class="btn-whatsapp-enviar touch-target focus-visible" id="btnWhatsApp" onclick="enviarPedido()">
                     💬 Enviar pedido por WhatsApp
                 </button>
             </div>
@@ -422,10 +422,10 @@
                 actualizarContadorGlobal();
                 window.location.href = 'https://wa.me/' + WHATSAPP_NUM + '?text=Hola! Quiero comprar:\n' + encodeURIComponent(msg + totalMsg);
             } else {
-                alert('Error al guardar: ' + (data.message || 'desconocido'));
+                showToast('Error al guardar: ' + (data.message || 'desconocido'), 'error');
             }
         }).catch(e => {
-            alert('Error al conectar con el servidor: ' + e.message);
+            showToast('Error al conectar con el servidor: ' + e.message, 'error');
         }).finally(() => {
             btn.disabled = false;
             btn.textContent = '💬 Enviar pedido por WhatsApp';
@@ -459,10 +459,10 @@
                 </div>
                 <div class="cart-item-price">$${(item.price * item.cantidad).toFixed(2)}</div>
                 <div class="cart-item-qty">
-                    <button class="qty-btn qty-btn-minus" onclick="cambiarCantidad(${i}, -1)">−</button>
+                    <button class="qty-btn qty-btn-minus touch-target focus-visible" onclick="cambiarCantidad(${i}, -1)" aria-label="Disminuir cantidad">−</button>
                     <span class="qty-num">${item.cantidad}</span>
-                    <button class="qty-btn qty-btn-plus" onclick="cambiarCantidad(${i}, 1)">+</button>
-                    <button class="qty-remove" onclick="eliminarDelCarrito(${i})">✕</button>
+                    <button class="qty-btn qty-btn-plus touch-target focus-visible" onclick="cambiarCantidad(${i}, 1)" aria-label="Aumentar cantidad">+</button>
+                    <button class="qty-remove touch-target focus-visible" onclick="eliminarDelCarrito(${i})" aria-label="Eliminar del carrito">✕</button>
                 </div>
             </div>
         `).join('');
@@ -510,10 +510,13 @@
     }
 
     function limpiarCarrito() {
-        if (!confirm('¿Vaciar carrito?')) return;
-        guardarCarrito([]);
-        renderizarCarrito();
-        actualizarContadorGlobal();
+        showConfirm('¿Vaciar carrito?', function(ok) {
+            if (!ok) return;
+            guardarCarrito([]);
+            renderizarCarrito();
+            actualizarContadorGlobal();
+            showToast('Carrito vaciado', 'info');
+        });
     }
 
     function actualizarContadorGlobal() {
@@ -528,5 +531,6 @@
     setInterval(actualizarCountdown, 1000);
 </script>
 
+<th:block th:insert="fragments/toast :: toast"></th:block>
 </body>
 </html>

@@ -1,30 +1,17 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Gestión de Stock</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        :root {
-            --color-fondo: #F9F3EC;
-            --color-crema: #F5EFE6;
-            --color-melocoton: #EDD5CB;
-            --color-rosa-claro: #E8C4C4;
-            --color-rosa-borde: #D4B8AE;
-            --color-rosa: #C97B7B;
-            --color-verde-claro: #A8C4A2;
-            --color-verde: #7D9E78;
-            --color-texto: #5C4A3A;
-            --color-texto-oscuro: #3B2E24;
-        }
-
         body { background: var(--color-fondo); }
 
         .hero {
-            background: linear-gradient(135deg, var(--color-rosa), #B06060);
+            background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
             color: white;
             text-align: center;
             padding: 28px 20px 30px;
@@ -43,24 +30,29 @@
             opacity: .65;
             margin-top: 2px;
         }
-        .hero p { font-size: 0.85rem; opacity: .65; margin-top: 8px; }
         .hero p { margin-top: 6px; font-size: 1rem; opacity: .85; }
 
         .container { width: 92%; max-width: 1300px; margin: 30px auto; }
 
+        .breadcrumbs { padding: 10px 4%; background: var(--color-crema); border-bottom: 1px solid var(--color-rosa-borde); font-size: 0.9rem; }
+        .breadcrumbs a { color: var(--color-rosa); text-decoration: none; }
+        .breadcrumbs a:hover { text-decoration: underline; }
+        .breadcrumbs span { color: var(--color-texto); }
+
         .volver {
             display: inline-block;
             margin-bottom: 20px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             background: var(--color-crema);
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
             color: var(--color-texto);
             font-weight: 600;
+            min-height: var(--touch-min);
             transition: .2s;
         }
-        .volver:hover { background: #eff6ff; border-color: var(--color-rosa-borde); color: var(--color-rosa); }
+        .volver:hover { background: var(--color-melocoton); border-color: var(--color-rosa-borde); color: var(--color-rosa); }
 
         .stats-grid {
             display: grid;
@@ -76,7 +68,7 @@
             text-align: center;
         }
         .stat-card .num { font-size: 1.8rem; font-weight: 700; }
-        .stat-card .label { font-size: 0.82rem; color: var(--color-texto); margin-top: 4px; }
+        .stat-card .label { font-size: 0.9rem; color: var(--color-texto); margin-top: 4px; }
         .stat-card .num.green { color: var(--color-verde); }
         .stat-card .num.blue  { color: var(--color-rosa); }
         .stat-card .num.amber { color: #d97706; }
@@ -105,11 +97,35 @@
         .chart-card.full { grid-column: 1 / -1; }
         .chart-card canvas { max-height: 320px; }
 
+        .empty-section {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--color-crema);
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+            margin-bottom: 30px;
+        }
+        .empty-section .empty-icon { font-size: 3.5rem; margin-bottom: 14px; }
+        .empty-section .empty-text { font-size: 1.1rem; font-weight: 700; color: var(--color-texto-oscuro); margin-bottom: 6px; }
+        .empty-section .empty-sub { font-size: 0.9rem; color: var(--color-texto); margin-bottom: 20px; opacity: .8; }
+        .empty-section .empty-action {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--color-rosa);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            min-height: var(--touch-min);
+        }
+        .empty-section .empty-action:hover { background: var(--color-rosa-hover); }
+
         .mensaje {
             padding: 14px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         .mensaje.err { background: #fee2e2; color: #991b1b; }
 
@@ -126,39 +142,44 @@
         }
         .filtros-dash input,
         .filtros-dash select {
-            padding: 10px 14px;
+            padding: 12px 14px;
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             outline: none;
             background: var(--color-crema);
+            min-height: var(--touch-min);
         }
         .filtros-dash input:focus,
         .filtros-dash select:focus { border-color: var(--color-rosa); }
         .filtros-dash input { flex: 1; min-width: 160px; }
         .filtros-dash select { min-width: 140px; }
         .filtros-dash button {
-            padding: 10px 24px;
+            padding: 12px 24px;
             background: var(--color-rosa);
             color: white;
             border: none;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            min-height: var(--touch-min);
         }
-        .filtros-dash button:hover { background: #B06060; }
+        .filtros-dash button:hover { background: var(--color-rosa-hover); }
         .filtros-dash .limpiar {
-            padding: 10px 18px;
+            padding: 12px 18px;
             background: var(--color-crema);
             color: var(--color-texto);
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
+            min-height: var(--touch-min);
+            display: inline-flex;
+            align-items: center;
         }
-        .filtros-dash .limpiar:hover { background: var(--color-crema); }
+        .filtros-dash .limpiar:hover { background: var(--color-melocoton); }
 
         .acciones-rapidas {
             display: flex;
@@ -185,9 +206,9 @@
             box-shadow: 0 6px 20px rgba(0,0,0,.1);
         }
         .accion-icon { display: block; font-size: 1.8rem; margin-bottom: 8px; }
-        .accion-texto { font-weight: 600; font-size: 0.9rem; }
+        .accion-texto { font-weight: 600; font-size: 0.95rem; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .charts-grid { grid-template-columns: 1fr; }
             .hero-brand { font-size: 1.6rem; }
             .hero-brand-sub { font-size: 0.65rem; }
@@ -204,6 +225,10 @@
     <p>Análisis de precios, costos y rentabilidad</p>
 </div>
 
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a th:href="@{/productos}">Productos</a>
+    <span>Dashboard</span>
+</nav>
 <div class="container">
     <div class="acciones-rapidas">
         <a class="accion-card" th:href="@{/productos/nuevo}">
@@ -302,6 +327,12 @@
             <canvas id="chartLinea"></canvas>
         </div>
     </div>
+    <div class="empty-section" th:if="${labels == null or #lists.isEmpty(labels)}">
+        <div class="empty-icon">📊</div>
+        <p class="empty-text">No hay datos para mostrar en los gráficos</p>
+        <p class="empty-sub">Agregá productos con precio de costo para ver el análisis financiero</p>
+        <a class="empty-action" th:href="@{/productos/nuevo}">+ Agregar producto</a>
+    </div>
     <div class="gestion-section" th:if="${productos != null and !#lists.isEmpty(productos)}">
         <div class="gestion-header">
             <h2>📦 Gestión de productos</h2>
@@ -340,7 +371,7 @@
                         <td class="gestion-precio" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0</td>
                         <td>
                             <div class="gestion-stock">
-                                <button class="gestion-stock-btn gestion-stock-minus"
+                                <button class="gestion-stock-btn gestion-stock-minus touch-target"
                                         th:data-name="${p.name}"
                                         th:data-sub="${p.subCategory}"
                                         onclick="ajustarStockDash(this, -1)">−</button>
@@ -348,7 +379,7 @@
                                       th:id="'dstock-' + ${pStat.index}"
                                       th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')"
                                       th:text="${p.stock}">0</span>
-                                <button class="gestion-stock-btn gestion-stock-plus"
+                                <button class="gestion-stock-btn gestion-stock-plus touch-target"
                                         th:data-name="${p.name}"
                                         th:data-sub="${p.subCategory}"
                                         onclick="ajustarStockDash(this, 1)">+</button>
@@ -356,15 +387,15 @@
                         </td>
                         <td>
                             <div class="gestion-acciones">
-                                <a class="gestion-btn gestion-btn-edit"
+                                <a class="gestion-btn gestion-btn-edit touch-target"
                                    th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️</a>
-                                <a class="gestion-btn gestion-btn-view"
+                                <a class="gestion-btn gestion-btn-view touch-target"
                                    th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
-                                <form th:action="@{/productos/eliminar}" method="post" style="display:inline;"
-                                      onsubmit="return confirm('¿Eliminar ${p.name}?')">
+                                <form class="delete-form" th:action="@{/productos/eliminar}" method="post" style="display:inline;"
+                                      th:data-name="${p.name}">
                                     <input type="hidden" name="name" th:value="${p.name}">
                                     <input type="hidden" name="subCategory" th:value="${p.subCategory}">
-                                    <button class="gestion-btn gestion-btn-delete" type="submit">🗑️</button>
+                                    <button class="gestion-btn gestion-btn-delete touch-target" type="button" onclick="confirmarEliminacion(this)">🗑️</button>
                                 </form>
                             </div>
                         </td>
@@ -372,6 +403,11 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="empty-section" th:if="${productos != null and #lists.isEmpty(productos)}">
+        <div class="empty-icon">📦</div>
+        <p class="empty-text">No hay productos que coincidan con los filtros</p>
+        <a class="empty-action" th:href="@{/productos/dashboard}">Limpiar filtros</a>
     </div>
 </div>
 
@@ -511,38 +547,45 @@
     function ajustarStockDash(btn, direccion) {
         const name = btn.dataset.name;
         const sub = btn.dataset.sub;
-        const cantidad = direccion > 0
-            ? prompt('Cantidad a AGREGAR a "' + name + '":', '1')
-            : prompt('Cantidad a RETIRAR de "' + name + '":', '1');
-        if (!cantidad) return;
-        const num = parseInt(cantidad);
-        if (isNaN(num) || num <= 0) { alert('Ingresá un número válido'); return; }
-        const params = new URLSearchParams();
-        params.set('name', name);
-        params.set('subCategory', sub);
-        params.set('cantidad', direccion > 0 ? num : -num);
-        fetch('/productos/ajustar-stock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.gestion-stock-valor').forEach(el => {
-                    const tr = el.closest('tr');
-                    if (tr) {
-                        const cb = tr.querySelector('[data-name="' + name + '"][data-sub="' + sub + '"]');
-                        if (cb) {
-                            el.textContent = data.nuevoStock;
+        const label = direccion > 0 ? 'AGREGAR' : 'RETIRAR';
+        showPrompt('Cantidad a ' + label + ' a "' + name + '":', '1', function(cantidad) {
+            if (cantidad === null) return;
+            const params = new URLSearchParams();
+            params.set('name', name);
+            params.set('subCategory', sub);
+            params.set('cantidad', direccion > 0 ? cantidad : -cantidad);
+            fetch('/productos/ajustar-stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.gestion-stock-valor').forEach(el => {
+                        const tr = el.closest('tr');
+                        if (tr) {
+                            const cb = tr.querySelector('[data-name="' + name + '"][data-sub="' + sub + '"]');
+                            if (cb) {
+                                el.textContent = data.nuevoStock;
+                            }
                         }
-                    }
-                });
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(err => alert('Error de conexión: ' + err.message));
+                    });
+                    showToast('Stock actualizado', 'success');
+                } else {
+                    showToast('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(err => showToast('Error de conexión: ' + err.message, 'error'));
+        });
+    }
+
+    function confirmarEliminacion(btn) {
+        var form = btn.closest('.delete-form');
+        var name = form.getAttribute('data-name');
+        showConfirm('¿Eliminar ' + name + '?', function(ok) {
+            if (ok) form.submit();
+        });
     }
 </script>
 
@@ -712,8 +755,8 @@
                 datasets: [{
                     label: 'Ganancia ($)',
                     data: lineaGanancias,
-                    backgroundColor: brandGanancias.map(v => v >= 0 ? 'rgba(125, 158, 120, .75)' : 'rgba(220, 38, 38, .75)'),
-                    borderColor: brandGanancias.map(v => v >= 0 ? '#7D9E78' : '#dc2626'),
+                    backgroundColor: lineaGanancias.map(v => v >= 0 ? 'rgba(125, 158, 120, .75)' : 'rgba(220, 38, 38, .75)'),
+                    borderColor: lineaGanancias.map(v => v >= 0 ? '#7D9E78' : '#dc2626'),
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -840,5 +883,6 @@
     }
 </script>
 
+<th:block th:insert="fragments/toast :: toast"></th:block>
 </body>
 </html>

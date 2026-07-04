@@ -1,32 +1,18 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'SobreVivi | ' + (${product != null} ? ${product.name} : 'Producto')">SobreVivi | Producto</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-
-        :root {
-            --color-fondo: #F9F3EC;
-            --color-crema: #F5EFE6;
-            --color-melocoton: #EDD5CB;
-            --color-rosa-claro: #E8C4C4;
-            --color-rosa-borde: #D4B8AE;
-            --color-rosa: #C97B7B;
-            --color-verde-claro: #A8C4A2;
-            --color-verde: #7D9E78;
-            --color-texto: #5C4A3A;
-            --color-texto-oscuro: #3B2E24;
-        }
-
         body { background: var(--color-fondo); min-height: 100vh; }
 
         .nav-bar {
             background: white;
             border-bottom: 1px solid var(--color-rosa-borde);
-            padding: 14px 10%;
+            padding: 14px 4%;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -47,10 +33,10 @@
             color: var(--color-rosa);
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         .nav-bar a:hover { text-decoration: underline; }
-        .nav-bar span { color: var(--color-texto); font-size: 0.9rem; }
+        .nav-bar span { color: var(--color-texto); font-size: 1rem; }
 
         .detalle-container {
             width: 80%;
@@ -98,7 +84,7 @@
             display: inline-block;
             padding: 4px 14px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .04em;
@@ -109,20 +95,20 @@
         .detalle-marca.saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
 
         .detalle-nombre {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--color-texto-oscuro);
             line-height: 1.3;
         }
 
         .detalle-precio {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--color-texto-oscuro);
         }
 
         .detalle-cuotas {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--color-verde);
             font-weight: 600;
         }
@@ -131,7 +117,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 700;
             padding: 8px 14px;
             border-radius: 10px;
@@ -154,19 +140,19 @@
         .text-green { color: #166534; }
 
         .detalle-sub {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: var(--color-texto);
         }
         .detalle-sub strong { color: var(--color-texto); }
 
         .detalle-linea {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: var(--color-texto);
         }
         .detalle-linea strong { color: var(--color-texto); }
 
         .detalle-descripcion {
-            font-size: 0.92rem;
+            font-size: 1rem;
             color: var(--color-texto);
             line-height: 1.6;
             background: var(--color-crema);
@@ -192,10 +178,10 @@
             background: white;
         }
         .qty-selector button {
-            width: 38px; height: 42px;
+            width: 44px; height: 44px;
             border: none;
             background: white;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             cursor: pointer;
             color: var(--color-texto);
@@ -219,7 +205,7 @@
             gap: 8px;
             padding: 12px 28px;
             border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: .15s;
@@ -237,7 +223,7 @@
             background: var(--color-rosa);
             color: white;
         }
-        .btn-carrito:hover { background: #B06060; }
+        .btn-carrito:hover { background: var(--color-rosa-hover); }
         .btn-whatsapp {
             background: #25D366;
             color: white;
@@ -277,17 +263,17 @@
         .gift-banner-title {
             font-weight: 800;
             color: var(--color-rosa);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         .gift-banner-sub {
-            font-size: 0.8rem;
+            font-size: 0.88rem;
             color: var(--color-texto);
             margin-top: 2px;
         }
         .gift-banner-progress {
             font-weight: 700;
             color: var(--color-verde);
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             background: #E8F5E9;
             padding: 4px 14px;
             border-radius: 20px;
@@ -300,7 +286,7 @@
             margin: 40px auto;
         }
         .relacionados h2 {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             color: var(--color-texto-oscuro);
             margin-bottom: 16px;
             font-weight: 800;
@@ -335,7 +321,7 @@
         .rel-card-img .placeholder { font-size: 2.5rem; color: var(--color-rosa-borde); }
         .rel-card-body { padding: 12px 14px 14px; }
         .rel-card-name {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--color-texto-oscuro);
             margin-bottom: 4px;
@@ -346,7 +332,7 @@
             line-height: 1.3;
         }
         .rel-card-price {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: var(--color-texto-oscuro);
         }
@@ -354,7 +340,7 @@
             display: inline-block;
             padding: 1px 8px;
             border-radius: 12px;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             margin-bottom: 6px;
@@ -364,7 +350,7 @@
         .rel-card-brand.saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
 
         .promo-countdown {
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--color-rosa);
             background: #FFF5E6;
@@ -382,12 +368,12 @@
         .mensaje {
             padding: 14px 20px;
             border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             margin-bottom: 20px;
         }
         .mensaje.err { background: #fee2e2; color: #991b1b; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .detalle-container { width: 92%; }
             .detalle-card { grid-template-columns: 1fr; }
             .detalle-imagen {
@@ -405,13 +391,13 @@
 </head>
 <body>
 
-<div class="nav-bar">
-    <a class="brand" th:href="@{/productos}">SobreVivi</a>
+<nav class="nav-bar" aria-label="Breadcrumb">
+    <a class="brand focus-visible" th:href="@{/productos}">SobreVivi</a>
     <span class="sep">›</span>
-    <a th:href="@{/productos}">Productos</a>
+    <a class="focus-visible" th:href="@{/productos}">Productos</a>
     <span class="sep" th:if="${product != null}">›</span>
-    <span th:if="${product != null}" style="color:var(--color-texto);font-size:0.88rem;font-weight:500;"><span th:text="${product.name}">nombre</span></span>
-</div>
+    <span th:if="${product != null}" style="color:var(--color-texto);font-size:0.95rem;font-weight:500;" aria-current="page"><span th:text="${product.name}">nombre</span></span>
+</nav>
 
 <div class="detalle-container">
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
@@ -432,9 +418,9 @@
     <div class="detalle-card" th:if="${product != null}">
         <div class="detalle-imagen">
             <img th:if="${product.imagen != null and !#strings.isEmpty(product.imagen)}"
-                 th:src="${product.imagen}">
+                 th:src="${product.imagen}" alt="Imagen del producto">
             <div th:unless="${product.imagen != null and !#strings.isEmpty(product.imagen)}"
-                 class="detalle-imagen-placeholder">📦</div>
+                 class="detalle-imagen-placeholder" role="img" aria-label="Producto sin imagen">📦</div>
         </div>
         <div class="detalle-info">
             <span class="detalle-marca"
@@ -469,22 +455,22 @@
 
             <div class="detalle-botones" th:if="${product.stock > 0}">
                 <div class="qty-selector">
-                    <button class="qty-minus" onclick="cambiarQty(-1)">−</button>
+                    <button class="qty-minus touch-target focus-visible" onclick="cambiarQty(-1)" aria-label="Disminuir cantidad">−</button>
                     <span id="detalleQty">1</span>
-                    <button class="qty-plus" onclick="cambiarQty(1)">+</button>
+                    <button class="qty-plus touch-target focus-visible" onclick="cambiarQty(1)" aria-label="Aumentar cantidad">+</button>
                 </div>
-                <button class="btn btn-carrito"
+                <button class="btn btn-carrito touch-target focus-visible"
                         th:data-name="${product.name}"
                         th:data-sub="${product.subCategory}"
                         th:data-price="${product.price}"
                         th:data-imagen="${product.imagen != null ? product.imagen : ''}"
                         th:data-stock="${product.stock}"
                         onclick="agregarAlCarrito(this)">🛒 Agregar al carrito</button>
-                <a class="btn btn-volver" th:href="@{/productos}">← Volver</a>
+                <a class="btn btn-volver touch-target focus-visible" th:href="@{/productos}">← Volver</a>
             </div>
             <div class="detalle-botones" th:if="${product.stock == 0}">
                 <span style="padding:12px 0;font-weight:600;color:#dc2626;">❌ Sin stock — no disponible</span>
-                <a class="btn btn-volver" th:href="@{/productos}">← Volver</a>
+                <a class="btn btn-volver touch-target focus-visible" th:href="@{/productos}">← Volver</a>
             </div>
         </div>
     </div>
@@ -508,7 +494,23 @@
             </a>
         </div>
     </div>
+    <div class="relacionados empty" th:if="${relacionados != null and #lists.isEmpty(relacionados)}">
+        <div class="empty-icon">🔍</div>
+        <p class="empty-text">No hay productos relacionados en esta categoría</p>
+    </div>
 </div>
+
+<style>
+    .relacionados.empty {
+        text-align: center;
+        padding: 40px 20px;
+        background: var(--color-crema);
+        border-radius: 14px;
+        margin-bottom: 30px;
+    }
+    .relacionados.empty .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .relacionados.empty .empty-text { font-size: 1.05rem; color: var(--color-texto); font-weight: 600; }
+</style>
 
 <script>
     // ── Cuenta regresiva ──
@@ -631,13 +633,13 @@
         if (existente) {
             const nuevaCantidad = existente.cantidad + cantidad;
             if (nuevaCantidad > stock) {
-                alert('Solo hay ' + stock + ' unidades disponibles de este producto. Ya tenés ' + existente.cantidad + ' en el carrito.');
+                showToast('Solo hay ' + stock + ' unidades disponibles. Ya tenés ' + existente.cantidad + ' en el carrito.', 'error');
                 return;
             }
             existente.cantidad = nuevaCantidad;
         } else {
             if (cantidad > stock) {
-                alert('Solo hay ' + stock + ' unidades disponibles.');
+                showToast('Solo hay ' + stock + ' unidades disponibles.', 'error');
                 return;
             }
             items.push({ name, subCategory: sub, price, imagen, cantidad, stock });
@@ -660,5 +662,7 @@
         setInterval(actualizarCountdown, 1000);
     });
 </script>
+
+<th:block th:insert="fragments/toast :: toast"></th:block>
 </body>
 </html>

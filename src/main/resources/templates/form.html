@@ -2,42 +2,24 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        :root {
-            --color-fondo: #F9F3EC;
-            --color-crema: #F5EFE6;
-            --color-melocoton: #EDD5CB;
-            --color-rosa-claro: #E8C4C4;
-            --color-rosa-borde: #D4B8AE;
-            --color-rosa: #C97B7B;
-            --color-verde-claro: #A8C4A2;
-            --color-verde: #7D9E78;
-            --color-texto: #5C4A3A;
-            --color-texto-oscuro: #3B2E24;
-        }
-
         body {
             background: var(--color-fondo);
             min-height: 100vh;
         }
 
         .hero {
-            background: linear-gradient(135deg, var(--color-rosa), #B06060);
+            background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
             color: white;
             text-align: center;
             padding: 40px 20px;
         }
+        .hero h1 { font-size: 1.5rem; }
 
         .form-container {
             width: 50%;
@@ -54,7 +36,7 @@
 
         .form-group label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: var(--color-texto);
             margin-bottom: 8px;
@@ -63,11 +45,12 @@
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
             font-size: 1rem;
             background: var(--color-crema);
+            min-height: var(--touch-min);
         }
 
         .btn-row {
@@ -84,7 +67,11 @@
             padding: 14px;
             border-radius: 10px;
             cursor: pointer;
+            min-height: var(--touch-min);
+            font-size: 1rem;
+            font-weight: 600;
         }
+        .btn-guardar:hover { background: var(--color-rosa-hover); }
 
         .btn-cancelar {
             flex: 1;
@@ -95,30 +82,39 @@
             border-radius: 10px;
             text-decoration: none;
             text-align: center;
+            min-height: var(--touch-min);
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
+        .btn-cancelar:hover { background: var(--color-melocoton); }
 
-        @media (max-width: 768px) {
-            .hero {
-                padding: 25px 16px;
-            }
+        .breadcrumbs {
+            padding: 10px 4%;
+            background: var(--color-crema);
+            border-bottom: 1px solid var(--color-rosa-borde);
+            font-size: 0.9rem;
+        }
+        .breadcrumbs a { color: var(--color-rosa); text-decoration: none; }
+        .breadcrumbs a:hover { text-decoration: underline; }
+        .breadcrumbs span { color: var(--color-texto); }
 
-            .hero h1 {
-                font-size: 1.5rem;
-            }
-
+        @media (max-width: 1024px) {
+            .hero { padding: 25px 16px; }
+            .hero h1 { font-size: 1.3rem; }
             .form-container {
                 width: 92%;
                 margin: 20px auto 40px;
                 padding: 24px 20px;
                 border-radius: 12px;
             }
-
             .form-group input,
             .form-group select {
                 font-size: 16px;
                 padding: 14px;
             }
-
             .btn-row {
                 flex-direction: column;
                 gap: 10px;
@@ -128,6 +124,12 @@
 </head>
 
 <body>
+
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a th:href="@{/productos}">Productos</a>
+        <span> › </span>
+        <span aria-current="page">Formulario</span>
+    </nav>
 
     <div class="hero">
         <h1>Sistema de Gestión de Stock</h1>
@@ -148,7 +150,7 @@
 
             <div class="form-group">
                 <label for="name">Nombre del producto</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="Ej: Perfume Musk 50ml" />
+                <input type="text" id="name" th:field="*{name}" placeholder="Ej: Perfume Musk 50ml" aria-required="true" class="focus-visible"/>
             </div>
 
             <div class="form-group">
@@ -219,8 +221,8 @@
             </div>
 
             <div class="btn-row">
-                <button class="btn-guardar" type="submit">Guardar</button>
-                <a class="btn-cancelar" th:href="@{/productos}">Cancelar</a>
+                <button class="btn-guardar touch-target focus-visible" type="submit">Guardar</button>
+                <a class="btn-cancelar touch-target focus-visible" th:href="@{/productos}">Cancelar</a>
             </div>
         </form>
     </div>

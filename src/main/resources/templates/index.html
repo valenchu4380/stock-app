@@ -1,28 +1,16 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SobreVivi | Productos</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
     <style>
-        :root {
-            --color-fondo: #F9F3EC;
-            --color-crema: #F5EFE6;
-            --color-melocoton: #EDD5CB;
-            --color-rosa-claro: #E8C4C4;
-            --color-rosa-borde: #D4B8AE;
-            --color-rosa: #C97B7B;
-            --color-verde-claro: #A8C4A2;
-            --color-verde: #7D9E78;
-            --color-texto: #5C4A3A;
-            --color-texto-oscuro: #3B2E24;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--color-fondo); }
 
         .hero {
-            background: linear-gradient(135deg, var(--color-rosa), #A85555);
+            background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
             color: white;
             text-align: center;
             padding: 28px 20px 30px;
@@ -125,9 +113,9 @@
             justify-content: center;
             width: 100%; height: 100%;
         }
-        .card-body { padding: 14px 16px 16px; }
+        .card-body { padding: 14px 16px 20px; }
         .card-title {
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: var(--color-texto-oscuro);
             margin-bottom: 6px;
@@ -146,7 +134,7 @@
             display: inline-block;
             padding: 2px 10px;
             border-radius: 20px;
-            font-size: 0.72rem;
+            font-size: 0.82rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .04em;
@@ -163,7 +151,7 @@
             margin-bottom: 6px;
         }
         .card-stock-status {
-            font-size: 0.8rem;
+            font-size: 0.88rem;
             font-weight: 600;
             margin-bottom: 10px;
             padding: 3px 10px;
@@ -178,15 +166,16 @@
         .btn-comprar {
             display: block;
             width: 100%;
-            margin-top: 10px;
-            padding: 10px 14px;
+            margin-top: 6px;
+            padding: 12px 14px;
             background: #25D366;
             color: white !important;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             text-align: center;
             text-decoration: none;
+            min-height: var(--touch-min);
             transition: background .15s;
         }
         .btn-comprar:hover { background: #1da851; }
@@ -204,13 +193,16 @@
             padding: 10px 14px;
             border: 1.5px solid var(--color-rosa-borde);
             border-radius: 10px;
-            font-size: 0.88rem;
+            font-size: 1rem;
             color: var(--color-texto);
             background: var(--color-crema);
             outline: none;
             min-width: 140px;
+            min-height: var(--touch-min);
         }
         .filtros-bar select:focus { border-color: var(--color-rosa); }
+        .filtros-toggle { display: none; }
+        .filtros-extra { display: contents; }
 
         .paginacion {
             width: 80%;
@@ -227,11 +219,16 @@
             color: var(--color-texto);
             padding: 8px 14px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             transition: .2s;
+            min-height: var(--touch-min);
+            min-width: var(--touch-min);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .pag-btn:hover { background: var(--color-melocoton); border-color: var(--color-rosa-borde); color: var(--color-rosa); }
         .pag-btn.active { background: var(--color-rosa); border-color: var(--color-rosa); color: white; cursor: default; }
@@ -242,11 +239,14 @@
             border: 1.5px solid var(--color-rosa-borde);
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--color-rosa);
             cursor: pointer;
             text-decoration: none;
+            min-height: var(--touch-min);
+            display: inline-flex;
+            align-items: center;
         }
         .btn-orden:hover { background: var(--color-melocoton); }
         .btn-orden.sort-active { background: var(--color-melocoton); border-color: var(--color-rosa); }
@@ -256,12 +256,26 @@
             margin: 20px auto;
             text-align: center;
             color: var(--color-texto);
-            padding: 40px 0;
+            padding: 60px 20px;
             background: var(--color-crema);
             border-radius: 15px;
         }
+        .empty-state .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+        .empty-state .empty-text { font-size: 1.1rem; font-weight: 700; color: var(--color-texto-oscuro); margin-bottom: 8px; }
+        .empty-state .empty-sub { font-size: 0.9rem; color: var(--color-texto); margin-bottom: 22px; opacity: .8; }
+        .empty-state .empty-action {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--color-rosa);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .empty-state .empty-action:hover { background: var(--color-rosa-hover); }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .hero { padding: 28px 16px 24px; }
             .hero-brand { font-size: 1.6rem; }
             .hero-brand-sub { font-size: 0.65rem; }
@@ -270,10 +284,13 @@
             .hero p { font-size: 0.78rem; }
             .cart-icon { position: static; font-size: 1rem; padding: 6px 12px; margin-top: 16px; display: inline-flex; }
             .search-bar { width: 92%; margin-top: 14px; }
-            .productos-grid { width: 92%; grid-template-columns: repeat(2, 1fr); }
+            .productos-grid { width: 92%; grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .filtros-bar { width: 92%; flex-direction: column; align-items: stretch; margin-top: 14px; gap: 8px; }
             .filtros-bar select { width: 100%; min-width: unset; }
             .filtros-bar .btn-orden { text-align: center; }
+            .filtros-toggle { display: flex; justify-content: center; width: 100%; }
+            .filtros-extra { display: none; flex-direction: column; gap: 8px; width: 100%; }
+            .filtros-extra.open { display: flex; }
             .paginacion { width: 92%; }
             .empty-state { width: 92%; }
             .cart-icon { position: static; font-size: 1rem; padding: 6px 12px; flex-shrink: 0; }
@@ -282,12 +299,20 @@
 </head>
 <body>
 
+<nav aria-label="Breadcrumb">
+    <ol style="list-style:none;display:flex;gap:6px;padding:10px 4%;background:var(--color-crema);border-bottom:1px solid var(--color-rosa-borde);font-size:0.9rem;">
+        <li><a th:href="@{/productos}" style="color:var(--color-rosa);text-decoration:none;">Inicio</a></li>
+        <li><span style="color:var(--color-rosa-borde);">›</span></li>
+        <li aria-current="page" style="color:var(--color-texto);">Productos</li>
+    </ol>
+</nav>
+
 <div class="hero">
     <div class="hero-text">
     <div class="hero-brand">SobreVivi</div>
-        <p style="margin-top:8px;font-size:0.85rem;opacity:.65;">Encontrá todo lo que buscás en perfumería y más</p>
+        <p style="margin-top:8px;font-size:1rem;opacity:.75;">Encontrá todo lo que buscás en perfumería y más</p>
     </div>
-    <a class="cart-icon" th:href="@{/productos/carrito}">
+    <a class="cart-icon focus-visible touch-target" th:href="@{/productos/carrito}" aria-label="Carrito de compras">
         🛒 <span class="cart-count" id="cartCount">0</span>
     </a>
 </div>
@@ -304,18 +329,20 @@
                name="name"
                th:value="${filtroName}"
                placeholder="Buscá por nombre de producto..."
-               autocomplete="off"/>
+               autocomplete="off"
+               class="focus-visible"/>
     </div>
 </form>
 
-<div class="filtros-bar">
-    <select id="filtro-cat" onchange="aplicarFiltros()">
+<fieldset class="filtros-bar" role="group" aria-label="Filtros">
+    <legend class="sr-only">Filtros de búsqueda</legend>
+    <select id="filtro-cat" onchange="aplicarFiltros()" class="focus-visible">
         <option value="" th:selected="${filtroCategory == null or filtroCategory == ''}">Todas las categorías</option>
         <option value="AVON"     th:selected="${filtroCategory == 'AVON'}">AVON</option>
         <option value="NATURA"   th:selected="${filtroCategory == 'NATURA'}">NATURA</option>
         <option value="SAPHIRUS" th:selected="${filtroCategory == 'SAPHIRUS'}">SAPHIRUS</option>
     </select>
-    <select id="filtro-sub" onchange="aplicarFiltros()">
+    <select id="filtro-sub" onchange="aplicarFiltros()" class="focus-visible">
         <option value="" th:selected="${filtroSub == null or filtroSub == ''}">Todas las subcategorías</option>
         <option value="PERFUME"        th:selected="${filtroSub == 'PERFUME'}">Perfume</option>
         <option value="MAQUILLAJE"     th:selected="${filtroSub == 'MAQUILLAJE'}">Maquillaje</option>
@@ -329,27 +356,47 @@
         <option value="PERFUME_PISO"   th:selected="${filtroSub == 'PERFUME_PISO'}">Perfume para piso</option>
         <option value="SAHUMERIO"      th:selected="${filtroSub == 'SAHUMERIO'}">Sahumerio</option>
     </select>
-    <a class="btn-orden" th:classappend="(${sortBy} == 'name') ? ' sort-active' : ''"
-       th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">Nombre ↑↓</a>
-    <a class="btn-orden" th:classappend="(${sortBy} == 'price') ? ' sort-active' : ''"
-       th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">Precio ↑↓</a>
-</div>
+    <button type="button" id="filtrosToggle" class="btn-orden touch-target focus-visible filtros-toggle" aria-expanded="false" aria-label="Mostrar más filtros">▼ Más filtros</button>
+    <div id="filtrosExtra" class="filtros-extra">
+        <a class="btn-orden touch-target focus-visible" th:classappend="(${sortBy} == 'name') ? ' sort-active' : ''"
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">Nombre ↑↓</a>
+        <a class="btn-orden touch-target focus-visible" th:classappend="(${sortBy} == 'price') ? ' sort-active' : ''"
+           th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='price', sortDir=${sortBy == 'price' ? sortDirNext : 'asc'})}">Precio ↑↓</a>
+    </div>
+</fieldset>
 
 <div class="productos-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
     <th:block th:insert="fragments/producto-cards :: cardGrid"></th:block>
 </div>
 
-<div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
-    No se encontraron productos.
-</div>
+    <div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-text">No se encontraron productos</div>
+        <div class="empty-sub" th:if="${filtroName != null and !#strings.isEmpty(filtroName)}" th:text="'No hay resultados para &quot;' + ${filtroName} + '&quot;'">No hay resultados</div>
+        <div class="empty-sub" th:unless="${filtroName != null and !#strings.isEmpty(filtroName)}">Probá cambiando los filtros de búsqueda</div>
+        <a class="empty-action" th:href="@{/productos}">Ver todos los productos</a>
+    </div>
 
-<div id="scroll-sentinel" th:if="${productos != null and #lists.size(productos) >= 15}" style="text-align:center;padding:16px 0 32px;color:var(--color-texto);font-size:0.85rem;">
+<div id="scroll-sentinel" th:if="${productos != null and #lists.size(productos) >= 15}" style="text-align:center;padding:16px 0 32px;color:var(--color-texto);font-size:1rem;">
     <div id="loading-spinner" style="display:none;">Cargando más productos…</div>
     <div id="end-message" style="display:none;">Ya no hay más productos</div>
 </div>
 
 <script>
     let searchTimer;
+
+    // ── Filter toggle for mobile ──
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('filtrosToggle');
+        const extra = document.getElementById('filtrosExtra');
+        if (toggle && extra) {
+            toggle.addEventListener('click', function() {
+                const open = extra.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', open);
+                toggle.innerHTML = open ? '▲ Menos filtros' : '▼ Más filtros';
+            });
+        }
+    });
 
     document.getElementById('searchInput').addEventListener('input', () => {
         clearTimeout(searchTimer);
