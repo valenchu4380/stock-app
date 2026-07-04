@@ -101,6 +101,32 @@ body {
   top: 0;
 }
 
+/* ── Sticky bar utility ── */
+.sticky-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-primary, #fff);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 0.75rem 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sticky-bar .search-bar {
+  width: auto;
+  flex: 1;
+  margin: 0;
+  max-width: 600px;
+}
+.sticky-bar .cart-icon {
+  position: static;
+  color: var(--color-texto-oscuro);
+  background: var(--color-crema);
+  flex-shrink: 0;
+}
+
 /* ── prefers-reduced-motion: kill all animations ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

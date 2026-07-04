@@ -345,6 +345,7 @@
     </div>
 </div>
 
+<script th:src="@{/js/carrito-compartido.js}"></script>
 <script>
     const WHATSAPP_NUM = [[${whatsappNum}]];
 
@@ -389,14 +390,6 @@
         // Arrancó el viernes 3 de julio
         const start = new Date(2026, 6, 3, 0, 0, 0);
         return ahora >= start && ahora <= PROMO.endDate;
-    }
-
-    function getCarrito() {
-        try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }
-    }
-
-    function guardarCarrito(items) {
-        localStorage.setItem('carrito', JSON.stringify(items));
     }
 
     function enviarPedido() {
@@ -526,13 +519,6 @@
             actualizarContadorGlobal();
             showToast('Carrito vaciado', 'info');
         });
-    }
-
-    function actualizarContadorGlobal() {
-        const items = getCarrito();
-        const total = items.reduce((s, i) => s + i.cantidad, 0);
-        const el = document.getElementById('cartCount');
-        if (el) el.textContent = total;
     }
 
     renderizarCarrito();

@@ -39,6 +39,7 @@
     .toast-success { background: #7D9E78; }
     .toast-error { background: #dc2626; }
     .toast-info { background: #C97B7B; }
+    .toast-warning { background: #B8860B; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(120px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(120px); } }
     @media (prefers-reduced-motion: reduce) {
@@ -110,6 +111,18 @@
     #dialog-btn-cancel:hover { background: #D4B8AE; }
   </style>
   <script>
+    function agregarCerrarConEscape(elemento) {
+      elemento.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          if (elemento.hasAttribute('hidden') !== false) {
+            elemento.style.display = 'none';
+          } else {
+            elemento.setAttribute('hidden', '');
+          }
+        }
+      });
+    }
+
     function showToast(message, type) {
       if (!type) type = 'success';
       const container = document.getElementById('toast-container');
@@ -163,6 +176,7 @@
 
       btnConfirm.onclick = function() { cleanup(); if (onConfirm) onConfirm(true); };
       btnCancel.onclick = function() { cleanup(); if (onConfirm) onConfirm(false); };
+      agregarCerrarConEscape(overlay);
     }
 
     function showPrompt(message, defaultValue, onConfirm) {
@@ -202,6 +216,7 @@
       btnConfirm.onclick = onOk;
       btnCancel.onclick = function() { cleanup(); if (onConfirm) onConfirm(null); };
       input.onkeydown = function(e) { if (e.key === 'Enter') onOk(); };
+      agregarCerrarConEscape(overlay);
     }
   </script>
 </th:block>

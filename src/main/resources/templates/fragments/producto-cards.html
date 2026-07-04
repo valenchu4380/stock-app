@@ -26,11 +26,16 @@
         <span th:if="${p.stock > 5}">🟢 En stock</span>
       </div>
     </div>
-    <a th:href="@{https://wa.me/{num}(num=${whatsappNum}, text='Hola! Quiero comprar ' + ${p.name} + ' de $' + ${#numbers.formatDecimal(p.price, 1, 2)})}"
-       target="_blank"
-       onclick="event.stopPropagation()"
-       class="btn-comprar touch-target focus-visible"
-       th:aria-label="|Comprar ${p.name} por WhatsApp|">💬 Comprar</a>
+    <button class="btn-comprar touch-target focus-visible"
+            th:data-name="${p.name}"
+            th:data-price="${#numbers.formatDecimal(p.price, 0, 2)}"
+            th:data-stock="${p.stock}"
+            th:data-sub="${p.subCategory}"
+            th:data-imagen="${p.imagen != null ? p.imagen : ''}"
+            onclick="agregarAlCarrito(this); event.stopPropagation();"
+            th:aria-label="|Agregar ${p.name} al carrito|">
+      Agregar al carrito
+    </button>
   </div>
 </th:block>
 </html>
