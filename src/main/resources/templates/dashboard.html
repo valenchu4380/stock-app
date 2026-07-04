@@ -262,12 +262,12 @@
     <form class="filtros-dash" th:action="@{/productos/dashboard}" method="get">
         <input type="text" name="name" th:value="${filtroName}" placeholder="Buscar producto..." autocomplete="off"/>
         <select name="category">
-            <option value="">Todas las categorías</option>
+            <option value="">Seleccionar marca</option>
             <option th:each="cat : ${Categorys}" th:value="${cat}" th:text="${cat}"
                     th:selected="${filtroCategory == cat.name()}"></option>
         </select>
         <select name="subCategory">
-            <option value="">Todas las subcategorías</option>
+            <option value="">Seleccionar producto</option>
             <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"
                     th:selected="${filtroSub == sub.name()}"></option>
         </select>

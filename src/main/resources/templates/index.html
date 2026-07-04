@@ -81,30 +81,31 @@
             margin: 20px auto;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
+            gap: 20px;
         }
         .producto-card {
-            background: var(--color-crema);
+            background: #fff;
+            border: 1.5px solid var(--color-rosa-borde);
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0,0,0,.08);
-            transition: transform .15s, box-shadow .15s;
-            position: relative;
+            transition: border-color .15s;
+            cursor: pointer;
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
         }
-        .producto-card.sin-stock { opacity: .55; pointer-events: none; }
-        .producto-card.sin-stock:hover { transform: none; box-shadow: none; }
+        .producto-card:hover { border-color: var(--color-rosa); }
+        .producto-card.sin-stock { opacity: .5; }
         .card-img {
             width: 100%;
             height: 200px;
-            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            padding: 8px;
         }
-        .card-img a { display: contents; }
-        .card-img img { width: 100%; height: 100%; object-fit: contain; }
+        .card-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
         .card-img-placeholder {
             font-size: 3rem;
             color: var(--color-rosa-borde);
@@ -113,73 +114,61 @@
             justify-content: center;
             width: 100%; height: 100%;
         }
-        .card-body { padding: 14px 16px 20px; }
+        .card-body {
+            padding: 12px 16px 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
         .card-title {
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--color-texto-oscuro);
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            margin-bottom: 4px;
             line-height: 1.3;
         }
-        .card-title a {
-            color: inherit;
-            text-decoration: none;
-        }
-        .card-title a:hover { text-decoration: underline; }
         .card-brand {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: .04em;
-            margin-bottom: 10px;
+            letter-spacing: .06em;
+            margin-bottom: 4px;
         }
-        .card-brand.avon     { background: var(--color-rosa-claro); color: var(--color-rosa); }
-        .card-brand.natura   { background: var(--color-verde-claro); color: var(--color-verde); }
-        .card-brand.saphirus { background: var(--color-melocoton); color: var(--color-texto-oscuro); }
-
+        .card-brand.avon     { color: var(--color-rosa); }
+        .card-brand.natura   { color: var(--color-verde); }
+        .card-brand.saphirus { color: var(--color-texto-oscuro); }
         .card-price {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: var(--color-texto-oscuro);
-            margin-bottom: 6px;
+            margin: 6px 0;
         }
         .card-stock-status {
-            font-size: 0.88rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            padding: 3px 10px;
-            border-radius: 8px;
-            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 2px;
         }
-        .card-stock-status.text-green { background: #dcfce7; color: #166534; }
-        .card-stock-status.text-yellow { background: #fef9c3; color: #854d0e; }
-        .card-stock-status.text-red { background: #fee2e2; color: #991b1b; }
-        a.producto-card { cursor: pointer; color: inherit; text-decoration: none; display: block; }
+        .card-stock-status.text-green { color: #166534; }
+        .card-stock-status.text-yellow { color: #854d0e; }
+        .card-stock-status.text-red { color: #991b1b; }
 
         .btn-comprar {
-            display: block;
             width: 100%;
-            margin-top: 6px;
-            padding: 12px 14px;
+            padding: 0 16px;
+            height: 38px;
+            line-height: 36px;
             background: #25D366;
             color: white !important;
-            border-radius: 10px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             text-align: center;
             text-decoration: none;
-            min-height: var(--touch-min);
+            flex-shrink: 0;
+            margin-top: auto;
+            border: 1px solid #1da851;
             transition: background .15s;
         }
         .btn-comprar:hover { background: #1da851; }
-        .producto-card.sin-stock .btn-comprar { pointer-events: auto; }
 
         .filtros-bar {
             width: 80%;
@@ -202,7 +191,6 @@
         }
         .filtros-bar select:focus { border-color: var(--color-rosa); }
         fieldset.filtros-bar { border: none; }
-        .filtros-toggle { display: none; }
         .filtros-extra { display: contents; }
 
         .paginacion {
@@ -289,7 +277,7 @@
             .filtros-bar { width: 92%; flex-direction: column; align-items: stretch; margin-top: 14px; gap: 8px; }
             .filtros-bar select { width: 100%; min-width: unset; }
             .filtros-bar .btn-orden { text-align: center; }
-            .filtros-toggle { display: flex; justify-content: center; width: 100%; }
+            #filtrosToggle { display: flex !important; justify-content: center; width: 100%; }
             .filtros-extra { display: none; flex-direction: column; gap: 8px; width: 100%; }
             .filtros-extra.open { display: flex; }
             .paginacion { width: 92%; }
@@ -330,13 +318,13 @@
 <fieldset class="filtros-bar" role="group" aria-label="Filtros">
     <legend class="sr-only">Filtros de búsqueda</legend>
     <select id="filtro-cat" onchange="aplicarFiltros()" class="focus-visible">
-        <option value="" th:selected="${filtroCategory == null or filtroCategory == ''}">Todas las categorías</option>
+        <option value="" th:selected="${filtroCategory == null or filtroCategory == ''}">Seleccionar marca</option>
         <option value="AVON"     th:selected="${filtroCategory == 'AVON'}">AVON</option>
         <option value="NATURA"   th:selected="${filtroCategory == 'NATURA'}">NATURA</option>
         <option value="SAPHIRUS" th:selected="${filtroCategory == 'SAPHIRUS'}">SAPHIRUS</option>
     </select>
     <select id="filtro-sub" onchange="aplicarFiltros()" class="focus-visible">
-        <option value="" th:selected="${filtroSub == null or filtroSub == ''}">Todas las subcategorías</option>
+        <option value="" th:selected="${filtroSub == null or filtroSub == ''}">Seleccionar producto</option>
         <option value="PERFUME"        th:selected="${filtroSub == 'PERFUME'}">Perfume</option>
         <option value="MAQUILLAJE"     th:selected="${filtroSub == 'MAQUILLAJE'}">Maquillaje</option>
         <option value="CABELLO"        th:selected="${filtroSub == 'CABELLO'}">Cabello</option>
@@ -349,7 +337,7 @@
         <option value="PERFUME_PISO"   th:selected="${filtroSub == 'PERFUME_PISO'}">Perfume para piso</option>
         <option value="SAHUMERIO"      th:selected="${filtroSub == 'SAHUMERIO'}">Sahumerio</option>
     </select>
-    <button type="button" id="filtrosToggle" class="btn-orden touch-target focus-visible filtros-toggle" aria-expanded="false" aria-label="Mostrar más filtros">▼ Más filtros</button>
+    <button type="button" id="filtrosToggle" class="btn-orden touch-target focus-visible" aria-expanded="false" aria-label="Mostrar más filtros" style="display:none;">▼ Más filtros</button>
     <div id="filtrosExtra" class="filtros-extra">
         <a class="btn-orden touch-target focus-visible" th:classappend="(${sortBy} == 'name') ? ' sort-active' : ''"
            th:href="@{/productos(page=0, name=${filtroName}, category=${filtroCategory}, subCategory=${filtroSub}, sortBy='name', sortDir=${sortBy == 'name' ? sortDirNext : 'asc'})}">Nombre ↑↓</a>
@@ -409,7 +397,7 @@
         const cat = document.getElementById('filtro-cat').value;
         const sub = document.getElementById('filtro-sub').value;
         const subSel = document.getElementById('filtro-sub');
-        subSel.innerHTML = '<option value="">Todas las subcategorías</option>';
+        subSel.innerHTML = '<option value="">Seleccionar producto</option>';
         const opciones = cat && subPorCat[cat] ? subPorCat[cat] : [];
         (cat ? opciones : ['PERFUME','MAQUILLAJE','CABELLO','CREMA','CUIDADO_DIARIO','TEXTIL','AEROSOL','DIFUSOR','JABON','PERFUME_PISO','SAHUMERIO']).forEach(s => {
             const opt = document.createElement('option');

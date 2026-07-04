@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="cardGrid">
-  <a class="producto-card" th:each="p : ${productos}"
-     th:classappend="${p.stock == 0} ? 'sin-stock'"
-     th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}"
-     role="article"
-     th:aria-label="${p.name + ' - $' + #numbers.formatDecimal(p.price, 1, 2)}">
+  <div class="producto-card" th:each="p : ${productos}"
+       th:classappend="${p.stock == 0} ? 'sin-stock'"
+       th:data-href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}"
+       onclick="if (!event.target.closest('.btn-comprar')) { var h = this.dataset.href; if (h) location.href = h; }"
+       role="article"
+       th:aria-label="${p.name + ' - $' + #numbers.formatDecimal(p.price, 1, 2)}">
     <div class="card-img">
       <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}" th:src="${p.imagen}" th:alt="${p.name}">
       <div th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" class="card-img-placeholder" role="img" aria-label="Producto sin imagen">📦</div>
@@ -24,12 +25,12 @@
         <span th:if="${p.stock >= 2 and p.stock <= 5}">🟡 Stock limitado</span>
         <span th:if="${p.stock > 5}">🟢 En stock</span>
       </div>
-      <a th:href="@{https://wa.me/{num}(num=${whatsappNum}, text='Hola! Quiero comprar ' + ${p.name} + ' de $' + ${#numbers.formatDecimal(p.price, 1, 2)})}"
-         target="_blank"
-         onclick="event.stopPropagation()"
-         class="btn-comprar touch-target focus-visible"
-         th:aria-label="|Comprar ${p.name} por WhatsApp|">💬 Comprar</a>
     </div>
-  </a>
+    <a th:href="@{https://wa.me/{num}(num=${whatsappNum}, text='Hola! Quiero comprar ' + ${p.name} + ' de $' + ${#numbers.formatDecimal(p.price, 1, 2)})}"
+       target="_blank"
+       onclick="event.stopPropagation()"
+       class="btn-comprar touch-target focus-visible"
+       th:aria-label="|Comprar ${p.name} por WhatsApp|">💬 Comprar</a>
+  </div>
 </th:block>
 </html>
