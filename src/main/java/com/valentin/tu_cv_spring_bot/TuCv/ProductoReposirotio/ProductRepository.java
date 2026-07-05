@@ -22,8 +22,6 @@ public interface ProductRepository {
 
     List<Product> findBynameAndSubCategoryForUpdate(String name, SubCategory subCategory);
 
-    boolean existsByname(String name);
-
     boolean existsBynameAndSubCategory(String name, SubCategory subCategory);
 
     void updateFields(String name, SubCategory subCategory, Double newPrice, Double newCostPrice, Integer newStock);
@@ -34,10 +32,6 @@ public interface ProductRepository {
     void reduceStock(String name, String subCategory, int cantidad);
 
     void adjustStock(String name, SubCategory subCategory, int cantidad);
-
-    List<Product> findAllPaged(int offset, int limit) throws InvalidProductException;
-
-    int countAll();
 
     List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException;
 int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo);

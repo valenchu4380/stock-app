@@ -224,23 +224,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public boolean existsByname(String name) {
-        String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
-        try (Connection con = getConnection();
-                PreparedStatement st = con.prepareStatement(sql)) {
-
-            st.setString(1, name.trim().toLowerCase());
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            log.error("Error checking if product exists: {}", name, e);
-        }
-        return false;
-    }
-
-    @Override
     public boolean existsBynameAndSubCategory(String name, SubCategory subCategory) {
         String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?) AND subCategory = ?";
         try (Connection con = getConnection();
@@ -389,37 +372,6 @@ public class ProductRepositoryImpl implements ProductRepository {
             log.error("Error finding related products for: {}", product.getName(), e);
         }
         return products;
-    }
-
-    @Override
-    public List<Product> findAllPaged(int offset, int limit) throws InvalidProductException {
-        List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM products ORDER BY name LIMIT ? OFFSET ?";
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, limit);
-            st.setInt(2, offset);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                products.add(mapResult(rs));
-            }
-        } catch (SQLException e) {
-            log.error("Error finding all paged products", e);
-        }
-        return products;
-    }
-
-    @Override
-    public int countAll() {
-        String sql = "SELECT COUNT(*) FROM products";
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) {
-            log.error("Error counting all products", e);
-        }
-        return 0;
     }
 
     @Override
