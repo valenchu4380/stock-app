@@ -1,6 +1,7 @@
 package com.valentin.tu_cv_spring_bot.TuCv.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
@@ -35,4 +36,9 @@ public interface ProductService {
     void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException;
 
     void adjustStock(String name, SubCategory subCategory, int cantidad);
+
+    Map<String, Object> dashboardMetrics(String name, String category, String subCategory);
+    List<Object[]> top20Products(String name, String category, String subCategory);
+    List<Object[]> profitByCategory(String name, String category, String subCategory);
+    List<Object[]> profitByLinea(String name, String category, String subCategory);
 }

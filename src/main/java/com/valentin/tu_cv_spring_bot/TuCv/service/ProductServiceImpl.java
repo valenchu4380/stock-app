@@ -1,6 +1,7 @@
 package com.valentin.tu_cv_spring_bot.TuCv.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -165,6 +166,26 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void adjustStock(String name, SubCategory subCategory, int cantidad) {
         productRepository.adjustStock(name, subCategory, cantidad);
+    }
+
+    @Override
+    public Map<String, Object> dashboardMetrics(String name, String category, String subCategory) {
+        return productRepository.dashboardMetrics(name, category, subCategory);
+    }
+
+    @Override
+    public List<Object[]> top20Products(String name, String category, String subCategory) {
+        return productRepository.top20Products(name, category, subCategory);
+    }
+
+    @Override
+    public List<Object[]> profitByCategory(String name, String category, String subCategory) {
+        return productRepository.profitByCategory(name, category, subCategory);
+    }
+
+    @Override
+    public List<Object[]> profitByLinea(String name, String category, String subCategory) {
+        return productRepository.profitByLinea(name, category, subCategory);
     }
 
 }

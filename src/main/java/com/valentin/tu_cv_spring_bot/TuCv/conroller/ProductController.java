@@ -13,6 +13,7 @@ import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -347,90 +348,52 @@ public class ProductController {
             @RequestParam(defaultValue = "") String subCategory,
             Model model) {
         try {
-            List<Product> todos = productService.getAllFiltered(name, category, subCategory, "");
-            double totalInversion = 0;
-            double totalVenta = 0;
-            double totalGanancia = 0;
-            int countConCosto = 0;
+            // SQL aggregation — no Java loop over all products
+            Map<String, Object> metrics = productService.dashboardMetrics(name, category, subCategory);
+            List<Object[]> top20 = productService.top20Products(name, category, subCategory);
+            List<Object[]> catProfit = productService.profitByCategory(name, category, subCategory);
+            List<Object[]> lineaProfit = productService.profitByLinea(name, category, subCategory);
+            int totalProductos = productService.countFiltered(name, category, subCategory, "", false);
 
-            java.util.Map<String, Double> gananciaPorCat = new java.util.HashMap<>();
-            java.util.Map<String, Double> gananciaPorSub = new java.util.HashMap<>();
-            java.util.List<Product> conDatos = new java.util.ArrayList<>();
+            // Aggregate metrics
+            double totalInversion = (double) metrics.getOrDefault("totalInversion", 0.0);
+            double totalVenta = (double) metrics.getOrDefault("totalVenta", 0.0);
+            double totalGanancia = (double) metrics.getOrDefault("totalGanancia", 0.0);
+            int countConCosto = (int) metrics.getOrDefault("countConCosto", 0);
+            double margenPromedio = (double) metrics.getOrDefault("margenPromedio", 0.0);
 
-            for (Product p : todos) {
-                double inversion = p.getCostPrice() * p.getStock();
-                double venta = p.getPrice() * p.getStock();
-                double ganancia = venta - inversion;
-                totalInversion += inversion;
-                totalVenta += venta;
-                totalGanancia += ganancia;
-
-                String cat = p.getCategory() != null ? p.getCategory().name() : "SIN CAT";
-                gananciaPorCat.merge(cat, ganancia, Double::sum);
-
-                String sub = p.getSubCategory() != null ? p.getSubCategory().name() : "SIN SUB";
-                gananciaPorSub.merge(sub, ganancia, Double::sum);
-
-                if (p.getCostPrice() > 0) countConCosto++;
-
-                if (p.getStock() > 0) conDatos.add(p);
+            // Top 20 chart
+            List<String> labels = new ArrayList<>();
+            List<Double> ganancias = new ArrayList<>();
+            List<Double> costos = new ArrayList<>();
+            List<Double> ventas = new ArrayList<>();
+            List<Double> margenes = new ArrayList<>();
+            for (Object[] row : top20) {
+                labels.add((String) row[0]);
+                ganancias.add((Double) row[1]);
+                costos.add((Double) row[2]);
+                ventas.add((Double) row[3]);
+                margenes.add((Double) row[4]);
             }
 
-            double margenPromedio = 0;
-            if (!todos.isEmpty() && countConCosto > 0) {
-                double sumaMargenes = 0;
-                for (Product p : todos) {
-                    if (p.getPrice() > 0 && p.getCostPrice() > 0) {
-                        sumaMargenes += ((p.getPrice() - p.getCostPrice()) / p.getPrice()) * 100;
-                    }
-                }
-                margenPromedio = sumaMargenes / countConCosto;
+            // Category profit
+            List<String> catLabels = new ArrayList<>();
+            List<Double> catGanancias = new ArrayList<>();
+            for (Object[] row : catProfit) {
+                catLabels.add((String) row[0]);
+                catGanancias.add((Double) row[1]);
             }
 
-            conDatos.sort((a, b) -> {
-                double gA = (a.getPrice() - a.getCostPrice()) * a.getStock();
-                double gB = (b.getPrice() - b.getCostPrice()) * b.getStock();
-                return Double.compare(gB, gA);
-            });
-
-            java.util.List<String> labels = new java.util.ArrayList<>();
-            java.util.List<Double> ganancias = new java.util.ArrayList<>();
-            java.util.List<Double> costos = new java.util.ArrayList<>();
-            java.util.List<Double> ventas = new java.util.ArrayList<>();
-            java.util.List<Double> margenes = new java.util.ArrayList<>();
-
-            int limit = Math.min(conDatos.size(), 20);
-            for (int i = 0; i < limit; i++) {
-                Product p = conDatos.get(i);
-                labels.add(p.getName().length() > 20 ? p.getName().substring(0, 20) + "…" : p.getName());
-                double g = (p.getPrice() - p.getCostPrice()) * p.getStock();
-                ganancias.add(g);
-                costos.add(p.getCostPrice() * p.getStock());
-                ventas.add(p.getPrice() * p.getStock());
-                if (p.getPrice() > 0 && p.getCostPrice() > 0) {
-                    margenes.add(((p.getPrice() - p.getCostPrice()) / p.getPrice()) * 100);
-                } else {
-                    margenes.add(0.0);
-                }
+            // Linea profit
+            List<String> lineaLabels = new ArrayList<>();
+            List<Double> lineaGanancias = new ArrayList<>();
+            for (Object[] row : lineaProfit) {
+                lineaLabels.add((String) row[0]);
+                lineaGanancias.add((Double) row[1]);
             }
 
-            java.util.List<String> catLabels = new java.util.ArrayList<>(gananciaPorCat.keySet());
-            java.util.List<Double> catGanancias = new java.util.ArrayList<>();
-            for (String cl : catLabels) catGanancias.add(gananciaPorCat.get(cl));
-
-            java.util.Map<String, Double> gananciaPorLinea = new java.util.HashMap<>();
-            java.util.Map<String, Double> inversionPorLinea = new java.util.HashMap<>();
-            for (Product p : todos) {
-                String linea = p.getLinea() != null && !p.getLinea().isBlank() ? p.getLinea() : "SIN LINEA";
-                double inversion = p.getCostPrice() * p.getStock();
-                double venta = p.getPrice() * p.getStock();
-                gananciaPorLinea.merge(linea, venta - inversion, Double::sum);
-                inversionPorLinea.merge(linea, inversion, Double::sum);
-            }
-            java.util.List<String> lineaLabels = new java.util.ArrayList<>(gananciaPorLinea.keySet());
-            lineaLabels.sort((a, b) -> Double.compare(gananciaPorLinea.get(b), gananciaPorLinea.get(a)));
-            java.util.List<Double> lineaGanancias = new java.util.ArrayList<>();
-            for (String bl : lineaLabels) lineaGanancias.add(gananciaPorLinea.get(bl));
+            // Best product from top 20
+            String mejorProducto = top20.isEmpty() ? "\u2014" : (String) top20.get(0)[0];
 
             model.addAttribute("labels",       labels);
             model.addAttribute("ganancias",    ganancias);
@@ -445,14 +408,14 @@ public class ProductController {
             model.addAttribute("totalVenta", totalVenta);
             model.addAttribute("totalGanancia", totalGanancia);
             model.addAttribute("margenPromedio", margenPromedio);
-            model.addAttribute("totalProductos", todos.size());
-            model.addAttribute("mejorProducto", conDatos.isEmpty() ? "—" : conDatos.get(0).getName());
+            model.addAttribute("totalProductos", totalProductos);
+            model.addAttribute("mejorProducto", mejorProducto);
             model.addAttribute("filtroName",     name);
             model.addAttribute("filtroCategory", category);
             model.addAttribute("filtroSub",      subCategory);
             model.addAttribute("Categorys",      ProductCategory.values());
             model.addAttribute("SubCategorys",   SubCategory.values());
-            model.addAttribute("productos",      todos);
+            model.addAttribute("productos",      java.util.Collections.emptyList());
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar dashboard: " + e.getMessage());
