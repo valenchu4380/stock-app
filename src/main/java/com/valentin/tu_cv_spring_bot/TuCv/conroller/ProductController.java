@@ -1,14 +1,11 @@
 package com.valentin.tu_cv_spring_bot.TuCv.conroller;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Orden;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
-import com.valentin.tu_cv_spring_bot.TuCv.service.LineaDetectionService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.MovementService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.OrdenService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
@@ -38,7 +35,6 @@ public class ProductController {
 
     private final ProductService productService;
     private final MovementService movementService;
-    private final LineaDetectionService lineaDetectionService;
     private final OrdenService ordenService;
 
     @Value("${whatsapp.number:543854202134}")
@@ -112,7 +108,6 @@ public class ProductController {
         }
         model.addAttribute("Categorys",    ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
-        model.addAttribute("lineas", productService.findAllLineas());
         model.addAttribute("whatsappNum", whatsappNumber);
         return "index";
     }
@@ -144,27 +139,13 @@ public class ProductController {
         model.addAttribute("product", new Product());
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
-        model.addAttribute("lineas", productService.findAllLineas());
-        model.addAttribute("allLineas", Linea.values());
         return "form";
-    }
-
-    private void autoDetectarLinea(Product product) {
-        if (product.getLinea() == null) {
-            Linea detected = lineaDetectionService.detectarLinea(
-                product.getName(),
-                product.getCategory() != null ? product.getCategory().name() : null,
-                product.getSubCategory() != null ? product.getSubCategory().name() : null
-            );
-            product.setLinea(detected);
-        }
     }
 
     @PostMapping("/nuevo")
     public String guardar(@ModelAttribute Product product,
             RedirectAttributes ra) {
         try {
-            autoDetectarLinea(product);
             productService.save(product);
             Movement m = new Movement();
             m.setProductName(product.getName());
@@ -200,8 +181,6 @@ public class ProductController {
         }
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
-        model.addAttribute("lineas", productService.findAllLineas());
-        model.addAttribute("allLineas", Linea.values());
         return "form";
     }
 
@@ -214,7 +193,6 @@ public class ProductController {
             SubCategory oldSubCat = SubCategory.valueOf(oldSubCategory);
             Product oldProduct = productService.getByname(oldName).orElse(null);
 
-            autoDetectarLinea(product);
             productService.update(product, oldName, oldSubCat);
 
             if (oldProduct != null) {
@@ -343,74 +321,6 @@ public class ProductController {
         return "redirect:/productos";
     }
 
-    @GetMapping("/lineas")
-    public String lineas(Model model) {
-        List<LineaCost> lineas = productService.getLineaCosts();
-        model.addAttribute("lineas", lineas);
-        return "lineas";
-    }
-
-    @PostMapping("/lineas/actualizar-costo")
-    public String actualizarCostoLinea(@RequestParam String linea, @RequestParam double costPrice, RedirectAttributes ra) {
-        try {
-            productService.updateLineaCost(linea, costPrice);
-            ra.addFlashAttribute("mensaje", "Costo actualizado para la linea: " + linea);
-        } catch (Exception e) {
-            ra.addFlashAttribute("error", "Error: " + e.getMessage());
-        }
-        return "redirect:/productos/lineas";
-    }
-
-    @PostMapping("/asignar-lineas-pendientes")
-    @ResponseBody
-    public Map<String, Object> asignarLineasPendientes() {
-        int asignados = 0;
-        try {
-            List<Product> todos = productService.getAll();
-            for (Product p : todos) {
-                if (p.getLinea() == null) {
-                    Linea detected = lineaDetectionService.detectarLinea(
-                        p.getName(),
-                        p.getCategory() != null ? p.getCategory().name() : null,
-                        p.getSubCategory() != null ? p.getSubCategory().name() : null
-                    );
-                    if (detected != null) {
-                        p.setLinea(detected);
-                        try {
-                            productService.update(p, p.getName(), p.getSubCategory());
-                            asignados++;
-                        } catch (Exception e) {
-                            // skip
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // skip
-        }
-        return Map.of("asignados", asignados);
-    }
-
-    @GetMapping("/detectar-linea")
-    @ResponseBody
-    public Map<String, String> detectarLinea(
-            @RequestParam String name,
-            @RequestParam(defaultValue = "") String category,
-            @RequestParam(defaultValue = "") String subCategory) {
-        Linea linea = lineaDetectionService.detectarLinea(name, category, subCategory);
-        return Map.of("linea", linea != null ? linea.getDisplayName() : "");
-    }
-
-    @GetMapping("/lineas-por-categoria")
-    @ResponseBody
-    public Map<String, List<String>> lineasPorCategoria(
-            @RequestParam(defaultValue = "") String category,
-            @RequestParam(defaultValue = "") String subCategory) {
-        List<Linea> lineas = lineaDetectionService.getLineasPorCategoriaYSub(category, subCategory);
-        List<String> names = lineas.stream().map(Linea::name).toList();
-        return Map.of("lineas", names);
-    }
-
     @GetMapping("/movimientos")
     public String movimientos(
             @RequestParam(defaultValue = "0") int page,
@@ -508,7 +418,7 @@ public class ProductController {
             java.util.Map<String, Double> gananciaPorLinea = new java.util.HashMap<>();
             java.util.Map<String, Double> inversionPorLinea = new java.util.HashMap<>();
             for (Product p : todos) {
-                String linea = p.getLinea() != null ? p.getLinea().getDisplayName() : "SIN LINEA";
+                String linea = p.getLinea() != null && !p.getLinea().isBlank() ? p.getLinea() : "SIN LINEA";
                 double inversion = p.getCostPrice() * p.getStock();
                 double venta = p.getPrice() * p.getStock();
                 gananciaPorLinea.merge(linea, venta - inversion, Double::sum);
@@ -576,7 +486,7 @@ public class ProductController {
 
     private String generarDescripcion(Product p) {
         String sub = p.getSubCategory() != null ? p.getSubCategory().name() : "";
-        String linea = p.getLinea() != null ? p.getLinea().getDisplayName() : "";
+        String linea = p.getLinea() != null ? p.getLinea() : "";
         String cat = p.getCategory() != null ? p.getCategory().name() : "";
 
         String desc = switch (sub) {
