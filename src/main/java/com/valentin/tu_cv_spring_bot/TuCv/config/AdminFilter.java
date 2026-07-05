@@ -64,6 +64,17 @@ public class AdminFilter implements Filter {
         ensureHash();
         String token = readCookie(req, "admin_token");
         if (token != null && token.equals(expectedHash)) {
+            // CSRF validation for mutating requests
+            if ("POST".equalsIgnoreCase(method) && !path.endsWith("/admin/auth")) {
+                String csrfToken = req.getHeader("X-CSRF-Token");
+                if (csrfToken == null) {
+                    csrfToken = req.getParameter("csrf_token");
+                }
+                if (csrfToken == null || !csrfToken.equals(token)) {
+                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF token inválido");
+                    return;
+                }
+            }
             chain.doFilter(request, response);
             return;
         }

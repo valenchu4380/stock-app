@@ -240,19 +240,22 @@ public class ProductController {
                                              @RequestParam int cantidad) {
         try {
             SubCategory sub = SubCategory.valueOf(subCategory.trim());
+            // Read current stock for audit trail
             List<Product> matches = productService.findBynameAndSubCategoryForUpdate(name, sub);
             if (matches.isEmpty()) {
                 return Map.of("success", false, "message", "Producto no encontrado");
             }
             Product p = matches.get(0);
-            int nuevoStock = Math.max(0, p.getStock() + cantidad);
-            productService.updateFields(name, sub, null, null, nuevoStock);
+            int oldStock = p.getStock();
+            // Atomic SQL update — no race condition
+            productService.adjustStock(name.trim(), sub, cantidad);
+            int nuevoStock = Math.max(0, oldStock + cantidad);
 
             Movement m = new Movement();
             m.setProductName(p.getName());
             m.setProductSubCategory(sub.name());
             m.setAction(cantidad > 0 ? "STOCK_IN" : "STOCK_OUT");
-            m.setOldStock(p.getStock());
+            m.setOldStock(oldStock);
             m.setNewStock(nuevoStock);
             m.setOldPrice(p.getPrice());
             m.setNewPrice(p.getPrice());

@@ -33,6 +33,8 @@ public interface ProductRepository {
     void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
     void reduceStock(String name, String subCategory, int cantidad);
 
+    void adjustStock(String name, SubCategory subCategory, int cantidad);
+
     List<Product> findAllPaged(int offset, int limit) throws InvalidProductException;
 
     int countAll();

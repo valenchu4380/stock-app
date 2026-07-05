@@ -33,4 +33,6 @@ public interface ProductService {
     int countStockBajo(String name, String category, String subCategory, String linea);
     void batchUpdateFields(List<String> items, Double price, Double costPrice, Integer stock) throws InvalidProductException;
     void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException;
+
+    void adjustStock(String name, SubCategory subCategory, int cantidad);
 }

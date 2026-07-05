@@ -55,8 +55,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void delete(String name, SubCategory subCategory) throws ProductNotFoundException {
-        if (!productRepository.existsByname(name)) {
-            throw new ProductNotFoundException("Producto no encontrado: " + name);
+        if (!productRepository.existsBynameAndSubCategory(name, subCategory)) {
+            throw new ProductNotFoundException("Producto no encontrado: " + name + " en " + subCategory);
         }
         productRepository.delete(name, subCategory);
     }
@@ -160,6 +160,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException {
         productRepository.updateFields(name, subCategory, price, costPrice, stock);
+    }
+
+    @Override
+    public void adjustStock(String name, SubCategory subCategory, int cantidad) {
+        productRepository.adjustStock(name, subCategory, cantidad);
     }
 
 }

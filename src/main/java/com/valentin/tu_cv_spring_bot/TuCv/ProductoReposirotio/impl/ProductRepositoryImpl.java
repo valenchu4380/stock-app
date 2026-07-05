@@ -209,6 +209,21 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public void adjustStock(String name, SubCategory subCategory, int cantidad) {
+        String sql = "UPDATE products SET stock = GREATEST(0, stock + ?) WHERE LOWER(name) = LOWER(?) AND LOWER(subcategory) = LOWER(?)";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, cantidad);
+            st.setString(2, name.trim());
+            st.setString(3, subCategory.name().trim());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            log.error("Error adjusting stock for: {}", name, e);
+            throw new RuntimeException("Error adjusting stock: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public boolean existsByname(String name) {
         String sql = "SELECT COUNT(*) FROM products WHERE LOWER(name) = LOWER(?)";
         try (Connection con = getConnection();
