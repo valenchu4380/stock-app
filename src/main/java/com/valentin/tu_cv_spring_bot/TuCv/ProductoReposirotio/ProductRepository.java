@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
@@ -14,10 +12,6 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 public interface ProductRepository {
     List<Product> findAll() throws InvalidProductException;
     List<Product> findAllFiltered(String name, String category, String subCategory, String linea) throws InvalidProductException;
-    List<Linea> findAllLineas();
-    void updateLineaCost(String linea, double costPrice);
-    List<LineaCost> getLineaCosts();
-
     Optional<Product> findByname(String name);
 
     void save(Product product);
