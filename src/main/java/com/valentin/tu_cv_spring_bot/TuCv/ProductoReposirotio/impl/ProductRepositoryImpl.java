@@ -374,6 +374,43 @@ public class ProductRepositoryImpl implements ProductRepository {
         return products;
     }
 
+    // ── Shared filter helpers ──────────────────────────────────────
+
+    private void appendFilterConditions(StringBuilder sql, List<Object> params,
+        String name, String category, String subCategory, boolean stockBajo) {
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.trim().toLowerCase() + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND category = ?");
+            params.add(category);
+        }
+        if (subCategory != null && !subCategory.isBlank()) {
+            sql.append(" AND subcategory = ?");
+            params.add(subCategory);
+        }
+        if (stockBajo) {
+            sql.append(" AND stock >= 0 AND stock <= ?");
+            params.add(1);
+        }
+    }
+
+    private PreparedStatement buildFilterQuery(
+        String selectClause, List<Object> params,
+        String name, String category, String subCategory,
+        boolean stockBajo, Connection con
+    ) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT ").append(selectClause)
+            .append(" FROM products WHERE 1=1");
+        appendFilterConditions(sql, params, name, category, subCategory, stockBajo);
+        PreparedStatement st = con.prepareStatement(sql.toString());
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+        return st;
+    }
+
     @Override
     public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
         List<Product> products = new ArrayList<>();
@@ -425,36 +462,10 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1");
         List<Object> params = new ArrayList<>();
-
-        if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
-        }
-        if (category != null && !category.isBlank()) {
-            sql.append(" AND category = ?");
-            params.add(category);
-        }
-        if (subCategory != null && !subCategory.isBlank()) {
-            sql.append(" AND subcategory = ?");
-            params.add(subCategory);
-        }
-        if (linea != null && !linea.isBlank()) {
-            sql.append(" AND LOWER(linea) = LOWER(?)");
-            params.add(linea.trim().toLowerCase());
-        }
-        if (stockBajo) {
-            sql.append(" AND stock >= 0 AND stock <= ?");
-            params.add(1);
-        }
-
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                st.setObject(i + 1, params.get(i));
-            }
-            ResultSet rs = st.executeQuery();
+             PreparedStatement st = buildFilterQuery("COUNT(*)", params, name, category, subCategory, stockBajo, con);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
             log.error("Error counting filtered products", e);
@@ -495,34 +506,10 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
-        StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(price * stock), 0) FROM products WHERE 1=1");
         List<Object> params = new ArrayList<>();
-
-        if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
-        }
-        if (category != null && !category.isBlank()) {
-            sql.append(" AND category = ?");
-            params.add(category);
-        }
-        if (subCategory != null && !subCategory.isBlank()) {
-            sql.append(" AND subcategory = ?");
-            params.add(subCategory);
-        }
-        if (linea != null && !linea.isBlank()) {
-            sql.append(" AND LOWER(linea) = LOWER(?)");
-            params.add(linea.trim().toLowerCase());
-        }
-        if (stockBajo) {
-            sql.append(" AND stock >= 0 AND stock <= ?");
-            params.add(1);
-        }
-
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-            ResultSet rs = st.executeQuery();
+             PreparedStatement st = buildFilterQuery("COALESCE(SUM(price * stock), 0)", params, name, category, subCategory, stockBajo, con);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getDouble(1);
         } catch (SQLException e) {
             log.error("Error summing inventory", e);
@@ -532,34 +519,10 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-        StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(stock), 0) FROM products WHERE 1=1");
         List<Object> params = new ArrayList<>();
-
-        if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
-        }
-        if (category != null && !category.isBlank()) {
-            sql.append(" AND category = ?");
-            params.add(category);
-        }
-        if (subCategory != null && !subCategory.isBlank()) {
-            sql.append(" AND subcategory = ?");
-            params.add(subCategory);
-        }
-        if (linea != null && !linea.isBlank()) {
-            sql.append(" AND LOWER(linea) = LOWER(?)");
-            params.add(linea.trim().toLowerCase());
-        }
-        if (stockBajo) {
-            sql.append(" AND stock >= 0 AND stock <= ?");
-            params.add(1);
-        }
-
         try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
-            ResultSet rs = st.executeQuery();
+             PreparedStatement st = buildFilterQuery("COALESCE(SUM(stock), 0)", params, name, category, subCategory, stockBajo, con);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
             log.error("Error summing stock", e);
@@ -569,30 +532,9 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
         List<Object> params = new ArrayList<>();
-
-        if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
-        }
-        if (category != null && !category.isBlank()) {
-            sql.append(" AND category = ?");
-            params.add(category);
-        }
-        if (subCategory != null && !subCategory.isBlank()) {
-            sql.append(" AND subcategory = ?");
-            params.add(subCategory);
-        }
-        if (linea != null && !linea.isBlank()) {
-            sql.append(" AND LOWER(linea) = LOWER(?)");
-            params.add(linea.trim().toLowerCase());
-        }
-        if (stockBajo) {
-            sql.append(" AND stock >= 0 AND stock <= ?");
-            params.add(1);
-        }
-
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
+        appendFilterConditions(sql, params, name, category, subCategory, stockBajo);
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
