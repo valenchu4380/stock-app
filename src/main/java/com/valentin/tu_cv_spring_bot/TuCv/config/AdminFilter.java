@@ -80,12 +80,8 @@ public class AdminFilter implements Filter {
         if (p.equals("productos/ajustar-stock")) return true;
         if (p.equals("productos/editar-masivo")) return true;
         if (p.equals("productos/actualizar-precios-sub")) return true;
-        if (p.startsWith("productos/lineas")) return true;
-        if (p.equals("productos/asignar-lineas-pendientes")) return true;
         if (p.equals("productos/movimientos")) return true;
         if (p.equals("productos/dashboard")) return true;
-        if (p.equals("productos/detectar-linea")) return true;
-        if (p.equals("productos/lineas-por-categoria")) return true;
 
         if (p.startsWith("productos/compras")) {
             if (p.equals("productos/compras/crear") && "POST".equals(method)) return false;
