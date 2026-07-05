@@ -1,6 +1,7 @@
 package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
@@ -40,5 +41,9 @@ int sumStock(String name, String category, String subCategory, String linea, boo
 int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo);
 int countStockBajo(String name, String category, String subCategory, String linea);
 
+Map<String, Object> dashboardMetrics(String name, String category, String subCategory);
+List<Object[]> top20Products(String name, String category, String subCategory);
+List<Object[]> profitByCategory(String name, String category, String subCategory);
+List<Object[]> profitByLinea(String name, String category, String subCategory);
 
 }

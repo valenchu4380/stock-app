@@ -24,6 +24,8 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -544,6 +546,134 @@ public class ProductRepositoryImpl implements ProductRepository {
             log.error("Error counting out-of-stock products", e);
         }
         return 0;
+    }
+
+    // ── Dashboard SQL methods ──────────────────────────────────────
+
+    @Override
+    public Map<String, Object> dashboardMetrics(String name, String category, String subCategory) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT" +
+            "  COALESCE(SUM(cost_price * stock), 0) AS total_inversion," +
+            "  COALESCE(SUM(price * stock), 0) AS total_venta," +
+            "  COALESCE(SUM((price - cost_price) * stock), 0) AS total_ganancia," +
+            "  COUNT(*) FILTER (WHERE cost_price > 0) AS count_con_costo," +
+            "  CASE WHEN COUNT(*) FILTER (WHERE cost_price > 0 AND price > 0) > 0" +
+            "    THEN SUM(((price - cost_price) / NULLIF(price, 0)) * 100)" +
+            "         FILTER (WHERE cost_price > 0 AND price > 0)" +
+            "         / NULLIF(COUNT(*) FILTER (WHERE cost_price > 0), 0)" +
+            "    ELSE 0 END AS margen_promedio" +
+            " FROM products WHERE 1=1"
+        );
+        appendFilterConditions(sql, params, name, category, subCategory, false);
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("totalInversion", rs.getDouble("total_inversion"));
+                map.put("totalVenta", rs.getDouble("total_venta"));
+                map.put("totalGanancia", rs.getDouble("total_ganancia"));
+                map.put("countConCosto", rs.getInt("count_con_costo"));
+                map.put("margenPromedio", rs.getDouble("margen_promedio"));
+                return map;
+            }
+        } catch (SQLException e) {
+            log.error("Error computing dashboard metrics", e);
+        }
+        Map<String, Object> empty = new HashMap<>();
+        empty.put("totalInversion", 0.0);
+        empty.put("totalVenta", 0.0);
+        empty.put("totalGanancia", 0.0);
+        empty.put("countConCosto", 0);
+        empty.put("margenPromedio", 0.0);
+        return empty;
+    }
+
+    @Override
+    public List<Object[]> top20Products(String name, String category, String subCategory) {
+        List<Object[]> result = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT" +
+            "  LEFT(name, 20) AS label," +
+            "  COALESCE((price - cost_price) * stock, 0) AS ganancia," +
+            "  COALESCE(cost_price * stock, 0) AS costo," +
+            "  COALESCE(price * stock, 0) AS venta," +
+            "  CASE WHEN price > 0 AND cost_price > 0" +
+            "    THEN ((price - cost_price) / NULLIF(price, 0)) * 100" +
+            "    ELSE 0 END AS margen" +
+            " FROM products WHERE stock > 0"
+        );
+        appendFilterConditions(sql, params, name, category, subCategory, false);
+        sql.append(" ORDER BY ganancia DESC LIMIT 20");
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                result.add(new Object[]{
+                    rs.getString("label"),
+                    rs.getDouble("ganancia"),
+                    rs.getDouble("costo"),
+                    rs.getDouble("venta"),
+                    rs.getDouble("margen")
+                });
+            }
+        } catch (SQLException e) {
+            log.error("Error fetching top 20 products", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Object[]> profitByCategory(String name, String category, String subCategory) {
+        List<Object[]> result = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT COALESCE(category, 'SIN CAT') AS cat," +
+            "  SUM((price - cost_price) * stock) AS ganancia" +
+            " FROM products WHERE 1=1"
+        );
+        appendFilterConditions(sql, params, name, category, subCategory, false);
+        sql.append(" GROUP BY category ORDER BY ganancia DESC");
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                result.add(new Object[]{rs.getString("cat"), rs.getDouble("ganancia")});
+            }
+        } catch (SQLException e) {
+            log.error("Error fetching profit by category", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Object[]> profitByLinea(String name, String category, String subCategory) {
+        List<Object[]> result = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT COALESCE(NULLIF(linea, ''), 'SIN LINEA') AS linea," +
+            "  SUM((price - cost_price) * stock) AS ganancia" +
+            " FROM products WHERE 1=1"
+        );
+        appendFilterConditions(sql, params, name, category, subCategory, false);
+        sql.append(" GROUP BY linea ORDER BY ganancia DESC");
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                result.add(new Object[]{rs.getString("linea"), rs.getDouble("ganancia")});
+            }
+        } catch (SQLException e) {
+            log.error("Error fetching profit by linea", e);
+        }
+        return result;
     }
 
 }
