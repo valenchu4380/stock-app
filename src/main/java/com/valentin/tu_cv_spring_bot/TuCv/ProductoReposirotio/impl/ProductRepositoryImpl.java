@@ -151,13 +151,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         ProductCategory category = (catStr != null) ? ProductCategory.valueOf(catStr) : null;
         SubCategory subCategory = (subCatStr != null) ? SubCategory.valueOf(subCatStr) : null;
 
-        Linea lineaEnum = null;
-        if (linea != null && !linea.isBlank()) {
-            try { lineaEnum = Linea.valueOf(linea); } catch (IllegalArgumentException e) { lineaEnum = null; }
-        }
         String imagen = rs.getString("imagen");
         if (imagen == null) imagen = "";
-        return new Product(name, price, costPrice, stock, category, subCategory, lineaEnum, imagen);
+        return new Product(name, price, costPrice, stock, category, subCategory, linea, imagen);
     }
 
     @Override
@@ -171,7 +167,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setInt(4, product.getStock());
             st.setString(5, product.getCategory().name());
             st.setString(6, product.getSubCategory().name());
-            st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
+            st.setString(7, product.getLinea() != null ? product.getLinea() : "");
             st.setString(8, product.getImagen() != null ? product.getImagen() : "");
             st.executeUpdate();
         } catch (SQLException e) {
@@ -209,7 +205,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             st.setInt(4, product.getStock());
             st.setString(5, product.getCategory().name());
             st.setString(6, product.getSubCategory().name());
-            st.setString(7, product.getLinea() != null ? product.getLinea().name() : "");
+            st.setString(7, product.getLinea() != null ? product.getLinea() : "");
             st.setString(8, product.getImagen() != null ? product.getImagen() : "");
             st.setString(9, oldName.trim());
             st.setString(10, oldSubCategory.name());
@@ -391,9 +387,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         params.add(product.getSubCategory().name());
 
         List<String> conditions = new ArrayList<>();
-        if (product.getLinea() != null) {
+        if (product.getLinea() != null && !product.getLinea().isBlank()) {
             conditions.add("linea = ?");
-            params.add(product.getLinea().name());
+            params.add(product.getLinea());
         }
         if (product.getSubCategory() != null) {
             conditions.add("subcategory = ?");
@@ -405,9 +401,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
         sql.append(String.join(" OR ", conditions));
         sql.append(") ORDER BY ");
-        if (product.getLinea() != null) {
+        if (product.getLinea() != null && !product.getLinea().isBlank()) {
             sql.append("CASE WHEN linea = ? THEN 0 ELSE 1 END, ");
-            params.add(product.getLinea().name());
+            params.add(product.getLinea());
         }
         sql.append("CASE WHEN subcategory = ? THEN 0 ELSE 1 END, name LIMIT ?");
         params.add(product.getSubCategory().name());

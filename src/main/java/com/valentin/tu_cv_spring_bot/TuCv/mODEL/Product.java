@@ -25,6 +25,6 @@ public class Product {
     private int stock;
     private ProductCategory category;
     private SubCategory subCategory;
-    private Linea linea;
+    private String linea;
     private String imagen;
 }
