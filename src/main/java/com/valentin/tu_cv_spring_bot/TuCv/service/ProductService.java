@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
@@ -33,10 +31,6 @@ public interface ProductService {
     int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo);
     int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo);
     int countStockBajo(String name, String category, String subCategory, String linea);
-    List<Linea> findAllLineas();
-    void updateLineaCost(String linea, double costPrice);
-    List<LineaCost> getLineaCosts();
-
     void batchUpdateFields(List<String> items, Double price, Double costPrice, Integer stock) throws InvalidProductException;
     void updateFields(String name, SubCategory subCategory, Double price, Double costPrice, Integer stock) throws InvalidProductException;
 }

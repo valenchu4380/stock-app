@@ -8,13 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.PostConstruct;
-
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
@@ -29,38 +25,6 @@ public class ProductServiceImpl implements ProductService {
     private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductRepository productRepository;
-    private final LineaDetectionService lineaDetectionService;
-
-    @PostConstruct
-    public void asignarLineasExistentes() {
-        try {
-            List<Product> todos = productRepository.findAll();
-            int asignados = 0;
-            for (Product p : todos) {
-                if (p.getLinea() == null) {
-                    try {
-                        Linea detected = lineaDetectionService.detectarLinea(
-                            p.getName(),
-                            p.getCategory() != null ? p.getCategory().name() : null,
-                            p.getSubCategory() != null ? p.getSubCategory().name() : null
-                        );
-                        if (detected != null) {
-                            p.setLinea(detected);
-                            productRepository.update(p, p.getName(), p.getSubCategory());
-                            asignados++;
-                        }
-                    } catch (Exception e) {
-                        log.warn("Error asignando línea a producto '{}': {}", p.getName(), e.getMessage());
-                    }
-                }
-            }
-            if (asignados > 0) {
-                log.info("Líneas asignadas automáticamente a {} productos existentes.", asignados);
-            }
-        } catch (Exception e) {
-            log.error("Error al asignar líneas en startup", e);
-        }
-    }
 
     @Override
     public List<Product> getAll() throws InvalidProductException {
@@ -75,15 +39,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void save(Product product) throws InvalidProductException {
         ProductValidator.validate(product);
-
-        if (product.getLinea() == null) {
-            Linea detected = lineaDetectionService.detectarLinea(
-                product.getName(),
-                product.getCategory() != null ? product.getCategory().name() : null,
-                product.getSubCategory() != null ? product.getSubCategory().name() : null
-            );
-            product.setLinea(detected);
-        }
 
         boolean existe = productRepository.existsBynameAndSubCategory(
             product.getName(),
@@ -111,15 +66,6 @@ public class ProductServiceImpl implements ProductService {
             throws ProductNotFoundException, InvalidProductException {
 
         ProductValidator.validate(product);
-
-        if (product.getLinea() == null) {
-            Linea detected = lineaDetectionService.detectarLinea(
-                product.getName(),
-                product.getCategory() != null ? product.getCategory().name() : null,
-                product.getSubCategory() != null ? product.getSubCategory().name() : null
-            );
-            product.setLinea(detected);
-        }
 
         if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
             throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
@@ -194,21 +140,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int countStockBajo(String name, String category, String subCategory, String linea) {
         return productRepository.countStockBajo(name, category, subCategory, linea);
-    }
-
-    @Override
-    public List<Linea> findAllLineas() {
-        return productRepository.findAllLineas();
-    }
-
-    @Override
-    public void updateLineaCost(String linea, double costPrice) {
-        productRepository.updateLineaCost(linea, costPrice);
-    }
-
-    @Override
-    public List<LineaCost> getLineaCosts() {
-        return productRepository.getLineaCosts();
     }
 
     @Override
