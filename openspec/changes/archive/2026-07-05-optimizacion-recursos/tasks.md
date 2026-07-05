@@ -9,8 +9,8 @@ Refactor backend resource usage: remove unused linea system, eliminate startup s
 | PR | Branch | Tasks | Status |
 |----|--------|-------|--------|
 | 1 | `feat/optimizacion-recursos-01-lineas` → `feat/optimizacion-recursos` | T1–T7 | ✅ **Done** |
-| 2 | `feat/optimizacion-recursos-02-dashboard` → `feat/optimizacion-recursos-01-lineas` | T8–T10 | ⏳ Pending |
-| 3 | `feat/optimizacion-recursos-03-consolidate` → `feat/optimizacion-recursos-02-dashboard` | T11–T13 | ⏳ Pending |
+| 2 | `feat/optimizacion-recursos-02-dashboard` → `feat/optimizacion-recursos-01-lineas` | T8–T10 | ✅ **Done** |
+| 3 | `feat/optimizacion-recursos-03-consolidate` → `feat/optimizacion-recursos-02-dashboard` | T11–T13 | ✅ **Done** |
 
 ## PR 1 — Linea System Removal + Foundation
 
@@ -59,39 +59,39 @@ Refactor backend resource usage: remove unused linea system, eliminate startup s
 ## PR 2 — Dashboard SQL Aggregation (Planned)
 
 ### T8 — Add dashboard SQL methods to repository
-- [ ] Add `dashboardMetrics()` aggregate query
-- [ ] Add `top20Products()` query
-- [ ] Add `profitByCategory()` query
-- [ ] Add `profitByLinea()` query
+- [x] Add `dashboardMetrics()` aggregate query
+- [x] Add `top20Products()` query
+- [x] Add `profitByCategory()` query
+- [x] Add `profitByLinea()` query
 - Risk: High
 
 ### T9 — Rewrite dashboard endpoint
-- [ ] Replace Java loop with 4 SQL calls
-- [ ] Keep model attributes identical
-- [ ] Remove dead code paths
+- [x] Replace Java loop with 4 SQL calls
+- [x] Keep model attributes identical
+- [x] Remove dead code paths
 - Risk: High
 
 ### T10 — Remove linea-grouping from templates
-- [ ] Remove `lineaLabels`/`lineaGanancias` from dashboard template
-- [ ] Update `detalle.html` to remove linea references
+- [x] Remove `lineaLabels`/`lineaGanancias` from dashboard template
+- [x] Update `detalle.html` to remove linea references
 - Risk: Medium
 
 ## PR 3 — Consolidate + Dead Code Removal (Planned)
 
 ### T11 — Add buildFilterQuery helper
-- [ ] Extract `buildFilterQuery()` private method
-- [ ] Refactor 5 filter methods to use it
+- [x] Extract `buildFilterQuery()` private method
+- [x] Refactor 5 filter methods to use it
 - Risk: Medium
 
 ### T12 — Remove dead repository methods
-- [ ] Remove `existsByname()`
-- [ ] Remove `findAllPaged()`
-- [ ] Remove `countAll()`
+- [x] Remove `existsByname()`
+- [x] Remove `findAllPaged()`
+- [x] Remove `countAll()`
 - Risk: Low
 
 ### T13 — Compile-check and final verification
-- [ ] `mvnw.cmd compile` green
-- [ ] `mvnw.cmd test` green
+- [x] `mvnw.cmd compile` green
+- [x] `mvnw.cmd test` green
 - Risk: Low
 
 ## Review Workload Forecast

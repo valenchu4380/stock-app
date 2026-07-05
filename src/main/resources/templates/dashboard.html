@@ -243,10 +243,7 @@
             <span class="accion-icon">📜</span>
             <span class="accion-texto">Movimientos</span>
         </a>
-        <a class="accion-card" th:href="@{/productos/lineas}">
-            <span class="accion-icon">🏷️</span>
-            <span class="accion-texto">Líneas</span>
-        </a>
+
         <a class="accion-card" th:href="@{/productos/compras}">
             <span class="accion-icon">🛒</span>
             <span class="accion-texto">Compras</span>
@@ -364,7 +361,7 @@
                         <td>
                             <div class="gestion-nombre" th:text="${p.name}">nombre</div>
                             <span class="gestion-marca"
-                                  th:classappend="${p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
+                                  th:classappend="${p.category != null and p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category != null and p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
                                   th:text="${p.category}">CAT</span>
                         </td>
                         <td th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">sub</td>
@@ -393,6 +390,7 @@
                                    th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
                                 <form class="delete-form" th:action="@{/productos/eliminar}" method="post" style="display:inline;"
                                       th:data-name="${p.name}">
+                                    <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
                                     <input type="hidden" name="name" th:value="${p.name}">
                                     <input type="hidden" name="subCategory" th:value="${p.subCategory}">
                                     <button class="gestion-btn gestion-btn-delete touch-target" type="button" onclick="confirmarEliminacion(this)">🗑️</button>
@@ -787,6 +785,7 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
         <h2>Actualizar Precios por Subcategoría</h2>
         <form th:action="@{/productos/actualizar-precios-sub}" method="post">
+            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
             <div class="modal-form-group">
                 <label for="modal-sub">Subcategoría</label>
                 <select id="modal-sub" name="subCategory" required>
@@ -883,6 +882,6 @@
     }
 </script>
 
-<th:block th:insert="fragments/toast :: toast"></th:block>
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
 </body>
 </html>

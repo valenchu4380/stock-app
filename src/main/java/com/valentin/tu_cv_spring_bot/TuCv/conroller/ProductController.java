@@ -415,7 +415,7 @@ public class ProductController {
             model.addAttribute("filtroSub",      subCategory);
             model.addAttribute("Categorys",      ProductCategory.values());
             model.addAttribute("SubCategorys",   SubCategory.values());
-            model.addAttribute("productos",      java.util.Collections.emptyList());
+            model.addAttribute("productos",      productService.getAllFiltered(name, category, subCategory, ""));
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar dashboard: " + e.getMessage());
@@ -452,57 +452,44 @@ public class ProductController {
 
     private String generarDescripcion(Product p) {
         String sub = p.getSubCategory() != null ? p.getSubCategory().name() : "";
-        String linea = p.getLinea() != null ? p.getLinea() : "";
         String cat = p.getCategory() != null ? p.getCategory().name() : "";
 
         String desc = switch (sub) {
             case "PERFUME" ->
                 "Fragancia \"" + p.getName() + "\" de " + cat + ". " +
-                (linea.isEmpty() ? "" : "Pertenece a la línea " + linea + ". ") +
                 "Ideal para regalar o para uso personal.";
             case "MAQUILLAJE" ->
                 p.getName() + " — Maquillaje " + cat + ". " +
-                (linea.isEmpty() ? "" : "De la línea " + linea + ". ") +
                 "Perfecto para resaltar tu belleza.";
             case "CABELLO" ->
                 p.getName() + " — Cuidado capilar " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Producto de calidad para el cabello.";
             case "CREMA" ->
                 p.getName() + " — Crema " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Nutre e hidrata tu piel.";
             case "CUIDADO_DIARIO" ->
                 p.getName() + " — Cuidado diario " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Ideal para tu rutina diaria.";
             case "TEXTIL" ->
                 p.getName() + " — Textil " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Perfecto para el cuidado de tus prendas.";
             case "AEROSOL" ->
                 p.getName() + " — Aerosol " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Frescura en cada uso.";
             case "DIFUSOR" ->
                 p.getName() + " — Difusor " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Ambientá tu hogar con esta fragancia.";
             case "JABON" ->
                 p.getName() + " — Jabón " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Suavidad y frescura para tu piel.";
             case "PERFUME_PISO" ->
                 p.getName() + " — Perfume para piso " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Dejá tu hogar con un aroma increíble.";
             case "SAHUMERIO" ->
                 p.getName() + " — Sahumerio " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 "Aromas naturales para tu espacio.";
             default ->
                 p.getName() + " — Producto " + cat + ". " +
-                (linea.isEmpty() ? "" : "Línea " + linea + ". ") +
                 (sub.isEmpty() ? "" : "Subcategoría: " + sub.replace("_", " ") + ". ");
         };
         return desc.trim();

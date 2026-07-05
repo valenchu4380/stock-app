@@ -100,9 +100,11 @@
                 <td data-label="Completado" th:text="${o.completedAt != null ? #temporals.format(o.completedAt, 'dd/MM HH:mm') : '—'}">—</td>
                 <td data-label="Acción">
                     <form th:if="${o.estado == 'PENDIENTE'}" th:action="@{/productos/compras/{id}/completar(id=${o.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
                         <button class="btn-accion btn-completar touch-target focus-visible">Completar</button>
                     </form>
                     <form th:if="${o.estado == 'PENDIENTE'}" th:action="@{/productos/compras/{id}/cancelar(id=${o.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
                         <button class="btn-accion btn-cancelar touch-target focus-visible">Cancelar</button>
                     </form>
                     <span th:if="${o.estado != 'PENDIENTE'}" style="color:var(--color-rosa-borde);font-size:0.85rem;">—</span>

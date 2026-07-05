@@ -145,12 +145,6 @@
         }
         .detalle-sub strong { color: var(--color-texto); }
 
-        .detalle-linea {
-            font-size: 1rem;
-            color: var(--color-texto);
-        }
-        .detalle-linea strong { color: var(--color-texto); }
-
         .detalle-descripcion {
             font-size: 1rem;
             color: var(--color-texto);
@@ -433,7 +427,7 @@
         </div>
         <div class="detalle-info">
             <span class="detalle-marca"
-                  th:classappend="${product.category.name() == 'AVON'} ? 'avon' : (${product.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
+                  th:classappend="${product.category != null and product.category.name() == 'AVON'} ? 'avon' : (${product.category != null and product.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
                   th:text="${product.category}">CATEGORIA</span>
 
             <div class="detalle-nombre" th:text="${product.name}">Nombre</div>
@@ -453,11 +447,7 @@
             <div class="detalle-sub" th:if="${product.subCategory != null}">
                 <strong>Categoría:</strong> <span th:text="${product.subCategory.name().replace('_', ' ')}">sub</span>
             </div>
-
-            <div class="detalle-linea" th:if="${product.linea != null}">
-                <strong>Línea:</strong> <span th:text="${product.linea.displayName}">linea</span>
-            </div>
-
+            
             <div class="detalle-descripcion" th:if="${descripcion != null}" th:text="${descripcion}">
                 descripción
             </div>
@@ -495,7 +485,7 @@
                 </div>
                 <div class="rel-card-body">
                     <span class="rel-card-brand"
-                          th:classappend="${r.category.name() == 'AVON'} ? 'avon' : (${r.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
+                          th:classappend="${r.category != null and r.category.name() == 'AVON'} ? 'avon' : (${r.category != null and r.category.name() == 'NATURA'} ? 'natura' : 'saphirus')"
                           th:text="${r.category}">CAT</span>
                     <div class="rel-card-name" th:text="${r.name}">Nombre</div>
                     <div class="rel-card-price" th:text="'$' + ${#numbers.formatDecimal(r.price, 1, 2)}">$0.00</div>
@@ -672,6 +662,6 @@
     });
 </script>
 
-<th:block th:insert="fragments/toast :: toast"></th:block>
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
 </body>
 </html>

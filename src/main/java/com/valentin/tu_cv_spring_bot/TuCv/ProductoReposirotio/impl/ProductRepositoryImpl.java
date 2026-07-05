@@ -379,7 +379,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     // ── Shared filter helpers ──────────────────────────────────────
 
     private void appendFilterConditions(StringBuilder sql, List<Object> params,
-        String name, String category, String subCategory, boolean stockBajo) {
+        String name, String category, String subCategory, String linea, boolean stockBajo) {
         if (name != null && !name.isBlank()) {
             sql.append(" AND LOWER(name) LIKE ?");
             params.add("%" + name.trim().toLowerCase() + "%");
@@ -392,6 +392,10 @@ public class ProductRepositoryImpl implements ProductRepository {
             sql.append(" AND subcategory = ?");
             params.add(subCategory);
         }
+        if (linea != null && !linea.isBlank()) {
+            sql.append(" AND LOWER(linea) = LOWER(?)");
+            params.add(linea.trim());
+        }
         if (stockBajo) {
             sql.append(" AND stock >= 0 AND stock <= ?");
             params.add(1);
@@ -400,12 +404,12 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     private PreparedStatement buildFilterQuery(
         String selectClause, List<Object> params,
-        String name, String category, String subCategory,
+        String name, String category, String subCategory, String linea,
         boolean stockBajo, Connection con
     ) throws SQLException {
         StringBuilder sql = new StringBuilder("SELECT ").append(selectClause)
             .append(" FROM products WHERE 1=1");
-        appendFilterConditions(sql, params, name, category, subCategory, stockBajo);
+        appendFilterConditions(sql, params, name, category, subCategory, linea, stockBajo);
         PreparedStatement st = con.prepareStatement(sql.toString());
         for (int i = 0; i < params.size(); i++) {
             st.setObject(i + 1, params.get(i));
@@ -466,7 +470,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo) {
         List<Object> params = new ArrayList<>();
         try (Connection con = getConnection();
-             PreparedStatement st = buildFilterQuery("COUNT(*)", params, name, category, subCategory, stockBajo, con);
+             PreparedStatement st = buildFilterQuery("COUNT(*)", params, name, category, subCategory, linea, stockBajo, con);
              ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
@@ -510,7 +514,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo) {
         List<Object> params = new ArrayList<>();
         try (Connection con = getConnection();
-             PreparedStatement st = buildFilterQuery("COALESCE(SUM(price * stock), 0)", params, name, category, subCategory, stockBajo, con);
+             PreparedStatement st = buildFilterQuery("COALESCE(SUM(price * stock), 0)", params, name, category, subCategory, linea, stockBajo, con);
              ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getDouble(1);
         } catch (SQLException e) {
@@ -523,7 +527,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
         List<Object> params = new ArrayList<>();
         try (Connection con = getConnection();
-             PreparedStatement st = buildFilterQuery("COALESCE(SUM(stock), 0)", params, name, category, subCategory, stockBajo, con);
+             PreparedStatement st = buildFilterQuery("COALESCE(SUM(stock), 0)", params, name, category, subCategory, linea, stockBajo, con);
              ResultSet rs = st.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
@@ -536,7 +540,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo) {
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock = 0");
-        appendFilterConditions(sql, params, name, category, subCategory, stockBajo);
+        appendFilterConditions(sql, params, name, category, subCategory, linea, stockBajo);
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
@@ -566,7 +570,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             "    ELSE 0 END AS margen_promedio" +
             " FROM products WHERE 1=1"
         );
-        appendFilterConditions(sql, params, name, category, subCategory, false);
+        appendFilterConditions(sql, params, name, category, subCategory, null, false);
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) st.setObject(i + 1, params.get(i));
@@ -607,7 +611,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             "    ELSE 0 END AS margen" +
             " FROM products WHERE stock > 0"
         );
-        appendFilterConditions(sql, params, name, category, subCategory, false);
+        appendFilterConditions(sql, params, name, category, subCategory, null, false);
         sql.append(" ORDER BY ganancia DESC LIMIT 20");
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
@@ -637,7 +641,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             "  SUM((price - cost_price) * stock) AS ganancia" +
             " FROM products WHERE 1=1"
         );
-        appendFilterConditions(sql, params, name, category, subCategory, false);
+        appendFilterConditions(sql, params, name, category, subCategory, null, false);
         sql.append(" GROUP BY category ORDER BY ganancia DESC");
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
@@ -661,7 +665,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             "  SUM((price - cost_price) * stock) AS ganancia" +
             " FROM products WHERE 1=1"
         );
-        appendFilterConditions(sql, params, name, category, subCategory, false);
+        appendFilterConditions(sql, params, name, category, subCategory, null, false);
         sql.append(" GROUP BY linea ORDER BY ganancia DESC");
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {

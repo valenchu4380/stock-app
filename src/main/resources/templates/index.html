@@ -572,7 +572,7 @@
 </fieldset>
 
 <div class="productos-grid" th:if="${productos != null and !#lists.isEmpty(productos)}">
-    <th:block th:insert="fragments/producto-cards :: cardGrid"></th:block>
+    <th:block th:insert="~{fragments/producto-cards :: cardGrid}"></th:block>
 </div>
 
     <div class="empty-state" th:if="${productos == null or #lists.isEmpty(productos)}">
@@ -616,7 +616,7 @@
     </div>
 </div>
 
-<th:block th:insert="fragments/toast :: toast"></th:block>
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
 <script th:src="@{/js/carrito-compartido.js}"></script>
 <script>
     const WHATSAPP_NUM = [[${whatsappNum}]];
