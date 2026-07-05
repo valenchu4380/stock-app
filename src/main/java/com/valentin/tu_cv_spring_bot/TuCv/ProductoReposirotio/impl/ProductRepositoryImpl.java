@@ -7,15 +7,11 @@ package com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.impl;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.InvalidProductException;
 import com.valentin.tu_cv_spring_bot.TuCv.Exception.ProductNotFoundException;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.LineaCost;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 
-import java.util.Arrays;
 import java.util.List;
-
-import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Linea;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,46 +53,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (SQLException e) {
             log.warn("Nota al migrar columna cost_price: {}", e.getMessage());
         }
-    }
-
-    @Override
-    public List<Linea> findAllLineas() {
-        return Arrays.asList(Linea.values());
-    }
-
-    @Override
-    public void updateLineaCost(String linea, double costPrice) {
-        String sql = "UPDATE products SET cost_price = ? WHERE linea = ?";
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
-            st.setDouble(1, costPrice);
-            st.setString(2, linea);
-            st.executeUpdate();
-        } catch (SQLException e) {
-            log.error("Error updating linea cost for {}", linea, e);
-            throw new RuntimeException("Error updating linea cost: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public List<LineaCost> getLineaCosts() {
-        List<LineaCost> list = new ArrayList<>();
-        String sql = "SELECT linea, cost_price, COUNT(*) as cnt FROM products WHERE linea IS NOT NULL AND linea != '' GROUP BY linea, cost_price ORDER BY linea";
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
-            while (rs.next()) {
-                String lineaStr = rs.getString("linea");
-                Linea lineaEnum = null;
-                if (lineaStr != null && !lineaStr.isBlank()) {
-                    try { lineaEnum = Linea.valueOf(lineaStr); } catch (IllegalArgumentException e) { lineaEnum = null; }
-                }
-                list.add(new LineaCost(lineaEnum, rs.getDouble("cost_price"), rs.getInt("cnt")));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting linea costs", e);
-        }
-        return list;
     }
 
     private Connection getConnection() throws SQLException {
