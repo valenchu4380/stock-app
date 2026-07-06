@@ -1,22 +1,8 @@
 // carrito-compartido.js — Shared cart functions for SobreVivi
-// Used by index.html (overlay) and carrito.html (full page)
-// All functions exposed on window for inline onclick handlers
+// Usado por index.html (overlay)
+// Todas las funciones expuestas en window para manejadores onclick inline
 
-// ── Promo apertura: tejido gratis ──
-var PROMO = {
-    active: true,
-    minTotal: 50000,
-    name: '\uD83C\uDF81 Tejido de regalo',
-    image: 'https://i.imgur.com/sBLmBfyh.jpg',
-    emoji: '\uD83E\uDDF6',
-    endDate: new Date(2026, 6, 5, 23, 59, 0)
-};
-function promoActiva() {
-    if (!PROMO.active) return false;
-    var ahora = new Date();
-    var start = new Date(2026, 6, 3, 0, 0, 0);
-    return ahora >= start && ahora <= PROMO.endDate;
-}
+// PROMO + promoActiva ahora están en promo.js (debe cargarse ANTES que este archivo)
 
 function getCarrito() {
     try { return JSON.parse(localStorage.getItem('carrito')) || []; } catch { return []; }

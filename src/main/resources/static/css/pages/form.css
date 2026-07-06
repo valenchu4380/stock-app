@@ -1,0 +1,93 @@
+/* pages/form.css — Form page */
+body {
+    background: var(--color-fondo);
+    min-height: 100vh;
+}
+
+.form-container {
+    width: 50%;
+    margin: 50px auto;
+    background: var(--color-crema);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+}
+.form-group {
+    margin-bottom: 22px;
+}
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-texto);
+    margin-bottom: 8px;
+}
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-rosa-borde);
+    border-radius: 10px;
+    font-size: 1rem;
+    background: var(--color-crema);
+    min-height: var(--touch-min);
+}
+.btn-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+.btn-guardar {
+    flex: 1;
+    background: var(--color-rosa);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    min-height: var(--touch-min);
+    font-size: 1rem;
+    font-weight: 600;
+}
+.btn-guardar:hover { background: var(--color-rosa-hover); }
+.btn-cancelar {
+    flex: 1;
+    background: var(--color-crema);
+    color: var(--color-texto);
+    border: 1.5px solid var(--color-rosa-borde);
+    padding: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    text-align: center;
+    min-height: var(--touch-min);
+    font-size: 1rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-cancelar:hover { background: var(--color-melocoton); }
+
+/* Hero variant: h1, more padding */
+.hero { padding: 40px 20px; }
+.hero h1 { font-size: 1.5rem; }
+
+@media (max-width: 1024px) {
+    .hero { padding: 25px 16px; }
+    .hero h1 { font-size: 1.3rem; }
+    .form-container {
+        width: 92%;
+        margin: 20px auto 40px;
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+    .form-group input,
+    .form-group select {
+        font-size: 16px;
+        padding: 14px;
+    }
+    .btn-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Breadcrumbs fragment — usage:
+     <th:block th:insert="~{fragments/breadcrumbs :: breadcrumbs(items=${@{...}})">
+     items should be a list of {url, label} maps.
+-->
+<th:block th:fragment="breadcrumbs(items)" th:remove="tag">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <th:block th:each="item, iter : ${items}">
+            <a th:if="${item.url != null}" th:href="${item.url}" th:text="${item.label}">Link</a>
+            <span th:if="${item.url == null}" th:text="${item.label}">Current</span>
+            <span th:if="${!iter.last}" th:text="' › '"> › </span>
+        </th:block>
+    </nav>
+</th:block>
+</html>

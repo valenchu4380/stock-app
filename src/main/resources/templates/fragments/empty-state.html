@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Empty state fragment — usage:
+     <th:block th:insert="~{fragments/empty-state :: empty-state(icon='📦', title='...', description='...', actionUrl=@{...}, actionLabel='...')}">
+     icon, description, actionUrl, and actionLabel are optional.
+-->
+<th:block th:fragment="empty-state(icon, title, description, actionUrl, actionLabel)">
+    <div class="empty-state">
+        <div class="empty-icon" th:if="${icon != null}" th:text="${icon}">🔍</div>
+        <p class="empty-text" th:text="${title}">No hay elementos</p>
+        <p class="empty-sub" th:if="${description != null}" th:text="${description}">Descripción</p>
+        <a class="empty-action" th:if="${actionUrl != null}" th:href="${actionUrl}" th:text="${actionLabel != null ? actionLabel : 'Ver más'}">Acción</a>
+    </div>
+</th:block>
+</html>

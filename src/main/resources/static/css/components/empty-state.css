@@ -1,0 +1,28 @@
+/* empty-state.css — Empty state component */
+.empty-state {
+    width: 80%;
+    margin: 20px auto;
+    text-align: center;
+    color: var(--color-texto);
+    padding: 60px 20px;
+    background: var(--color-crema);
+    border-radius: 15px;
+}
+.empty-state .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+.empty-state .empty-text { font-size: 1.1rem; font-weight: 700; color: var(--color-texto-oscuro); margin-bottom: 8px; }
+.empty-state .empty-sub { font-size: 0.9rem; color: var(--color-texto); margin-bottom: 22px; opacity: .8; }
+.empty-state .empty-action {
+    display: inline-block;
+    padding: 12px 30px;
+    background: var(--color-rosa);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.empty-state .empty-action:hover { background: var(--color-rosa-hover); }
+
+@media (max-width: 1024px) {
+    .empty-state { width: 92%; }
+}

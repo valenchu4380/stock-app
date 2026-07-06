@@ -1,0 +1,31 @@
+/* hero.css — Hero component (brand+subtitle, h1, brand+tagline variants) */
+.hero {
+    background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
+    color: white;
+    text-align: center;
+    padding: 28px 20px 30px;
+    position: relative;
+}
+.hero-brand {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -.02em;
+}
+.hero-brand-sub {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    opacity: .65;
+    margin-top: 2px;
+}
+.hero h1 { font-size: 2rem; }
+.hero p { margin-top: 6px; font-size: 1rem; opacity: .85; }
+
+@media (max-width: 1024px) {
+    .hero { padding: 28px 16px 24px; }
+    .hero-brand { font-size: 1.6rem; }
+    .hero-brand-sub { font-size: 0.65rem; }
+    .hero h1 { font-size: 1.4rem; }
+    .hero p { font-size: 0.78rem; }
+}

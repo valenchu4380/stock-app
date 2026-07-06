@@ -43,34 +43,19 @@ public class ProductController {
 
     @GetMapping
     public String index(
-            @RequestParam(defaultValue = "0")    int page,
             @RequestParam(defaultValue = "")     String name,
             @RequestParam(defaultValue = "")     String category,
             @RequestParam(defaultValue = "")     String subCategory,
             @RequestParam(defaultValue = "")     String linea,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc")  String sortDir,
-            @RequestParam(defaultValue = "false") boolean stockBajo,
             Model model) {
 
         int size = 15;
         try {
-            List<Product> listaProductos = productService.getAllPaged(page, size, name, category, subCategory, linea, sortBy, sortDir, stockBajo);
-            int totalPages     = productService.getTotalPages(size, name, category, subCategory, linea, stockBajo);
-            int totalRegistros = productService.countFiltered(name, category, subCategory, linea, stockBajo);
-            int totalStock     = productService.sumStock(name, category, subCategory, linea, stockBajo);
-            double inventario  = productService.sumInventario(name, category, subCategory, linea, stockBajo);
-            int sinStock       = productService.countSinStock(name, category, subCategory, linea, stockBajo);
-            int stockBajoCount = productService.countStockBajo(name, category, subCategory, linea);
+            List<Product> listaProductos = productService.getAllPaged(0, size, name, category, subCategory, linea, sortBy, sortDir, false);
 
             model.addAttribute("productos",      listaProductos);
-            model.addAttribute("totalStock",     totalStock);
-            model.addAttribute("inventario",     inventario);
-            model.addAttribute("stockNull",      sinStock);
-            model.addAttribute("stockBajoCount", stockBajoCount);
-            model.addAttribute("paginaActual",   page);
-            model.addAttribute("totalPaginas",   totalPages);
-            model.addAttribute("totalRegistros", totalRegistros);
             model.addAttribute("filtroName",     name);
             model.addAttribute("filtroCategory", category);
             model.addAttribute("filtroSub",      subCategory);
@@ -78,40 +63,17 @@ public class ProductController {
             model.addAttribute("sortBy",         sortBy);
             model.addAttribute("sortDir",        sortDir);
             model.addAttribute("sortDirNext", "asc".equals(sortDir) ? "desc" : "asc");
-            model.addAttribute("stockBajo",      stockBajo);
 
-            int pageStart = page;
-            int pageEnd = Math.min(page + 4, totalPages - 1);
-            if (pageEnd - pageStart < 4) {
-                pageStart = Math.max(0, pageEnd - 4);
-            }
-            model.addAttribute("pageStart", pageStart);
-            model.addAttribute("pageEnd", pageEnd);
         } catch (InvalidProductException e) {
-            model.addAttribute("productos",      java.util.Collections.emptyList());
-            model.addAttribute("totalStock",     0);
-            model.addAttribute("inventario",     0.0);
-            model.addAttribute("stockNull",      0);
-            model.addAttribute("stockBajoCount", 0);
-            model.addAttribute("paginaActual",   0);
-            model.addAttribute("totalPaginas",   0);
-            model.addAttribute("totalRegistros", 0);
-            model.addAttribute("filtroName",     "");
-            model.addAttribute("filtroCategory", "");
-            model.addAttribute("filtroSub",      "");
-            model.addAttribute("filtroLinea",    "");
-            model.addAttribute("sortBy",         "name");
-            model.addAttribute("sortDir",        "asc");
-            model.addAttribute("sortDirNext",    "desc");
-            model.addAttribute("stockBajo",      false);
-            model.addAttribute("pageStart",      0);
-            model.addAttribute("pageEnd",        0);
+           model.addAttribute("error", "Error al cargar productos");
         }
         model.addAttribute("Categorys",    ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());
         model.addAttribute("whatsappNum", whatsappNumber);
         return "index";
     }
+
+
 
     @GetMapping("/mas")
     public String mas(
@@ -493,12 +455,6 @@ public class ProductController {
                 (sub.isEmpty() ? "" : "Subcategoría: " + sub.replace("_", " ") + ". ");
         };
         return desc.trim();
-    }
-
-    @GetMapping("/carrito")
-    public String carrito(Model model) {
-        model.addAttribute("whatsappNum", whatsappNumber);
-        return "carrito";
     }
 
     @GetMapping("/buscar")

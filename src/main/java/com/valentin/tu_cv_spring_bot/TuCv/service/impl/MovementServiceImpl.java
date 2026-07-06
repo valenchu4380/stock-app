@@ -1,7 +1,9 @@
-package com.valentin.tu_cv_spring_bot.TuCv.service;
+package com.valentin.tu_cv_spring_bot.TuCv.service.impl;
 
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.MovementRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Movement;
+import com.valentin.tu_cv_spring_bot.TuCv.service.MovementService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

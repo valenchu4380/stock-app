@@ -1,0 +1,10 @@
+/* breadcrumbs.css — Breadcrumbs component */
+.breadcrumbs {
+    padding: 10px 4%;
+    background: var(--color-crema);
+    border-bottom: 1px solid var(--color-rosa-borde);
+    font-size: 0.9rem;
+}
+.breadcrumbs a { color: var(--color-rosa); text-decoration: none; }
+.breadcrumbs a:hover { text-decoration: underline; }
+.breadcrumbs span { color: var(--color-texto); }

@@ -6,139 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial de Movimientos</title>
     <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
-    <style>
-        body { background: var(--color-fondo); }
-
-        .hero {
-            background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-hover));
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        .hero h1 { font-size: 2rem; }
-
-        .container {
-            width: 90%;
-            margin: 30px auto;
-        }
-
-        .breadcrumbs {
-            padding: 10px 5%;
-            background: var(--color-crema);
-            border-bottom: 1px solid var(--color-rosa-borde);
-            font-size: 0.9rem;
-        }
-        .breadcrumbs a { color: var(--color-rosa); text-decoration: none; }
-        .breadcrumbs a:hover { text-decoration: underline; }
-        .breadcrumbs span { color: var(--color-texto); }
-
-        .volver {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background: var(--color-crema);
-            border: 1.5px solid var(--color-rosa-borde);
-            border-radius: var(--radius);
-            text-decoration: none;
-            color: var(--color-texto);
-            font-weight: 600;
-        }
-        .volver:hover { background: var(--color-melocoton); border-color: var(--color-rosa); color: var(--color-rosa); }
-
-        .tabla-container {
-            background: var(--color-crema);
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.1);
-            overflow: hidden;
-        }
-        .tabla-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        thead { background: var(--color-melocoton); }
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 0.82rem;
-            color: var(--color-rosa);
-            text-transform: uppercase;
-            letter-spacing: .05em;
-        }
-        td { padding: 12px 16px; border-top: 1px solid var(--color-rosa-borde); font-size: 1rem; color: var(--color-texto); }
-        tr:hover td { background: var(--color-melocoton); }
-
-        .badge-action {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        .badge-create { background: #d1fae5; color: #065f46; }
-        .badge-update { background: var(--color-rosa-claro); color: var(--color-rosa); }
-        .badge-delete { background: #fee2e2; color: #991b1b; }
-        .badge-price  { background: #fef3c7; color: #92400e; }
-
-        .paginacion {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .pag-btn {
-            background: var(--color-crema);
-            border: 1.5px solid var(--color-rosa-borde);
-            color: var(--color-texto);
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            min-height: 44px;
-            min-width: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: .2s;
-        }
-        .pag-btn:hover { background: var(--color-melocoton); border-color: var(--color-rosa); color: var(--color-rosa); }
-        .pag-btn.active { background: var(--color-rosa); border-color: var(--color-rosa); color: white; cursor: default; }
-        .pag-btn.disabled { opacity: .4; pointer-events: none; }
-
-        .detalle { font-size: 0.88rem; color: var(--color-texto); }
-        .detalle span { color: var(--color-texto-oscuro); font-weight: 600; }
-
-        .empty {
-            padding: 40px;
-            text-align: center;
-            color: var(--color-texto);
-        }
-
-        /* Responsive: table → cards at 1024px */
-        @media (max-width: 1024px) {
-            .container { width: 95%; }
-            .hero h1 { font-size: 1.4rem; }
-            .hero { padding: 25px 16px; }
-        }
-        @media (max-width: 1024px) {
-            table, thead, tbody, tr, th, td { display: block; }
-            thead { display: none; }
-            table { min-width: unset; }
-            tr { margin-bottom: 12px; border: 1px solid var(--color-rosa-borde); border-radius: var(--radius); padding: 12px; background: var(--color-crema); }
-            td { border: none; padding: 6px 0; font-size: 0.95rem; }
-            td::before {
-                content: attr(data-label);
-                display: block;
-                font-weight: 700;
-                color: var(--color-rosa);
-                font-size: 0.78rem;
-                text-transform: uppercase;
-                letter-spacing: .04em;
-                margin-bottom: 2px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/components/hero.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/breadcrumbs.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/pages/movements.css(v=${#dates.createNow().getTime()})}">
 </head>
 <body>
 <nav class="breadcrumbs" aria-label="Breadcrumb">
@@ -219,5 +90,7 @@
     </div>
 </div>
 
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
+<script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
 </body>
 </html>

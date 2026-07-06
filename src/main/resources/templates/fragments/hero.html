@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Variant 1: brand + subtitle (used in dashboard, index, compras) -->
+<th:block th:fragment="hero-brand(brand, subtitle)">
+    <div class="hero">
+        <div class="hero-brand" th:text="${brand}">SobreVivi</div>
+        <div class="hero-brand-sub" th:text="${subtitle}">Subtitle</div>
+    </div>
+</th:block>
+
+<!-- Variant 2: h1 only (used in movements, form) -->
+<th:block th:fragment="hero-h1(title)">
+    <div class="hero">
+        <h1 th:text="${title}">Title</h1>
+    </div>
+</th:block>
+
+<!-- Variant 3: brand + tagline (used in pages with hero + description paragraph) -->
+<th:block th:fragment="hero-tagline(brand, tagline)">
+    <div class="hero">
+        <div class="hero-brand" th:text="${brand}">SobreVivi</div>
+        <p th:text="${tagline}"></p>
+    </div>
+</th:block>
+</html>

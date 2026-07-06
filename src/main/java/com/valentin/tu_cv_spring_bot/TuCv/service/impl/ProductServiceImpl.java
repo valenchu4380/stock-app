@@ -1,4 +1,4 @@
-package com.valentin.tu_cv_spring_bot.TuCv.service;
+package com.valentin.tu_cv_spring_bot.TuCv.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +15,8 @@ import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Product;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.ProductCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
+import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
+import com.valentin.tu_cv_spring_bot.TuCv.service.ProductValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,11 +65,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void update(Product product, String oldName, SubCategory oldSubCategory)
-            throws ProductNotFoundException, InvalidProductException {
-
+    public void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException, InvalidProductException {
         ProductValidator.validate(product);
-
         if (!productRepository.existsBynameAndSubCategory(oldName, oldSubCategory)) {
             throw new ProductNotFoundException("Producto no encontrado: " + oldName + " en " + oldSubCategory);
         }
