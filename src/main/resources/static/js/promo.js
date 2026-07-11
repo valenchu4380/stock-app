@@ -1,21 +1,32 @@
-// promo.js — Promo apertura: tejido gratis
-// Debe cargarse ANTES que carrito-compartido.js en toda plantilla que use PROMO o promoActiva
-// Función global para dashboard (inicializada en Fase 2)
+// promo.js — Promo: 20% OFF en Natura CREMA y PERFUME
+// Debe cargarse ANTES que carrito-compartido.js en toda plantilla que use PROMO o funciones promo
 window.initDashboardCharts = window.initDashboardCharts || function() {};
 
 var PROMO = {
     active: true,
-    minTotal: 50000,
-    name: '\uD83C\uDF81 Tejido de regalo',
+    discountPercent: 20,
+    targetCategory: 'NATURA',
+    targetSubcategories: ['CREMA', 'PERFUME'],
+    name: '20% OFF Natura',
     image: 'https://i.imgur.com/sBLmBfyh.jpg',
-    emoji: '\uD83E\uDDF6',
-    endDate: new Date(2026, 6, 5, 23, 59, 0)
+    emoji: '\uD83D\uDC84',
+    endDate: new Date(2026, 6, 13, 23, 59, 0)
 };
+
+function esPromoAplicable(category, subCategory) {
+    if (!PROMO.active) return false;
+    return category === PROMO.targetCategory
+        && PROMO.targetSubcategories.indexOf(subCategory) !== -1;
+}
+
+function precioConDescuento(precioOriginal) {
+    return precioOriginal * (1 - PROMO.discountPercent / 100);
+}
 
 function promoActiva() {
     if (!PROMO.active) return false;
     var ahora = new Date();
-    var start = new Date(2026, 6, 3, 0, 0, 0);
+    var start = new Date(2026, 6, 11, 0, 0, 0);
     return ahora >= start && ahora <= PROMO.endDate;
 }
 
@@ -41,4 +52,29 @@ function actualizarCountdown() {
         el.textContent = '\u231B ' + min + 'm ' + seg + 's';
         el.className = 'promo-countdown urgent';
     }
+}
+
+function aplicarPromoEnCards() {
+    if (!promoActiva()) return;
+    var cards = document.querySelectorAll('.producto-card');
+    cards.forEach(function(card) {
+        var btn = card.querySelector('.btn-comprar');
+        var brandEl = card.querySelector('.card-brand');
+        var priceEl = card.querySelector('.card-price');
+        if (!btn || !brandEl || !priceEl) return;
+        var category = btn.dataset.category;
+        var sub = btn.dataset.sub;
+        if (!esPromoAplicable(category, sub)) return;
+        if (card.querySelector('.card-promo-badge')) return;
+        var originalPrice = parseFloat(btn.dataset.price.replace(',', '.'));
+        if (isNaN(originalPrice)) return;
+        var discounted = precioConDescuento(originalPrice);
+        var badge = document.createElement('div');
+        badge.className = 'card-promo-badge';
+        badge.textContent = '-' + PROMO.discountPercent + '%';
+        var imgWrap = card.querySelector('.card-img') || card;
+        imgWrap.style.position = 'relative';
+        imgWrap.appendChild(badge);
+        priceEl.innerHTML = '<span class="price-original">$' + originalPrice.toFixed(2) + '</span> <span class="price-discount">$' + discounted.toFixed(2) + '</span>';
+    });
 }

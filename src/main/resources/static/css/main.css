@@ -142,6 +142,35 @@ button, a, input, select, textarea,
   touch-action: manipulation;
 }
 
+/* ── Price discount styles (cards, banners) ── */
+.price-original {
+    text-decoration: line-through;
+    color: #991b1b;
+    font-size: 0.9rem;
+}
+.price-discount {
+    color: var(--color-verde);
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: #dcfce7;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.card-promo-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #dc2626;
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+
 /* ── prefers-reduced-motion: kill all animations ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

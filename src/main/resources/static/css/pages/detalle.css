@@ -205,57 +205,56 @@ body { background: var(--color-fondo); min-height: 100vh; }
 }
 .btn-whatsapp:hover { background: #1da851; }
 
-/* Gift banner */
-.gift-banner {
-    background: linear-gradient(135deg, #FFF5E6, #FFE0B2);
-    border: 2px dashed var(--color-rosa);
+/* Promo banner — 20% OFF */
+.promo-banner {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    border: 2px solid var(--color-verde);
     border-radius: 14px;
     padding: 16px 20px;
     margin-top: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    animation: giftPulse 2s ease-in-out infinite;
+    flex-wrap: wrap;
 }
-@keyframes giftPulse {
-    0%, 100% { border-color: var(--color-rosa); }
-    50% { border-color: #FFD700; }
-}
-.gift-banner-img {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: white;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-.gift-banner-img img { width: 100%; height: 100%; object-fit: contain; }
-.gift-banner-info { flex: 1; }
-.gift-banner-title {
+.promo-banner-badge {
+    background: #dc2626;
+    color: white;
     font-weight: 800;
-    color: var(--color-rosa);
+    font-size: 1.1rem;
+    padding: 6px 14px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.promo-banner-info { flex: 1; min-width: 140px; }
+.promo-banner-title {
+    font-weight: 800;
+    color: var(--color-verde);
     font-size: 1rem;
 }
-.gift-banner-sub {
+.promo-banner-sub {
     font-size: 0.88rem;
     color: var(--color-texto);
     margin-top: 2px;
 }
-.gift-banner-progress {
-    font-weight: 700;
-    color: var(--color-verde);
-    font-size: 0.88rem;
-    background: #E8F5E9;
-    padding: 4px 14px;
-    border-radius: 20px;
-    white-space: nowrap;
+.promo-banner-prices {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex-shrink: 0;
 }
+.promo-banner-prices .price-original {
+    font-size: 1rem;
+    color: #991b1b;
+    text-decoration: line-through;
+}
+.promo-banner-prices .price-discount {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-verde);
+}
+
+
 
 /* Related products */
 .relacionados {
@@ -373,13 +372,12 @@ body { background: var(--color-fondo); min-height: 100vh; }
     .detalle-nombre { font-size: 1.1rem; }
     .detalle-precio { font-size: 1.6rem; }
     .nav-bar { padding: 12px 4%; }
-    .gift-banner {
+    .promo-banner {
         padding: 12px 14px;
         gap: 10px;
-        flex-wrap: wrap;
         max-width: 460px;
         margin-left: auto;
         margin-right: auto;
     }
-    .gift-banner-sub { font-size: 0.8rem; }
+    .promo-banner-sub { font-size: 0.8rem; }
 }

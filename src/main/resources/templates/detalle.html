@@ -24,16 +24,17 @@
 <div class="detalle-container">
     <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
 
-    <!-- ── Gift promo banner (visible on load) ── -->
-    <div id="giftBanner" class="gift-banner" style="display:none;">
-        <div class="gift-banner-img" id="giftImg">
-            <span>🧶</span>
+    <!-- ── Promo banner 20% OFF Natura (visible on load for qualifying products) ── -->
+    <div id="promoBanner" class="promo-banner" style="display:none;">
+        <div class="promo-banner-badge">-20%</div>
+        <div class="promo-banner-info">
+            <div class="promo-banner-title" id="promoBannerTitle">💄 20% OFF Natura</div>
+            <div class="promo-banner-sub" id="promoBannerSub">Este producto tiene 20% de descuento</div>
         </div>
-        <div class="gift-banner-info">
-            <div class="gift-banner-title" id="giftBannerTitle">🎁 Tejido de regalo</div>
-            <div class="gift-banner-sub" id="giftBannerSub">¡Sumá productos a tu carrito y llegá a los $50.000 para llevarte un tejido gratis!</div>
+        <div class="promo-banner-prices" id="promoBannerPrices">
+            <span class="price-original" id="promoOriginalPrice">$0.00</span>
+            <span class="price-discount" id="promoDiscountPrice">$0.00</span>
         </div>
-        <div class="gift-banner-progress" id="giftBannerProgress">GRATIS</div>
         <div class="promo-countdown" id="countdown" style="display:none;"></div>
     </div>
 
@@ -51,8 +52,8 @@
 
             <div class="detalle-nombre" th:text="${product.name}">Nombre</div>
 
-            <div class="detalle-precio" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</div>
-            <div class="detalle-cuotas" th:text="'Hasta 3 cuotas de $' + ${#numbers.formatDecimal(product.price / 3, 1, 2)}">cuotas</div>
+            <div class="detalle-precio" id="detallePrecio" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</div>
+            <div class="detalle-cuotas" id="detalleCuotas" th:text="'Hasta 3 cuotas de $' + ${#numbers.formatDecimal(product.price / 3, 1, 2)}">cuotas</div>
 
             <div class="detalle-stock"
                  th:classappend="${product.stock == 0} ? 'stock-red' : (${product.stock <= 5} ? 'stock-yellow' : 'stock-green')">
@@ -80,6 +81,7 @@
                 <button class="btn btn-carrito touch-target focus-visible"
                         th:data-name="${product.name}"
                         th:data-sub="${product.subCategory}"
+                        th:data-category="${product.category}"
                         th:data-price="${product.price}"
                         th:data-imagen="${product.imagen != null ? product.imagen : ''}"
                         th:data-stock="${product.stock}"

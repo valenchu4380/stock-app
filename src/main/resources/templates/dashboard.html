@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
     <meta charset="UTF-8">
@@ -13,255 +14,259 @@
     <link rel="stylesheet" th:href="@{/css/pages/dashboard.css(v=${#dates.createNow().getTime()})}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
 
-<div class="hero">
-    <div class="hero-brand">SobreVivi</div>
-    <div class="hero-brand-sub">Dashboard Financiero</div>
-    <p>Análisis de precios, costos y rentabilidad</p>
-</div>
-
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-    <a th:href="@{/productos}">Productos</a>
-    <span>Dashboard</span>
-</nav>
-<div class="container">
-    <div class="acciones-rapidas">
-        <a class="accion-card" th:href="@{/productos/nuevo}">
-            <span class="accion-icon">➕</span>
-            <span class="accion-texto">Agregar producto</span>
-        </a>
-        <a class="accion-card" th:href="@{/productos}">
-            <span class="accion-icon">📋</span>
-            <span class="accion-texto">Listado de productos</span>
-        </a>
-        <a class="accion-card" th:href="@{/productos/movimientos}">
-            <span class="accion-icon">📜</span>
-            <span class="accion-texto">Movimientos</span>
-        </a>
-
-        <a class="accion-card" th:href="@{/productos/compras}">
-            <span class="accion-icon">🛒</span>
-            <span class="accion-texto">Compras</span>
-        </a>
-        <a class="accion-card" href="#" onclick="openModal(event)">
-            <span class="accion-icon">💰</span>
-            <span class="accion-texto">Actualizar Precios</span>
-        </a>
+    <div class="hero">
+        <div class="hero-brand">SobreVivi</div>
+        <div class="hero-brand-sub">Dashboard Financiero</div>
+        <p>Análisis de precios, costos y rentabilidad</p>
     </div>
 
-    <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a th:href="@{/productos}">Productos</a>
+        <span>Dashboard</span>
+    </nav>
+    <div class="container">
+        <div class="acciones-rapidas">
+            <a class="accion-card" th:href="@{/productos/nuevo}">
+                <span class="accion-icon">➕</span>
+                <span class="accion-texto">Agregar producto</span>
+            </a>
+            <a class="accion-card" th:href="@{/productos}">
+                <span class="accion-icon">📋</span>
+                <span class="accion-texto">Listado de productos</span>
+            </a>
+            <a class="accion-card" th:href="@{/productos/movimientos}">
+                <span class="accion-icon">📜</span>
+                <span class="accion-texto">Movimientos</span>
+            </a>
 
-    <form class="filtros-dash" th:action="@{/productos/dashboard}" method="get">
-        <input type="text" name="name" th:value="${filtroName}" placeholder="Buscar producto..." autocomplete="off"/>
-        <select name="category">
-            <option value="">Seleccionar marca</option>
-            <option th:each="cat : ${Categorys}" th:value="${cat}" th:text="${cat}"
+            <a class="accion-card" th:href="@{/productos/compras}">
+                <span class="accion-icon">🛒</span>
+                <span class="accion-texto">Compras</span>
+            </a>
+            <a class="accion-card" href="#" onclick="openModal(event)">
+                <span class="accion-icon">💰</span>
+                <span class="accion-texto">Actualizar Precios</span>
+            </a>
+        </div>
+
+        <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+
+        <form class="filtros-dash" th:action="@{/productos/dashboard}" method="get">
+            <input type="text" name="name" th:value="${filtroName}" placeholder="Buscar producto..."
+                autocomplete="off" />
+            <select name="category">
+                <option value="">Seleccionar marca</option>
+                <option th:each="cat : ${Categorys}" th:value="${cat}" th:text="${cat}"
                     th:selected="${filtroCategory == cat.name()}"></option>
-        </select>
-        <select name="subCategory">
-            <option value="">Seleccionar producto</option>
-            <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"
+            </select>
+            <select name="subCategory">
+                <option value="">Seleccionar producto</option>
+                <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"
                     th:selected="${filtroSub == sub.name()}"></option>
-        </select>
-        <button type="submit">Filtrar</button>
-        <a class="limpiar" th:href="@{/productos/dashboard}">Limpiar</a>
-    </form>
-
-    <div class="stats-grid" th:if="${totalProductos != null}">
-        <div class="stat-card">
-            <p class="num blue" th:text="${totalProductos}">0</p>
-            <p class="label">Productos</p>
-        </div>
-        <div class="stat-card">
-            <p class="num red" th:text="'$' + ${#numbers.formatDecimal(totalInversion, 1, 2)}">$0</p>
-            <p class="label">Inversión total</p>
-        </div>
-        <div class="stat-card">
-            <p class="num blue" th:text="'$' + ${#numbers.formatDecimal(totalVenta, 1, 2)}">$0</p>
-            <p class="label">Valor de venta total</p>
-        </div>
-        <div class="stat-card">
-            <p class="num green" th:text="'$' + ${#numbers.formatDecimal(totalGanancia, 1, 2)}">$0</p>
-            <p class="label">Ganancia potencial total</p>
-        </div>
-        <div class="stat-card">
-            <p class="num purple" th:text="${#numbers.formatDecimal(margenPromedio, 1, 1)} + '%'">0%</p>
-            <p class="label">Margen promedio</p>
-        </div>
-        <div class="stat-card">
-            <p class="num amber" th:text="${mejorProducto}">—</p>
-            <p class="label">Producto más rentable</p>
-        </div>
-    </div>
-
-    <div class="charts-grid" th:if="${labels != null and !#lists.isEmpty(labels)}">
-        <div class="chart-card full">
-            <h3>💰 Ganancia por producto (potencial total)</h3>
-            <canvas id="chartGanancias"></canvas>
-        </div>
-
-        <div class="chart-card">
-            <h3>📊 Costo vs Venta por producto</h3>
-            <canvas id="chartCostoVenta"></canvas>
-        </div>
-
-        <div class="chart-card">
-            <h3>📈 Margen de ganancia por producto (%)</h3>
-            <canvas id="chartMargenes"></canvas>
-        </div>
-
-        <div class="chart-card">
-            <h3>🥧 Ganancia por categoría</h3>
-            <canvas id="chartCat"></canvas>
-        </div>
-        <div class="chart-card">
-            <h3>🏷️ Ganancia por línea</h3>
-            <canvas id="chartLinea"></canvas>
-        </div>
-    </div>
-    <div class="empty-section" th:if="${labels == null or #lists.isEmpty(labels)}">
-        <div class="empty-icon">📊</div>
-        <p class="empty-text">No hay datos para mostrar en los gráficos</p>
-        <p class="empty-sub">Agregá productos con precio de costo para ver el análisis financiero</p>
-        <a class="empty-action" th:href="@{/productos/nuevo}">+ Agregar producto</a>
-    </div>
-    <div class="gestion-section" th:if="${productos != null and !#lists.isEmpty(productos)}">
-        <div class="gestion-header">
-            <h2>📦 Gestión de productos</h2>
-            <a class="gestion-nuevo" th:href="@{/productos/nuevo}">+ Nuevo</a>
-        </div>
-        <div class="gestion-buscar">
-            <input type="text" id="gestionSearch" placeholder="Buscar producto en la tabla..." oninput="filtrarTabla()">
-        </div>
-        <div class="gestion-tabla-wrapper">
-            <table class="gestion-tabla">
-                <thead>
-                    <tr>
-                        <th style="width:50px;"></th>
-                        <th>Producto</th>
-                        <th>Subcategoría</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th style="width:140px;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="p : ${productos}">
-                        <td>
-                            <div class="gestion-img">
-                                <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}" th:src="${p.imagen}">
-                                <span th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}" style="font-size:1.2rem;">📦</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="gestion-nombre" th:text="${p.name}">nombre</div>
-                            <span class="gestion-marca"
-                                  th:classappend="${p.category != null and p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category != null and p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
-                                  th:text="${p.category}">CAT</span>
-                        </td>
-                        <td th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">sub</td>
-                        <td class="gestion-precio" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0</td>
-                        <td>
-                            <div class="gestion-stock">
-                                <button class="gestion-stock-btn gestion-stock-minus touch-target"
-                                        th:data-name="${p.name}"
-                                        th:data-sub="${p.subCategory}"
-                                        onclick="ajustarStockDash(this, -1)">−</button>
-                                <span class="gestion-stock-valor"
-                                      th:id="'dstock-' + ${pStat.index}"
-                                      th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')"
-                                      th:text="${p.stock}">0</span>
-                                <button class="gestion-stock-btn gestion-stock-plus touch-target"
-                                        th:data-name="${p.name}"
-                                        th:data-sub="${p.subCategory}"
-                                        onclick="ajustarStockDash(this, 1)">+</button>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="gestion-acciones">
-                                <a class="gestion-btn gestion-btn-edit touch-target"
-                                   th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️</a>
-                                <a class="gestion-btn gestion-btn-view touch-target"
-                                   th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
-                                <form class="delete-form" th:action="@{/productos/eliminar}" method="post" style="display:inline;"
-                                      th:data-name="${p.name}">
-                                    <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
-                                    <input type="hidden" name="name" th:value="${p.name}">
-                                    <input type="hidden" name="subCategory" th:value="${p.subCategory}">
-                                    <button class="gestion-btn gestion-btn-delete touch-target" type="button" onclick="confirmarEliminacion(this)">🗑️</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="empty-section" th:if="${productos != null and #lists.isEmpty(productos)}">
-        <div class="empty-icon">📦</div>
-        <p class="empty-text">No hay productos que coincidan con los filtros</p>
-        <a class="empty-action" th:href="@{/productos/dashboard}">Limpiar filtros</a>
-    </div>
-</div>
-
-<script th:src="@{/js/dashboard-stock.js(v=${#dates.createNow().getTime()})}"></script>
-<script th:src="@{/js/dashboard-modal.js(v=${#dates.createNow().getTime()})}"></script>
-
-<script th:src="@{/js/dashboard.js(v=${#dates.createNow().getTime()})}"></script>
-<script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
-<script th:inline="javascript">
-    var labels         = /*[[${labels}]]*/ [];
-    var ganancias      = /*[[${ganancias}]]*/ [];
-    var costos         = /*[[${costos}]]*/ [];
-    var ventas         = /*[[${ventas}]]*/ [];
-    var margenes       = /*[[${margenes}]]*/ [];
-    var catLabels      = /*[[${catLabels}]]*/ [];
-    var catGanancias   = /*[[${catGanancias}]]*/ [];
-    var lineaLabels    = /*[[${lineaLabels}]]*/ [];
-    var lineaGanancias = /*[[${lineaGanancias}]]*/ [];
-    var CSRF_TOKEN = /*[[${csrf_token}]]*/ '';
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initDashboardCharts({
-            labels: labels,
-            ganancias: ganancias,
-            costos: costos,
-            ventas: ventas,
-            margenes: margenes,
-            catLabels: catLabels,
-            catGanancias: catGanancias,
-            lineaLabels: lineaLabels,
-            lineaGanancias: lineaGanancias
-        });
-    });
-</script>
-
-<!-- MODAL ACTUALIZAR PRECIOS -->
-<div class="modal-overlay" id="modal-precios" onclick="if(event.target===this)closeModal()">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal()">✕</button>
-        <h2>Actualizar Precios por Subcategoría</h2>
-        <form th:action="@{/productos/actualizar-precios-sub}" method="post">
-            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
-            <div class="modal-form-group">
-                <label for="modal-sub">Subcategoría</label>
-                <select id="modal-sub" name="subCategory" required>
-                    <option value="">-- Seleccioná --</option>
-                    <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"></option>
-                </select>
-            </div>
-            <div class="modal-form-group">
-                <label for="modal-pct">Porcentaje (%)</label>
-                <input type="number" id="modal-pct" name="porcentaje" step="0.01" required
-                       placeholder="Ej: 10 para aumentar, -10 para disminuir"/>
-                <span class="modal-help">Positivo para aumentar, negativo para disminuir</span>
-            </div>
-            <button class="modal-btn" type="submit">Actualizar Precios</button>
+            </select>
+            <button type="submit">Filtrar</button>
+            <a class="limpiar" th:href="@{/productos/dashboard}">Limpiar</a>
         </form>
-    </div>
-</div>
 
-<th:block th:insert="~{fragments/toast :: toast}"></th:block>
+        <div class="stats-grid" th:if="${totalProductos != null}">
+            <div class="stat-card">
+                <p class="num blue" th:text="${totalProductos}">0</p>
+                <p class="label">Productos</p>
+            </div>
+            <div class="stat-card">
+                <p class="num red" th:text="'$' + ${#numbers.formatDecimal(totalInversion, 1, 2)}">$0</p>
+                <p class="label">Inversión total</p>
+            </div>
+            <div class="stat-card">
+                <p class="num blue" th:text="'$' + ${#numbers.formatDecimal(totalVenta, 1, 2)}">$0</p>
+                <p class="label">Valor de venta total</p>
+            </div>
+            <div class="stat-card">
+                <p class="num green" th:text="'$' + ${#numbers.formatDecimal(totalGanancia, 1, 2)}">$0</p>
+                <p class="label">Ganancia potencial total</p>
+            </div>
+            <div class="stat-card">
+                <p class="num purple" th:text="${#numbers.formatDecimal(margenPromedio, 1, 1)} + '%'">0%</p>
+                <p class="label">Margen promedio</p>
+            </div>
+            <div class="stat-card">
+                <p class="num amber" th:text="${mejorProducto}">—</p>
+                <p class="label">Producto más rentable</p>
+            </div>
+        </div>
+
+        <div class="charts-grid" th:if="${labels != null and !#lists.isEmpty(labels)}">
+            <div class="chart-card full">
+                <h3>💰 Ganancia por producto (potencial total)</h3>
+                <canvas id="chartGanancias"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>📊 Costo vs Venta por producto</h3>
+                <canvas id="chartCostoVenta"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>📈 Margen de ganancia por producto (%)</h3>
+                <canvas id="chartMargenes"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>🥧 Ganancia por categoría</h3>
+                <canvas id="chartCat"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>🏷️ Ganancia por línea</h3>
+                <canvas id="chartLinea"></canvas>
+            </div>
+        </div>
+        <div class="empty-section" th:if="${labels == null or #lists.isEmpty(labels)}">
+            <div class="empty-icon">📊</div>
+            <p class="empty-text">No hay datos para mostrar en los gráficos</p>
+            <p class="empty-sub">Agregá productos con precio de costo para ver el análisis financiero</p>
+            <a class="empty-action" th:href="@{/productos/nuevo}">+ Agregar producto</a>
+        </div>
+        <div class="gestion-section" th:if="${productos != null and !#lists.isEmpty(productos)}">
+            <div class="gestion-header">
+                <h2>📦 Gestión de productos</h2>
+                <a class="gestion-nuevo" th:href="@{/productos/nuevo}">+ Nuevo</a>
+            </div>
+            <div class="gestion-buscar">
+                <input type="text" id="gestionSearch" placeholder="Buscar producto en la tabla..."
+                    oninput="filtrarTabla()">
+            </div>
+            <div class="gestion-tabla-wrapper">
+                <table class="gestion-tabla">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;"></th>
+                            <th>Producto</th>
+                            <th>Subcategoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th style="width:140px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${productos}">
+                            <td>
+                                <div class="gestion-img">
+                                    <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
+                                        th:src="${p.imagen}">
+                                    <span th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
+                                        style="font-size:1.2rem;">📦</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="gestion-nombre" th:text="${p.name}">nombre</div>
+                                <span class="gestion-marca"
+                                    th:classappend="${p.category != null and p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category != null and p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
+                                    th:text="${p.category}">CAT</span>
+                            </td>
+                            <td th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">sub
+                            </td>
+                            <td class="gestion-precio" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0</td>
+                            <td>
+                                <div class="gestion-stock">
+                                    <button class="gestion-stock-btn gestion-stock-minus touch-target"
+                                        th:data-name="${p.name}" th:data-sub="${p.subCategory}"
+                                        onclick="ajustarStockDash(this, -1)">−</button>
+                                    <span class="gestion-stock-valor" th:id="'dstock-' + ${pStat.index}"
+                                        th:classappend="${p.stock == 0} ? 'text-red' : (${p.stock <= 5} ? 'text-yellow' : 'text-green')"
+                                        th:text="${p.stock}">0</span>
+                                    <button class="gestion-stock-btn gestion-stock-plus touch-target"
+                                        th:data-name="${p.name}" th:data-sub="${p.subCategory}"
+                                        onclick="ajustarStockDash(this, 1)">+</button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="gestion-acciones">
+                                    <a class="gestion-btn gestion-btn-edit touch-target" th:href="@{/productos/editar/{n}/{s}(n=${p.name},  s=${p.subCategory})}">✏️</a>
+                                    <a class="gestion-btn gestion-btn-view touch-target"
+                                        th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
+                                    <form class="delete-form" th:action="@{/productos/eliminar}" method="post"
+                                        style="display:inline;" th:data-name="${p.name}">
+                                        <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                                        <input type="hidden" name="name" th:value="${p.name}">
+                                        <input type="hidden" name="subCategory" th:value="${p.subCategory}">
+                                        <button class="gestion-btn gestion-btn-delete touch-target" type="button"
+                                            onclick="confirmarEliminacion(this)">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="empty-section" th:if="${productos != null and #lists.isEmpty(productos)}">
+            <div class="empty-icon">📦</div>
+            <p class="empty-text">No hay productos que coincidan con los filtros</p>
+            <a class="empty-action" th:href="@{/productos/dashboard}">Limpiar filtros</a>
+        </div>
+    </div>
+
+    <script th:src="@{/js/dashboard-stock.js(v=${#dates.createNow().getTime()})}"></script>
+    <script th:src="@{/js/dashboard-modal.js(v=${#dates.createNow().getTime()})}"></script>
+
+    <script th:src="@{/js/dashboard.js(v=${#dates.createNow().getTime()})}"></script>
+    <script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
+    <script th:inline="javascript">
+        var labels = /*[[${labels}]]*/[];
+        var ganancias = /*[[${ganancias}]]*/[];
+        var costos = /*[[${costos}]]*/[];
+        var ventas = /*[[${ventas}]]*/[];
+        var margenes = /*[[${margenes}]]*/[];
+        var catLabels = /*[[${catLabels}]]*/[];
+        var catGanancias = /*[[${catGanancias}]]*/[];
+        var lineaLabels = /*[[${lineaLabels}]]*/[];
+        var lineaGanancias = /*[[${lineaGanancias}]]*/[];
+        var CSRF_TOKEN = /*[[${csrf_token}]]*/ '';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initDashboardCharts({
+                labels: labels,
+                ganancias: ganancias,
+                costos: costos,
+                ventas: ventas,
+                margenes: margenes,
+                catLabels: catLabels,
+                catGanancias: catGanancias,
+                lineaLabels: lineaLabels,
+                lineaGanancias: lineaGanancias
+            });
+        });
+    </script>
+
+    <!-- MODAL ACTUALIZAR PRECIOS -->
+    <div class="modal-overlay" id="modal-precios" onclick="if(event.target===this)closeModal()">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h2>Actualizar Precios por Subcategoría</h2>
+            <form th:action="@{/productos/actualizar-precios-sub}" method="post">
+                <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                <div class="modal-form-group">
+                    <label for="modal-sub">Subcategoría</label>
+                    <select id="modal-sub" name="subCategory" required>
+                        <option value="">-- Seleccioná --</option>
+                        <option th:each="sub : ${SubCategorys}" th:value="${sub}" th:text="${sub.name()}"></option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="modal-pct">Porcentaje (%)</label>
+                    <input type="number" id="modal-pct" name="porcentaje" step="0.01" required
+                        placeholder="Ej: 10 para aumentar, -10 para disminuir" />
+                    <span class="modal-help">Positivo para aumentar, negativo para disminuir</span>
+                </div>
+                <button class="modal-btn" type="submit">Actualizar Precios</button>
+            </form>
+        </div>
+    </div>
+
+    <th:block th:insert="~{fragments/toast :: toast}"></th:block>
 </body>
+
 </html>

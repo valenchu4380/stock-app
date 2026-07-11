@@ -31,6 +31,7 @@
             th:data-price="${#numbers.formatDecimal(p.price, 0, 2)}"
             th:data-stock="${p.stock}"
             th:data-sub="${p.subCategory}"
+            th:data-category="${p.category}"
             th:data-imagen="${p.imagen != null ? p.imagen : ''}"
             onclick="agregarAlCarrito(this); event.stopPropagation();"
             th:aria-label="|Agregar ${p.name} al carrito|">

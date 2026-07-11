@@ -43,10 +43,7 @@ public class ProductServiceImpl implements ProductService {
     public void save(Product product) throws InvalidProductException {
         ProductValidator.validate(product);
 
-        boolean existe = productRepository.existsBynameAndSubCategory(
-            product.getName(),
-            product.getSubCategory()
-        );
+        boolean existe = productRepository.existsBynameAndSubCategory(product.getName(),product.getSubCategory());
 
         if (existe) {
             throw new InvalidProductException("Ya existe un producto con el nombre '" +
