@@ -120,7 +120,7 @@
     </div>
 </div>
 
-<script src="/js/promo.js"></script>
+<script th:src="@{/js/promo.js(v=${#dates.createNow().getTime()})}"></script>
 <script th:src="@{/js/carrito-compartido.js(v=${#dates.createNow().getTime()})}"></script>
 <script th:src="@{/js/detalle.js(v=${#dates.createNow().getTime()})}"></script>
 
