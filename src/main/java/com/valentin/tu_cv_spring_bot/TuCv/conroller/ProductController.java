@@ -139,8 +139,7 @@ public class ProductController {
                     model.addAttribute("product", p));
             }
         } else {
-            productService.getByname(name).ifPresent(p ->
-                model.addAttribute("product", p));
+            productService.getByname(name).ifPresent(p ->model.addAttribute("product", p));
         }
         model.addAttribute("Categorys", ProductCategory.values());
         model.addAttribute("SubCategorys", SubCategory.values());

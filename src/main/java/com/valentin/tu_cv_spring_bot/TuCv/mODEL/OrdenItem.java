@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class OrdenItem {
     private String name;
     private String subCategory;
+    private String category;
     private int cantidad;
     private BigDecimal price;
 }

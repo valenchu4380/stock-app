@@ -100,13 +100,13 @@
             <button class="overlay-close" aria-label="Cerrar carrito">&times;</button>
         </div>
         <div id="cart-overlay-items" class="overlay-items"></div>
-        <div id="overlay-gift-banner" class="overlay-gift-banner" style="display:none;">
-            <div class="overlay-gift-img" id="overlayGiftImg"><span>🧶</span></div>
-            <div class="overlay-gift-info">
-                <div class="overlay-gift-title" id="overlayGiftTitle">🎁 Tejido de regalo</div>
-                <div class="overlay-gift-sub" id="overlayGiftSub">¡Sumá productos a tu carrito y llegá a los $50.000 para llevarte un tejido gratis!</div>
+        <div id="overlay-promo-banner" class="overlay-promo-banner" style="display:none;">
+            <div class="overlay-promo-icon">💄</div>
+            <div class="overlay-promo-info">
+                <div class="overlay-promo-title">20% OFF Natura</div>
+                <div class="overlay-promo-sub" id="overlayPromoSub">Descuento aplicado en productos Natura CREMA y PERFUME</div>
             </div>
-            <div class="overlay-gift-badge" id="overlayGiftBadge">🎯 $50.000</div>
+            <div class="overlay-promo-badge" id="overlayPromoBadge">-20%</div>
         </div>
         <div class="overlay-footer">
             <div class="overlay-total">
@@ -184,12 +184,17 @@
             var imgHtml = item.imagen
                 ? '<img src="' + item.imagen + '" alt="' + item.name.replace(/"/g, '&quot;') + '">'
                 : '<span class="placeholder">\uD83D\uDCE6</span>';
-            var subtotal = (item.price * item.cantidad).toFixed(2);
+            var tieneDesc = typeof esPromoAplicable === 'function' && esPromoAplicable(item.category, item.subCategory);
+            var precioUnit = tieneDesc ? precioConDescuento(item.price) : item.price;
+            var subtotal = (precioUnit * item.cantidad).toFixed(2);
+            var priceHtml = tieneDesc
+                ? '<span class="price-original" style="font-size:0.8rem;">$' + item.price.toFixed(2) + '</span> <span class="price-discount" style="font-size:0.85rem;">$' + precioUnit.toFixed(2) + '</span>'
+                : '$' + item.price.toFixed(2);
             html += '<div class="overlay-item" data-index="' + i + '">'
                 + '<div class="overlay-item-img">' + imgHtml + '</div>'
                 + '<div class="overlay-item-info">'
                 + '<div class="overlay-item-name">' + (item.name || '').replace(/</g, '&lt;') + '</div>'
-                + '<div class="overlay-item-price">$' + item.price.toFixed(2) + '</div>'
+                + '<div class="overlay-item-price">' + priceHtml + '</div>'
                 + '</div>'
                 + '<div class="overlay-item-qty">'
                 + '<button class="qty-btn qty-btn-minus touch-target focus-visible" onclick="cambiarCantidadOverlay(' + i + ', -1)" aria-label="Disminuir cantidad">\u2212</button>'
@@ -202,59 +207,36 @@
         }
         container.innerHTML = html;
 
-        var total = 0;
-        for (var i = 0; i < items.length; i++) {
-            total += items[i].price * items[i].cantidad;
-        }
+        var total = typeof calcularTotalConDescuento === 'function'
+            ? calcularTotalConDescuento(items)
+            : items.reduce(function(s, i) { return s + i.price * i.cantidad; }, 0);
         totalEl.textContent = '$' + total.toFixed(2);
 
         actualizarAriaCarrito();
-        actualizarPromoEnOverlay(total);
+        actualizarPromoEnOverlay(items, total);
     }
 
-    function actualizarPromoEnOverlay(total) {
-        var banner = document.getElementById('overlay-gift-banner');
+    function actualizarPromoEnOverlay(items, total) {
+        var banner = document.getElementById('overlay-promo-banner');
         if (!banner) return;
         if (typeof promoActiva !== 'function' || !promoActiva()) { banner.style.display = 'none'; return; }
-
-        var imgEl = document.getElementById('overlayGiftImg');
-        if (PROMO.image) {
-            imgEl.innerHTML = '<img src="' + PROMO.image + '" alt="' + PROMO.name + '">';
-        } else {
-            imgEl.innerHTML = '<span>' + PROMO.emoji + '</span>';
-        }
-
-        var titleEl = document.getElementById('overlayGiftTitle');
-        var subEl = document.getElementById('overlayGiftSub');
-        var badgeEl = document.getElementById('overlayGiftBadge');
-
-        if (total >= PROMO.minTotal) {
-            titleEl.textContent = '\uD83C\uDF89 \u00a1' + PROMO.name + ' asegurado!';
-            subEl.textContent = 'Complet\u00e1 el pedido y te lo llev\u00e1s gratis.';
-            badgeEl.textContent = '\u2705 LO TEN\u00c9S';
-            badgeEl.style.background = '#E8F5E9';
-            badgeEl.style.color = '#166534';
-        } else {
-            var faltan = PROMO.minTotal - total;
-            if (faltan > 0 && faltan <= 15000) {
-                titleEl.textContent = '\uD83C\uDF89 \u00a1Te faltan $' + faltan.toFixed(0) + ' para tu ' + PROMO.name + '!';
-                subEl.textContent = 'Agreg\u00e1 m\u00e1s productos y acercate al regalo.';
-                badgeEl.textContent = '\uD83D\uDCB0 $' + faltan.toFixed(0);
-                badgeEl.style.background = '#FFF3CD';
-                badgeEl.style.color = '#856404';
-            } else {
-                titleEl.textContent = '\uD83C\uDF89 ' + PROMO.name + ' en compras mayores a $' + PROMO.minTotal.toLocaleString();
-                subEl.textContent = 'Sum\u00e1 productos a tu carrito y llevate un tejido GRATIS.';
-                badgeEl.textContent = '\uD83C\uDFAF $' + PROMO.minTotal.toLocaleString();
-                badgeEl.style.background = '#E8F5E9';
-                badgeEl.style.color = '#166534';
+        var hayItemsConDescuento = false;
+        for (var i = 0; i < items.length; i++) {
+            if (typeof esPromoAplicable === 'function' && esPromoAplicable(items[i].category, items[i].subCategory)) {
+                hayItemsConDescuento = true;
+                break;
             }
         }
+        if (!hayItemsConDescuento) { banner.style.display = 'none'; return; }
+        var subEl = document.getElementById('overlayPromoSub');
+        var badgeEl = document.getElementById('overlayPromoBadge');
+        if (subEl) subEl.textContent = 'Descuento del ' + PROMO.discountPercent + '% aplicado en productos Natura';
+        if (badgeEl) badgeEl.textContent = '-' + PROMO.discountPercent + '%';
         banner.style.display = 'flex';
     }
 
     function ocultarPromoEnOverlay() {
-        var banner = document.getElementById('overlay-gift-banner');
+        var banner = document.getElementById('overlay-promo-banner');
         if (banner) banner.style.display = 'none';
     }
 
@@ -327,6 +309,7 @@
 
         actualizarContadorGlobal();
         actualizarAriaCarrito();
+        if (typeof aplicarPromoEnCards === 'function') aplicarPromoEnCards();
     });
 
     // ── Search input handler ──
@@ -387,6 +370,7 @@
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
                     document.querySelector('.productos-grid').append(...temp.children);
+                    if (typeof aplicarPromoEnCards === 'function') aplicarPromoEnCards();
                 } else {
                     hasMore = false;
                     observer.unobserve(sentinel);

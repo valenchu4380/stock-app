@@ -31,16 +31,13 @@ public interface ProductRepository {
 
     void update(Product product, String oldName, SubCategory oldSubCategory) throws ProductNotFoundException;
     void reduceStock(String name, String subCategory, int cantidad);
-
     void adjustStock(String name, SubCategory subCategory, int cantidad);
-
     List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException;
 int countFiltered(String name, String category, String subCategory, String linea, boolean stockBajo);
 double sumInventario(String name, String category, String subCategory, String linea, boolean stockBajo);
 int sumStock(String name, String category, String subCategory, String linea, boolean stockBajo);
 int countSinStock(String name, String category, String subCategory, String linea, boolean stockBajo);
 int countStockBajo(String name, String category, String subCategory, String linea);
-
 Map<String, Object> dashboardMetrics(String name, String category, String subCategory);
 List<Object[]> top20Products(String name, String category, String subCategory);
 List<Object[]> profitByCategory(String name, String category, String subCategory);
