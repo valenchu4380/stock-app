@@ -174,7 +174,7 @@ public class ProductController {
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
         }
-        return "redirect:/productos";
+        return "redirect:/productos/dashboard";
     }
 
     @PostMapping("/editar-masivo")
