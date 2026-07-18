@@ -78,7 +78,7 @@
 
             <div class="form-group">
                 <label for="imagen">URL de la imagen</label>
-                <input type="url" id="imagen" th:field="*{imagen}" placeholder="https://ejemplo.com/foto.jpg" />
+                <input type="text" id="imagen" th:field="*{imagen}" placeholder="https://ejemplo.com/foto.jpg" />
                 <span style="font-size:0.78rem;color:var(--color-texto);">Podés usar links de Imgur, Google Fotos,
                     etc.</span>
                 <div th:if="${product.imagen != null and !#strings.isEmpty(product.imagen)}" style="margin-top:8px;">
