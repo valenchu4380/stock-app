@@ -122,7 +122,7 @@ public class ProductController {
         } catch (InvalidProductException e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/productos";
+        return "redirect:/productos/nuevo";
     }
 
     @GetMapping({"/editar/{name}/{subCategory}", "/editar/{name}"})

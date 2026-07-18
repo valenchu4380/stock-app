@@ -28,7 +28,7 @@
     </div>
     <button class="btn-comprar touch-target focus-visible"
             th:data-name="${p.name}"
-            th:data-price="${#numbers.formatDecimal(p.price, 0, 2)}"
+            th:data-price="${p.price}"
             th:data-stock="${p.stock}"
             th:data-sub="${p.subCategory}"
             th:data-category="${p.category}"

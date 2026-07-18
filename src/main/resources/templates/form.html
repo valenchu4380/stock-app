@@ -30,6 +30,7 @@
             Formulario</h2>
 
         <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+        <div class="mensaje ok" th:if="${mensaje}" th:text="${mensaje}"></div>
 
         <form th:action="${product.name != null and !#strings.isEmpty(product.name)} 
                   ? @{/productos/editar} : @{/productos/nuevo}" method="post" th:object="${product}">
