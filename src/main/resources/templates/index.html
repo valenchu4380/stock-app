@@ -103,8 +103,8 @@
         <div id="overlay-promo-banner" class="overlay-promo-banner" style="display:none;">
             <div class="overlay-promo-icon">💄</div>
             <div class="overlay-promo-info">
-                <div class="overlay-promo-title">20% OFF Natura</div>
-                <div class="overlay-promo-sub" id="overlayPromoSub">Descuento aplicado en productos Natura CREMA y PERFUME</div>
+                <div class="overlay-promo-title">20% OFF Natura y Avon</div>
+                <div class="overlay-promo-sub" id="overlayPromoSub">Descuento aplicado en productos Natura y Avon</div>
             </div>
             <div class="overlay-promo-badge" id="overlayPromoBadge">-20%</div>
         </div>
@@ -230,7 +230,7 @@
         if (!hayItemsConDescuento) { banner.style.display = 'none'; return; }
         var subEl = document.getElementById('overlayPromoSub');
         var badgeEl = document.getElementById('overlayPromoBadge');
-        if (subEl) subEl.textContent = 'Descuento del ' + PROMO.discountPercent + '% aplicado en productos Natura';
+        if (subEl) subEl.textContent = 'Descuento del ' + PROMO.discountPercent + '% aplicado en productos Natura y Avon';
         if (badgeEl) badgeEl.textContent = '-' + PROMO.discountPercent + '%';
         banner.style.display = 'flex';
     }

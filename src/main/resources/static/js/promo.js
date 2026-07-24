@@ -1,22 +1,20 @@
-// promo.js — Promo: 20% OFF en Natura CREMA y PERFUME
+// promo.js — Promo: 20% OFF en Natura y Avon
 // Debe cargarse ANTES que carrito-compartido.js en toda plantilla que use PROMO o funciones promo
 window.initDashboardCharts = window.initDashboardCharts || function() {};
 
 var PROMO = {
     active: true,
     discountPercent: 20,
-    targetCategory: 'NATURA',
-    targetSubcategories: ['CREMA', 'PERFUME'],
-    name: '20% OFF Natura',
+    targetCategories: ['NATURA', 'AVON'],
+    name: '20% OFF Natura y Avon',
     image: 'https://i.imgur.com/sBLmBfyh.jpg',
     emoji: '\uD83D\uDC84',
-    endDate: new Date(2026, 6, 13, 23, 59, 0)
+    endDate: new Date(2026, 6, 25, 0, 0, 0)
 };
 
-function esPromoAplicable(category, subCategory) {
+function esPromoAplicable(category) {
     if (!PROMO.active) return false;
-    return category === PROMO.targetCategory
-        && PROMO.targetSubcategories.indexOf(subCategory) !== -1;
+    return PROMO.targetCategories.indexOf(category) !== -1;
 }
 
 function precioConDescuento(precioOriginal) {
@@ -25,15 +23,14 @@ function precioConDescuento(precioOriginal) {
 
 function promoActiva() {
     if (!PROMO.active) return false;
-    var ahora = new Date();
-    var start = new Date(2026, 6, 11, 0, 0, 0);
-    return ahora >= start && ahora <= PROMO.endDate;
+    if (!PROMO.endDate) return true;
+    return new Date() <= PROMO.endDate;
 }
 
 function actualizarCountdown() {
+    if (!PROMO.endDate) { var el = document.getElementById('countdown'); if (el) el.style.display = 'none'; return; }
     var ahora = new Date();
-    var end = new Date(PROMO.endDate);
-    var diff = end - ahora;
+    var diff = PROMO.endDate - ahora;
     var el = document.getElementById('countdown');
     if (!el) return;
     if (diff <= 0 || !promoActiva()) { el.style.display = 'none'; return; }
@@ -64,7 +61,7 @@ function aplicarPromoEnCards() {
         if (!btn || !brandEl || !priceEl) return;
         var category = btn.dataset.category;
         var sub = btn.dataset.sub;
-        if (!esPromoAplicable(category, sub)) return;
+        if (!esPromoAplicable(category)) return;
         if (card.querySelector('.card-promo-badge')) return;
         var originalPrice = parseFloat(btn.dataset.price.replace(',', '.'));
         if (isNaN(originalPrice)) return;

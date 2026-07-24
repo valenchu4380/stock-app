@@ -28,8 +28,7 @@ public class OrdenServiceImpl implements OrdenService {
     private final ObjectMapper objectMapper;
 
     private static final double DESCUENTO_PORCENTAJE = 0.20;
-    private static final String CATEGORIA_PROMO = "NATURA";
-    private static final java.util.Set<String> SUBCATEGORIAS_PROMO = java.util.Set.of("CREMA", "PERFUME");
+    private static final java.util.Set<String> CATEGORIAS_PROMO = java.util.Set.of("NATURA", "AVON");
 
     @Override
     @Transactional
@@ -38,8 +37,7 @@ public class OrdenServiceImpl implements OrdenService {
         double totalConDescuento = 0;
         for (OrdenItem item : items) {
             double precio = item.getPrice().doubleValue();
-            if (CATEGORIA_PROMO.equals(item.getCategory())
-                    && SUBCATEGORIAS_PROMO.contains(item.getSubCategory())) {
+            if (CATEGORIAS_PROMO.contains(item.getCategory())) {
                 precio = precio * (1.0 - DESCUENTO_PORCENTAJE);
             }
             totalConDescuento += precio * item.getCantidad();

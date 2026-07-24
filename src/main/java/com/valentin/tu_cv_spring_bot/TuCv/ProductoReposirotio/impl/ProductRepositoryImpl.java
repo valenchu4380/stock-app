@@ -249,8 +249,11 @@ public class ProductRepositoryImpl implements ProductRepository {
         StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
+            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(subcategory) LIKE ?)");
+            String term = "%" + name.trim().toLowerCase() + "%";
+            params.add(term);
+            params.add(term);
+            params.add(term);
         }
         if (category != null && !category.isBlank()) {
             sql.append(" AND category = ?");
@@ -381,8 +384,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     private void appendFilterConditions(StringBuilder sql, List<Object> params,
         String name, String category, String subCategory, String linea, boolean stockBajo) {
         if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
+            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(subcategory) LIKE ?)");
+            String term = "%" + name.trim().toLowerCase() + "%";
+            params.add(term);
+            params.add(term);
+            params.add(term);
         }
         if (category != null && !category.isBlank()) {
             sql.append(" AND category = ?");
@@ -424,8 +430,11 @@ public class ProductRepositoryImpl implements ProductRepository {
         List<Object> params = new ArrayList<>();
 
         if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
+            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(subcategory) LIKE ?)");
+            String term = "%" + name.trim().toLowerCase() + "%";
+            params.add(term);
+            params.add(term);
+            params.add(term);
         }
         if (category != null && !category.isBlank()) {
             sql.append(" AND category = ?");
@@ -484,8 +493,11 @@ public class ProductRepositoryImpl implements ProductRepository {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE stock >= 0 AND stock <= 1");
         List<Object> params = new ArrayList<>();
         if (name != null && !name.isBlank()) {
-            sql.append(" AND LOWER(name) LIKE ?");
-            params.add("%" + name.trim().toLowerCase() + "%");
+            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(subcategory) LIKE ?)");
+            String term = "%" + name.trim().toLowerCase() + "%";
+            params.add(term);
+            params.add(term);
+            params.add(term);
         }
         if (category != null && !category.isBlank()) {
             sql.append(" AND category = ?");
