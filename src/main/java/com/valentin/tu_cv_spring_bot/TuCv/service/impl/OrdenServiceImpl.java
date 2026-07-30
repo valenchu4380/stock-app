@@ -6,7 +6,9 @@ import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.OrdenRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.ProductoReposirotio.ProductRepository;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Orden;
 import com.valentin.tu_cv_spring_bot.TuCv.mODEL.OrdenItem;
+import com.valentin.tu_cv_spring_bot.TuCv.mODEL.Promocion;
 import com.valentin.tu_cv_spring_bot.TuCv.service.OrdenService;
+import com.valentin.tu_cv_spring_bot.TuCv.service.PromocionService;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,19 +28,21 @@ public class OrdenServiceImpl implements OrdenService {
     private final OrdenRepository ordenRepository;
     private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
-
-    private static final double DESCUENTO_PORCENTAJE = 0.20;
-    private static final java.util.Set<String> CATEGORIAS_PROMO = java.util.Set.of("NATURA", "AVON");
+    private final PromocionService promocionService;
 
     @Override
     @Transactional
     public Orden crear(String itemsJson, double total) {
         List<OrdenItem> items = parseItems(itemsJson);
+        List<Promocion> activas = promocionService.activas();
         double totalConDescuento = 0;
         for (OrdenItem item : items) {
             double precio = item.getPrice().doubleValue();
-            if (CATEGORIAS_PROMO.contains(item.getCategory())) {
-                precio = precio * (1.0 - DESCUENTO_PORCENTAJE);
+            for (Promocion promo : activas) {
+                if (promocionService.esAplicable(promo, item.getCategory(), item.getSubCategory())) {
+                    precio = precio * (1.0 - promo.getDescuento() / 100.0);
+                    break;
+                }
             }
             totalConDescuento += precio * item.getCantidad();
         }

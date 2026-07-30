@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobreVivi | Promociones</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/hero.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/breadcrumbs.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/pages/promos.css(v=${#dates.createNow().getTime()})}">
+</head>
+<body>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a th:href="@{/productos}">Productos</a>
+    <span> › </span>
+    <a th:href="@{/productos/dashboard}">Dashboard</a>
+    <span> › </span>
+    <a th:href="@{/productos/promos}">Promociones</a>
+    <span> › </span>
+    <span aria-current="page" th:text="${promo.id != null} ? 'Editar' : 'Nueva'">Nueva</span>
+</nav>
+
+<div class="hero">
+    <div class="hero-brand">SobreVivi</div>
+    <div class="hero-brand-sub" th:text="${promo.id != null} ? '✏️ Editar Promoción' : '🏷️ Nueva Promoción'">Nueva Promoción</div>
+</div>
+
+<div class="form-container">
+    <form th:action="${promo.id != null} ? @{/productos/promos/actualizar} : @{/productos/promos/guardar}"
+          method="post" th:object="${promo}">
+        <input type="hidden" name="csrf_token" th:value="${session.adminToken}" />
+        <input type="hidden" name="id" th:value="${promo.id}" />
+        <input type="hidden" name="tipoDescuento" value="PORCENTAJE" />
+        <input type="hidden" name="tipoTarget" id="tipoTargetHidden"
+               th:value="${promo.tipoTarget != null ? promo.tipoTarget : 'CATEGORIA'}" />
+
+        <div class="form-group">
+            <label for="nombre">Nombre de la promoción</label>
+            <input type="text" id="nombre" name="nombre" th:value="${promo.nombre}" required
+                   placeholder="Ej: 20% OFF Natura y Avon" class="focus-visible" />
+        </div>
+
+        <div class="form-group">
+            <label for="descripcion">Descripción (opcional)</label>
+            <textarea id="descripcion" name="descripcion" rows="2"
+                      placeholder="Ej: Aprovechá el descuento en toda la línea" th:text="${promo.descripcion}"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="descuento">Descuento (%)</label>
+            <input type="number" id="descuento" name="descuento" th:value="${promo.descuento}" step="0.01" min="0" max="100" required
+                   placeholder="Ej: 20" />
+        </div>
+
+        <div class="form-group">
+            <label>Aplicar a</label>
+            <div class="target-tabs">
+                <button type="button" class="target-tab" th:classappend="${promo.tipoTarget == null or promo.tipoTarget == 'CATEGORIA'} ? 'active' : ''"
+                        data-target="CATEGORIA" onclick="seleccionarTarget(this, 'CATEGORIA')">Categorías</button>
+                <button type="button" class="target-tab" th:classappend="${promo.tipoTarget == 'SUBCATEGORIA'} ? 'active' : ''"
+                        data-target="SUBCATEGORIA" onclick="seleccionarTarget(this, 'SUBCATEGORIA')">Subcategorías</button>
+            </div>
+        </div>
+
+        <div class="form-group" id="target-categorias"
+             th:style="${promo.tipoTarget != null and promo.tipoTarget == 'SUBCATEGORIA'} ? 'display:none' : ''">
+            <label>Categorías que aplican</label>
+            <div class="checkbox-group" id="categorias-checkbox-group">
+                <div th:each="cat : ${Categorys}" class="checkbox-item">
+                    <label>
+                        <input type="checkbox" th:id="'cat-' + ${cat}"
+                               th:data-value="${cat.name()}"
+                               th:checked="${promo.targetValor != null and #strings.contains(promo.targetValor, cat.name())}" />
+                        <span th:text="${cat.name()}">AVON</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="target-subcategorias"
+             th:style="${promo.tipoTarget == 'SUBCATEGORIA'} ? '' : 'display:none'">
+            <label>Subcategorías que aplican</label>
+            <div class="checkbox-group" id="subcategorias-checkbox-group">
+                <div th:each="sub : ${SubCategorys}" class="checkbox-item">
+                    <label>
+                        <input type="checkbox" th:id="'sub-' + ${sub}"
+                               th:data-value="${sub.name()}"
+                               th:checked="${promo.targetValor != null and #strings.contains(promo.targetValor, sub.name())}" />
+                        <span th:text="${sub.name().replace('_', ' ')}">PERFUME</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" name="targetValor" id="targetValorHidden"
+               th:value="${promo.targetValor}" />
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fechaInicio">Fecha de inicio (opcional)</label>
+                <input type="date" id="fechaInicio" name="fechaInicio"
+                       th:value="${promo.fechaInicio != null} ? ${promo.fechaInicio} : ''" />
+            </div>
+            <div class="form-group">
+                <label for="fechaFin">Fecha de fin (opcional)</label>
+                <input type="date" id="fechaFin" name="fechaFin"
+                       th:value="${promo.fechaFin != null} ? ${promo.fechaFin} : ''" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox-item">
+                <input type="checkbox" name="activa" value="true"
+                       th:checked="${promo.activa or promo.id == null}" />
+                <span>Activa</span>
+            </label>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-guardar touch-target" type="submit">Guardar</button>
+            <a class="btn-cancelar touch-target" th:href="@{/productos/promos}">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    var targetActual = document.getElementById('tipoTargetHidden').value || 'CATEGORIA';
+
+    function seleccionarTarget(btn, tipo) {
+        document.querySelectorAll('.target-tab').forEach(function(t) { t.classList.remove('active'); });
+        btn.classList.add('active');
+        targetActual = tipo;
+        document.getElementById('tipoTargetHidden').value = tipo;
+        document.getElementById('target-categorias').style.display = tipo === 'SUBCATEGORIA' ? 'none' : '';
+        document.getElementById('target-subcategorias').style.display = tipo === 'SUBCATEGORIA' ? '' : 'none';
+        actualizarTargetValor();
+    }
+
+    function actualizarTargetValor() {
+        var groupId = targetActual === 'SUBCATEGORIA' ? 'subcategorias-checkbox-group' : 'categorias-checkbox-group';
+        var checks = document.getElementById(groupId).querySelectorAll('input[type="checkbox"]:checked');
+        var vals = [];
+        checks.forEach(function(cb) { vals.push(cb.getAttribute('data-value')); });
+        document.getElementById('targetValorHidden').value = vals.join(',');
+    }
+
+    document.getElementById('categorias-checkbox-group').addEventListener('change', actualizarTargetValor);
+    document.getElementById('subcategorias-checkbox-group').addEventListener('change', actualizarTargetValor);
+</script>
+
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
+<script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
+</body>
+</html>

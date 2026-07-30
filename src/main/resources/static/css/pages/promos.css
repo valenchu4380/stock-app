@@ -1,0 +1,93 @@
+/* pages/promos.css — Promociones page */
+body { background: var(--color-fondo); min-height: 100vh; }
+
+.container { width: 90%; margin: 20px auto; max-width: 1200px; }
+
+.acciones-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+
+.btn-volver { display: inline-block; padding: 12px 20px; background: var(--color-crema); border: 1.5px solid var(--color-rosa-borde); border-radius: 10px; text-decoration: none; color: var(--color-texto); font-weight: 600; font-size: 1rem; }
+.btn-volver:hover { background: var(--color-melocoton); color: var(--color-rosa); }
+
+.btn-nuevo { display: inline-block; padding: 12px 24px; background: var(--color-rosa); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 1rem; }
+.btn-nuevo:hover { opacity: .85; }
+
+.msg { padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-weight: 600; font-size: 1rem; }
+.msg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.msg.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.tabla { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--color-crema); border-radius: 14px; overflow: hidden; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+.tabla th { background: var(--color-rosa); color: white; padding: 14px 12px; text-align: left; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+.tabla td { padding: 12px; font-size: 1rem; color: var(--color-texto); border-bottom: 1px solid var(--color-rosa-borde); vertical-align: middle; }
+.tabla tr:last-child td { border-bottom: none; }
+
+.promo-nombre { font-weight: 700; color: var(--color-texto-oscuro); }
+.promo-desc { font-size: .82rem; color: var(--color-texto); opacity: .8; margin-top: 2px; }
+.promo-descuento { font-weight: 700; color: #b91c1c; font-size: 1.1rem; }
+
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: .8rem; font-weight: 700; text-transform: uppercase; }
+.badge-activa { background: #d4edda; color: #155724; }
+.badge-inactiva { background: #f8d7da; color: #721c24; }
+
+.acciones-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.btn-accion { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; text-decoration: none; background: var(--color-crema); border: 1px solid var(--color-rosa-borde); }
+.btn-accion:hover { background: var(--color-melocoton); }
+.btn-editar:hover { background: #cce5ff; border-color: #b8daff; }
+.btn-activar { background: #d4edda; border-color: #c3e6cb; }
+.btn-desactivar { background: #fff3cd; border-color: #ffeeba; }
+.btn-eliminar:hover { background: #f8d7da; border-color: #f5c6cb; }
+
+.vacio { text-align: center; padding: 40px; color: var(--color-texto); }
+
+/* Hero variant */
+.hero { padding: 28px 20px 20px; }
+
+/* Form styles (shared with form.css patterns) */
+.form-container { width: 90%; max-width: 700px; margin: 20px auto; background: var(--color-crema); border-radius: 16px; padding: 28px 24px; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 700; color: var(--color-texto-oscuro); margin-bottom: 6px; font-size: .9rem; }
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group textarea,
+.form-group select {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--color-rosa-borde); border-radius: 10px;
+    font-size: 1rem; background: var(--color-fondo); box-sizing: border-box; color: var(--color-texto);
+}
+.form-group textarea { resize: vertical; font-family: inherit; }
+.form-help { display: block; font-size: .78rem; color: var(--color-texto); margin-top: 4px; opacity: .8; }
+
+.form-row { display: flex; gap: 16px; }
+.form-row .form-group { flex: 1; }
+
+.checkbox-group { display: flex; gap: 16px; flex-wrap: wrap; }
+.checkbox-item { display: flex; align-items: center; }
+.checkbox-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
+.checkbox-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+
+.target-tabs { display: flex; gap: 0; border: 1.5px solid var(--color-rosa-borde); border-radius: 10px; overflow: hidden; }
+.target-tab { flex: 1; padding: 11px 16px; border: none; background: var(--color-fondo); font-weight: 600; font-size: .9rem; cursor: pointer; color: var(--color-texto); transition: all .15s; }
+.target-tab.active { background: var(--color-rosa); color: white; }
+.target-tab:not(.active):hover { background: var(--color-melocoton); }
+.target-tab + .target-tab { border-left: 1px solid var(--color-rosa-borde); }
+
+.btn-row { display: flex; gap: 12px; margin-top: 24px; }
+.btn-guardar { padding: 14px 32px; background: var(--color-rosa); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; }
+.btn-guardar:hover { opacity: .85; }
+.btn-cancelar { display: inline-flex; align-items: center; padding: 14px 24px; background: var(--color-crema); border: 1.5px solid var(--color-rosa-borde); border-radius: 10px; text-decoration: none; color: var(--color-texto); font-weight: 600; }
+.btn-cancelar:hover { background: var(--color-melocoton); }
+
+@media (max-width: 1024px) {
+    .container { width: 96%; }
+    .form-container { width: 96%; padding: 20px 16px; }
+    .form-row { flex-direction: column; gap: 0; }
+    .tabla, .tabla thead, .tabla tbody, .tabla tr, .tabla th, .tabla td { display: block; }
+    .tabla thead { display: none; }
+    .tabla tr { margin-bottom: 12px; border: 1px solid var(--color-rosa-borde); border-radius: 10px; padding: 12px; background: var(--color-crema); }
+    .tabla td { border: none; padding: 6px 0; font-size: 0.95rem; }
+    .tabla td::before {
+        content: attr(data-label);
+        display: block; font-weight: 700; color: var(--color-rosa);
+        font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px;
+    }
+}

@@ -18,7 +18,7 @@ function calcularTotalConDescuento(items) {
         var item = items[i];
         var price = item.price;
         if (typeof esPromoAplicable === 'function' && esPromoAplicable(item.category, item.subCategory)) {
-            price = precioConDescuento(price);
+            price = precioConDescuento(price, item.category, item.subCategory);
         }
         total += price * item.cantidad;
     }
@@ -120,8 +120,9 @@ function enviarPedido() {
                 var price = item.price;
                 var tieneDesc = typeof esPromoAplicable === 'function' && esPromoAplicable(item.category, item.subCategory);
                 if (tieneDesc) {
-                    var descPrice = precioConDescuento(price);
-                    lines.push('\u2022 ' + item.name + ' x' + item.cantidad + ' = $' + (descPrice * item.cantidad).toFixed(2) + ' (-' + PROMO.discountPercent + '% OFF)');
+                    var descPrice = precioConDescuento(price, item.category, item.subCategory);
+                    var descPct = obtenerDescuentoItem(item.category, item.subCategory);
+                    lines.push('\u2022 ' + item.name + ' x' + item.cantidad + ' = $' + (descPrice * item.cantidad).toFixed(2) + ' (-' + descPct + '% OFF)');
                 } else {
                     lines.push('\u2022 ' + item.name + ' x' + item.cantidad + ' = $' + (price * item.cantidad).toFixed(2));
                 }
@@ -130,7 +131,7 @@ function enviarPedido() {
             var descMsg = '';
             if (typeof promoActiva === 'function' && promoActiva() && totalConDesc < totalSinDesc) {
                 var ahorro = totalSinDesc - totalConDesc;
-                descMsg = '\n\n\u2728 Descuento ' + PROMO.discountPercent + '% OFF Natura: -$' + ahorro.toFixed(2);
+                descMsg = '\n\n\u2728 Descuento aplicado: -$' + ahorro.toFixed(2);
             }
             var totalMsg = '\n\nTotal: $' + totalConDesc.toFixed(2) + descMsg;
             guardarCarrito([]);

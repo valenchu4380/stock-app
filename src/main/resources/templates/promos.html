@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobreVivi | Promociones</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/hero.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/breadcrumbs.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/pages/promos.css(v=${#dates.createNow().getTime()})}">
+</head>
+<body>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a th:href="@{/productos}">Productos</a>
+    <span> › </span>
+    <a th:href="@{/productos/dashboard}">Dashboard</a>
+    <span> › </span>
+    <span aria-current="page">Promociones</span>
+</nav>
+
+<div class="hero">
+    <div class="hero-brand">SobreVivi</div>
+    <div class="hero-brand-sub">🏷️ Gestión de Promociones</div>
+</div>
+
+<div class="container">
+    <div class="acciones-top">
+        <a class="btn-volver touch-target" th:href="@{/productos/dashboard}">← Dashboard</a>
+        <a class="btn-nuevo touch-target" th:href="@{/productos/promos/nueva}">➕ Nueva Promoción</a>
+    </div>
+
+    <div th:if="${mensaje}" class="msg success" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="msg error" th:text="${error}"></div>
+
+    <table class="tabla" th:if="${not isEmpty}">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descuento</th>
+                <th>Target</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${promos}">
+                <td data-label="Nombre">
+                    <div class="promo-nombre" th:text="${p.nombre}">Nombre</div>
+                    <div class="promo-desc" th:if="${p.descripcion != null and !p.descripcion.isEmpty()}" th:text="${p.descripcion}">desc</div>
+                </td>
+                <td data-label="Descuento" class="promo-descuento" th:text="'-' + ${p.descuento} + '%'">-20%</td>
+                <td data-label="Target" th:text="${p.targetValor}">NATURA, AVON</td>
+                <td data-label="Vigencia">
+                    <span th:if="${p.fechaInicio != null or p.fechaFin != null}">
+                        <span th:if="${p.fechaInicio != null}" th:text="${#temporals.format(p.fechaInicio, 'dd/MM/yy')}">01/01</span>
+                        <span th:if="${p.fechaInicio != null and p.fechaFin != null}"> → </span>
+                        <span th:if="${p.fechaFin != null}" th:text="${#temporals.format(p.fechaFin, 'dd/MM/yy')}">31/12</span>
+                    </span>
+                    <span th:if="${p.fechaInicio == null and p.fechaFin == null}" style="color:var(--color-texto);opacity:.7;">Sin fecha</span>
+                </td>
+                <td data-label="Estado">
+                    <span class="badge" th:classappend="${p.activa} ? 'badge-activa' : 'badge-inactiva'"
+                          th:text="${p.activa} ? 'ACTIVA' : 'INACTIVA'">ACTIVA</span>
+                </td>
+                <td data-label="Acciones">
+                    <div class="acciones-btns">
+                        <a class="btn-accion btn-editar touch-target" th:href="@{/productos/promos/editar/{id}(id=${p.id})}">✏️</a>
+                        <form th:action="@{/productos/promos/toggle/{id}(id=${p.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                            <button class="btn-accion touch-target" th:classappend="${p.activa} ? 'btn-desactivar' : 'btn-activar'"
+                                    th:text="${p.activa} ? '⏸' : '▶️'">⏸</button>
+                        </form>
+                        <form th:action="@{/productos/promos/eliminar/{id}(id=${p.id})}" method="post" style="display:inline"
+                              onsubmit="return confirm('¿Eliminar esta promoción?')">
+                            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                            <button class="btn-accion btn-eliminar touch-target">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="vacio" th:if="${isEmpty}">
+        <div style="font-size:3.5rem;margin-bottom:14px;">🏷️</div>
+        <p style="font-size:1.1rem;font-weight:700;color:var(--color-texto-oscuro);">No hay promociones todavía</p>
+        <p style="font-size:0.9rem;color:var(--color-texto);margin-top:6px;opacity:.8;">Creá una promoción para ofrecer descuentos a tus clientes</p>
+        <a class="empty-action" th:href="@{/productos/promos/nueva}" style="display:inline-block;margin-top:20px;padding:12px 28px;background:var(--color-rosa);color:white;border-radius:10px;text-decoration:none;font-weight:600;">➕ Crear promoción</a>
+    </div>
+</div>
+
+<th:block th:insert="~{fragments/toast :: toast}"></th:block>
+<script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
+</body>
+</html>

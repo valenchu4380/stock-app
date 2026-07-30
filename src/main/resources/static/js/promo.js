@@ -1,39 +1,64 @@
-// promo.js — Promo: 20% OFF en Natura y Avon
-// Debe cargarse ANTES que carrito-compartido.js en toda plantilla que use PROMO o funciones promo
-window.initDashboardCharts = window.initDashboardCharts || function() {};
-
 var PROMO = {
-    active: true,
-    discountPercent: 20,
-    targetCategories: ['NATURA', 'AVON'],
-    name: '20% OFF Natura y Avon',
-    image: 'https://i.imgur.com/sBLmBfyh.jpg',
-    emoji: '\uD83D\uDC84',
-    endDate: new Date(2026, 6, 25, 0, 0, 0)
+    promos: [],
+    loaded: false
 };
 
-function esPromoAplicable(category) {
-    if (!PROMO.active) return false;
-    return PROMO.targetCategories.indexOf(category) !== -1;
+function initPromos() {
+    return fetch('/productos/promos/api/activas')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            PROMO.promos = data || [];
+            PROMO.loaded = true;
+            aplicarPromoEnCards();
+            return PROMO.promos;
+        })
+        .catch(function() {
+            PROMO.promos = [];
+            PROMO.loaded = true;
+        });
 }
 
-function precioConDescuento(precioOriginal) {
-    return precioOriginal * (1 - PROMO.discountPercent / 100);
+function encontrarPromo(category, sub) {
+    for (var i = 0; i < PROMO.promos.length; i++) {
+        var p = PROMO.promos[i];
+        if (p.tipoTarget === 'CATEGORIA' && p.targetValor.split(',').indexOf(category) !== -1) return p;
+        if (p.tipoTarget === 'SUBCATEGORIA' && sub && p.targetValor.split(',').indexOf(sub) !== -1) return p;
+    }
+    return null;
+}
+
+function esPromoAplicable(category, sub) {
+    return encontrarPromo(category, sub) !== null;
+}
+
+function precioConDescuento(precioOriginal, category, sub) {
+    var promo = encontrarPromo(category, sub);
+    if (promo) return precioOriginal * (1 - promo.descuento / 100);
+    return precioOriginal;
+}
+
+function obtenerDescuentoItem(category, sub) {
+    var promo = encontrarPromo(category, sub);
+    return promo ? promo.descuento : 0;
 }
 
 function promoActiva() {
-    if (!PROMO.active) return false;
-    if (!PROMO.endDate) return true;
-    return new Date() <= PROMO.endDate;
+    return PROMO.promos.length > 0;
 }
 
 function actualizarCountdown() {
-    if (!PROMO.endDate) { var el = document.getElementById('countdown'); if (el) el.style.display = 'none'; return; }
-    var ahora = new Date();
-    var diff = PROMO.endDate - ahora;
     var el = document.getElementById('countdown');
     if (!el) return;
-    if (diff <= 0 || !promoActiva()) { el.style.display = 'none'; return; }
+    if (!promoActiva()) { el.style.display = 'none'; return; }
+    var fechas = [];
+    for (var i = 0; i < PROMO.promos.length; i++) {
+        if (PROMO.promos[i].fechaFin) fechas.push(new Date(PROMO.promos[i].fechaFin));
+    }
+    if (fechas.length === 0) { el.style.display = 'none'; return; }
+    var endDate = new Date(Math.min.apply(null, fechas));
+    var ahora = new Date();
+    var diff = endDate - ahora;
+    if (diff <= 0) { el.style.display = 'none'; return; }
     el.style.display = '';
     var seg = Math.floor(diff / 1000) % 60;
     var min = Math.floor(diff / (1000 * 60)) % 60;
@@ -61,17 +86,20 @@ function aplicarPromoEnCards() {
         if (!btn || !brandEl || !priceEl) return;
         var category = btn.dataset.category;
         var sub = btn.dataset.sub;
-        if (!esPromoAplicable(category)) return;
+        var promo = encontrarPromo(category, sub);
+        if (!promo) return;
         if (card.querySelector('.card-promo-badge')) return;
         var originalPrice = parseFloat(btn.dataset.price.replace(',', '.'));
         if (isNaN(originalPrice)) return;
-        var discounted = precioConDescuento(originalPrice);
+        var discounted = originalPrice * (1 - promo.descuento / 100);
         var badge = document.createElement('div');
         badge.className = 'card-promo-badge';
-        badge.textContent = '-' + PROMO.discountPercent + '%';
+        badge.textContent = '-' + promo.descuento + '%';
         var imgWrap = card.querySelector('.card-img') || card;
         imgWrap.style.position = 'relative';
         imgWrap.appendChild(badge);
         priceEl.innerHTML = '<span class="price-original">$' + originalPrice.toFixed(2) + '</span> <span class="price-discount">$' + discounted.toFixed(2) + '</span>';
     });
 }
+
+initPromos();
