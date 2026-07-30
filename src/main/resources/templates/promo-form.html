@@ -82,16 +82,14 @@
 
         <div class="form-group" id="target-subcategorias"
              th:style="${promo.tipoTarget == 'SUBCATEGORIA'} ? '' : 'display:none'">
-            <label>Subcategorías que aplican</label>
-            <div class="checkbox-group" id="subcategorias-checkbox-group">
-                <div th:each="sub : ${SubCategorys}" class="checkbox-item">
-                    <label>
-                        <input type="checkbox" th:id="'sub-' + ${sub}"
-                               th:data-value="${sub.name()}"
-                               th:checked="${promo.targetValor != null and #strings.contains(promo.targetValor, sub.name())}" />
-                        <span th:text="${sub.name().replace('_', ' ')}">PERFUME</span>
-                    </label>
-                </div>
+            <label for="subCatMarca">Marca (categoría)</label>
+            <select id="subCatMarca" onchange="filtrarSubsPorMarca()">
+                <option value="">-- Seleccioná una marca --</option>
+                <option th:each="cat : ${Categorys}" th:value="${cat.name()}" th:text="${cat.name()}">NATURA</option>
+            </select>
+            <div style="margin-top:10px;">
+                <label>Subcategorías que aplican</label>
+                <div class="checkbox-group" id="subcategorias-checkbox-group"></div>
             </div>
         </div>
 
@@ -128,6 +126,11 @@
 
 <script>
     var targetActual = document.getElementById('tipoTargetHidden').value || 'CATEGORIA';
+    var subcategoriasPorMarca = {
+        AVON: ['PERFUME', 'MAQUILLAJE', 'CABELLO', 'CREMA', 'CUIDADO_DIARIO'],
+        NATURA: ['PERFUME', 'MAQUILLAJE', 'CABELLO', 'CREMA', 'CUIDADO_DIARIO'],
+        SAPHIRUS: ['TEXTIL', 'AEROSOL', 'DIFUSOR', 'JABON', 'PERFUME_PISO', 'SAHUMERIO']
+    };
 
     function seleccionarTarget(btn, tipo) {
         document.querySelectorAll('.target-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -139,16 +142,60 @@
         actualizarTargetValor();
     }
 
+    function filtrarSubsPorMarca() {
+        var marca = document.getElementById('subCatMarca').value;
+        var container = document.getElementById('subcategorias-checkbox-group');
+        container.innerHTML = '';
+        if (!marca) { actualizarTargetValor(); return; }
+        var subs = subcategoriasPorMarca[marca] || [];
+        subs.forEach(function(sub) {
+            var div = document.createElement('div');
+            div.className = 'checkbox-item';
+            var label = document.createElement('label');
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.setAttribute('data-value', marca + ':' + sub);
+            // check if editing and already checked
+            var existing = document.getElementById('targetValorHidden').value;
+            if (existing && existing.indexOf(marca + ':' + sub) !== -1) cb.checked = true;
+            cb.addEventListener('change', actualizarTargetValor);
+            label.appendChild(cb);
+            var span = document.createElement('span');
+            span.textContent = sub.replace(/_/g, ' ');
+            label.appendChild(span);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+        actualizarTargetValor();
+    }
+
     function actualizarTargetValor() {
-        var groupId = targetActual === 'SUBCATEGORIA' ? 'subcategorias-checkbox-group' : 'categorias-checkbox-group';
-        var checks = document.getElementById(groupId).querySelectorAll('input[type="checkbox"]:checked');
-        var vals = [];
-        checks.forEach(function(cb) { vals.push(cb.getAttribute('data-value')); });
-        document.getElementById('targetValorHidden').value = vals.join(',');
+        if (targetActual === 'SUBCATEGORIA') {
+            var checks = document.getElementById('subcategorias-checkbox-group').querySelectorAll('input[type="checkbox"]:checked');
+            var vals = [];
+            checks.forEach(function(cb) { vals.push(cb.getAttribute('data-value')); });
+            document.getElementById('targetValorHidden').value = vals.join(',');
+        } else {
+            var checks = document.getElementById('categorias-checkbox-group').querySelectorAll('input[type="checkbox"]:checked');
+            var vals = [];
+            checks.forEach(function(cb) { vals.push(cb.getAttribute('data-value')); });
+            document.getElementById('targetValorHidden').value = vals.join(',');
+        }
     }
 
     document.getElementById('categorias-checkbox-group').addEventListener('change', actualizarTargetValor);
-    document.getElementById('subcategorias-checkbox-group').addEventListener('change', actualizarTargetValor);
+
+    // init subcategory checkboxes if editing
+    if (targetActual === 'SUBCATEGORIA') {
+        var existingVal = document.getElementById('targetValorHidden').value;
+        if (existingVal) {
+            var parts = existingVal.split(',')[0].split(':');
+            if (parts.length === 2) {
+                document.getElementById('subCatMarca').value = parts[0];
+            }
+        }
+        filtrarSubsPorMarca();
+    }
 </script>
 
 <th:block th:insert="~{fragments/toast :: toast}"></th:block>

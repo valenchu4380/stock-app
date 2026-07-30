@@ -60,7 +60,14 @@ public class PromocionServiceImpl implements PromocionService {
         for (String t : targets) {
             String target = t.trim();
             if ("CATEGORIA".equals(promo.getTipoTarget()) && target.equalsIgnoreCase(category)) return true;
-            if ("SUBCATEGORIA".equals(promo.getTipoTarget()) && subCategory != null && target.equalsIgnoreCase(subCategory)) return true;
+            if ("SUBCATEGORIA".equals(promo.getTipoTarget()) && subCategory != null) {
+                String[] pair = target.split(":", 2);
+                if (pair.length == 2) {
+                    if (pair[0].trim().equalsIgnoreCase(category) && pair[1].trim().equalsIgnoreCase(subCategory)) return true;
+                } else if (target.equalsIgnoreCase(subCategory)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

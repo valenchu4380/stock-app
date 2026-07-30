@@ -21,8 +21,18 @@ function initPromos() {
 function encontrarPromo(category, sub) {
     for (var i = 0; i < PROMO.promos.length; i++) {
         var p = PROMO.promos[i];
-        if (p.tipoTarget === 'CATEGORIA' && p.targetValor.split(',').indexOf(category) !== -1) return p;
-        if (p.tipoTarget === 'SUBCATEGORIA' && sub && p.targetValor.split(',').indexOf(sub) !== -1) return p;
+        var targets = p.targetValor.split(',');
+        if (p.tipoTarget === 'CATEGORIA' && targets.indexOf(category) !== -1) return p;
+        if (p.tipoTarget === 'SUBCATEGORIA' && sub) {
+            for (var j = 0; j < targets.length; j++) {
+                var pair = targets[j].split(':');
+                if (pair.length === 2) {
+                    if (pair[0].trim() === category && pair[1].trim() === sub) return p;
+                } else if (targets[j].trim() === sub) {
+                    return p;
+                }
+            }
+        }
     }
     return null;
 }
