@@ -7,34 +7,51 @@ function ajustarStockDash(btn, direccion) {
     const label = direccion > 0 ? 'AGREGAR' : 'RETIRAR';
     showPrompt('Cantidad a ' + label + ' a "' + name + '":', '1', function (cantidad) {
         if (cantidad === null) return;
-        const params = new URLSearchParams();
-        params.set('name', name);
-        params.set('subCategory', sub);
-        params.set('cantidad', direccion > 0 ? cantidad : -cantidad);
-        fetch('/productos/ajustar-stock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString() + '&csrf_token=' + encodeURIComponent(CSRF_TOKEN)
-        })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data.success) {
-                    document.querySelectorAll('.gestion-stock-valor').forEach(function (el) {
-                        const tr = el.closest('tr');
-                        if (tr) {
-                            const cb = tr.querySelector('[data-name="' + name + '"][data-sub="' + sub + '"]');
-                            if (cb) {
-                                el.textContent = data.nuevoStock;
-                            }
-                        }
-                    });
-                    showToast('Stock actualizado', 'success');
-                } else {
-                    showToast('Error: ' + data.message, 'error');
-                }
-            })
-            .catch(function (err) { showToast('Error de conexi\u00F3n: ' + err.message, 'error'); });
+        if (!window.UBICACIONES || UBICACIONES.length === 0) {
+            enviarAjuste(name, sub, direccion, cantidad, null);
+            return;
+        }
+        showSelect(
+            '¿En qué ubicación se ' + (direccion > 0 ? 'agregan' : 'retiran') + ' ' + cantidad +
+            ' unidad' + (cantidad === 1 ? '' : 'es') + ' de "' + name + '"?',
+            UBICACIONES,
+            function (ubic) {
+                if (!ubic) return;
+                enviarAjuste(name, sub, direccion, cantidad, ubic.id);
+            }
+        );
     });
+}
+
+function enviarAjuste(name, sub, direccion, cantidad, ubicacionId) {
+    const params = new URLSearchParams();
+    params.set('name', name);
+    params.set('subCategory', sub);
+    params.set('cantidad', direccion > 0 ? cantidad : -cantidad);
+    if (ubicacionId) params.set('ubicacionId', ubicacionId);
+    fetch('/productos/ajustar-stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString() + '&csrf_token=' + encodeURIComponent(CSRF_TOKEN)
+    })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success) {
+                document.querySelectorAll('.gestion-stock-valor').forEach(function (el) {
+                    const tr = el.closest('tr');
+                    if (tr) {
+                        const cb = tr.querySelector('[data-name="' + name + '"][data-sub="' + sub + '"]');
+                        if (cb) {
+                            el.textContent = data.nuevoStock;
+                        }
+                    }
+                });
+                showToast('Stock actualizado', 'success');
+            } else {
+                showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(function (err) { showToast('Error de conexi\u00F3n: ' + err.message, 'error'); });
 }
 
 function confirmarEliminacion(btn) {

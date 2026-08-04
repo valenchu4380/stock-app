@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=${#dates.createNow().getTime()})}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacén - Gestión de Ubicaciones</title>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/hero.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/components/breadcrumbs.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/pages/dashboard.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/pages/almacen.css(v=${#dates.createNow().getTime()})}">
+</head>
+
+<body>
+
+    <div class="hero">
+        <div class="hero-brand">SobreVivi</div>
+        <div class="hero-brand-sub">Almacén</div>
+        <p>Organizá dónde está cada producto y en qué cantidad</p>
+    </div>
+
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a th:href="@{/productos}">Productos</a>
+        <a th:href="@{/productos/dashboard}">Dashboard</a>
+        <span>Almacén</span>
+    </nav>
+
+    <div class="container">
+
+        <div class="msg success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="mensaje err" th:if="${error}" th:text="${error}"></div>
+
+        <div class="gestion-section">
+            <div class="gestion-header">
+                <h2>🏷️ Ubicaciones</h2>
+            </div>
+            <p class="almacen-hint">El stock total de cada producto se calcula como la suma de sus cantidades por
+                ubicación.</p>
+            <div class="ubicaciones-manager">
+                <form class="ubicacion-add" th:action="@{/productos/almacen/ubicacion/agregar}" method="post">
+                    <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                    <input type="text" name="nombre" placeholder="Nueva ubicación (ej: Trabajo)" required
+                        autocomplete="off" />
+                    <button type="submit">+ Agregar</button>
+                </form>
+                <div class="ubicacion-chips">
+                    <div class="ubicacion-chip" th:each="ub : ${ubicaciones}">
+                        <span th:text="${ub.nombre}">CASA</span>
+                        <form th:action="@{/productos/almacen/ubicacion/eliminar}" method="post"
+                            th:data-nombre="${ub.nombre}" style="display:inline;"
+                            onsubmit="return confirmarEliminarUbicacion(this)">
+                            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                            <input type="hidden" name="id" th:value="${ub.id}" />
+                            <button type="submit" class="ubicacion-chip-delete" title="Eliminar ubicación">✕</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gestion-section" th:if="${productos != null and !#lists.isEmpty(productos)}">
+            <div class="gestion-header">
+                <h2>📦 Stock por ubicación</h2>
+                <span class="almacen-leyenda">Total = stock del producto (suma de las cantidades por ubicación)</span>
+            </div>
+            <div class="gestion-buscar">
+                <input type="text" id="almacenSearch" placeholder="Buscar producto..." oninput="filtrarAlmacen()">
+            </div>
+            <div class="gestion-tabla-wrapper">
+                <form id="almacenForm" th:action="@{/productos/almacen/guardar}" method="post">
+                    <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                    <table class="gestion-tabla almacen-tabla">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;"></th>
+                                <th>Producto</th>
+                                <th>Subcategoría</th>
+                                <th>Precio</th>
+                                <th th:each="ub : ${ubicaciones}" th:text="${ub.nombre}" class="almacen-ubicacion-th">CASA</th>
+                                <th class="almacen-total-th sortable" title="Ordenar por total">
+                                    <button type="button" class="almacen-sort-btn" onclick="ordenarPorTotal(this)">
+                                        Total <span class="sort-arrow"></span>
+                                    </button>
+                                </th>
+                                <th style="width:140px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${productos}">
+                                <td>
+                                    <div class="gestion-img">
+                                        <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
+                                            th:src="${p.imagen}">
+                                        <span th:unless="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
+                                            style="font-size:1.2rem;">📦</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="gestion-nombre" th:text="${p.name}">nombre</div>
+                                    <span class="gestion-marca"
+                                        th:classappend="${p.category != null and p.category.name() == 'AVON'} ? 'gestion-marca-avon' : (${p.category != null and p.category.name() == 'NATURA'} ? 'gestion-marca-natura' : 'gestion-marca-saphirus')"
+                                        th:text="${p.category}">CAT</span>
+                                </td>
+                                <td th:text="${p.subCategory != null} ? ${p.subCategory.name().replace('_', ' ')} : '-'">sub</td>
+                                <td class="gestion-precio" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 2)}">$0</td>
+                                <td th:each="ub : ${ubicaciones}" class="almacen-cant-td">
+                                    <input type="number" min="0" class="almacen-input" autocomplete="off"
+                                        th:name="${'cant|' + p.name + '|' + p.subCategory.name() + '|' + ub.id}"
+                                        th:value="${qtyMap.get(p.name + '|' + p.subCategory.name())?.get(ub.id) ?: 0}"
+                                        th:data-producto="${p.name + '|' + p.subCategory.name()}"
+                                        oninput="recalcularTotal(this)" />
+                                </td>
+                                <td class="almacen-total" th:data-producto="${p.name + '|' + p.subCategory.name()}"
+                                    th:text="${totalMap.get(p.name + '|' + p.subCategory.name()) ?: 0}">0</td>
+                                <td>
+                                    <div class="gestion-acciones">
+                                        <a class="gestion-btn gestion-btn-edit touch-target"
+                                            th:href="@{/productos/editar/{n}/{s}(n=${p.name}, s=${p.subCategory})}">✏️</a>
+                                        <a class="gestion-btn gestion-btn-view touch-target"
+                                            th:href="@{/productos/detalle/{n}/{s}(n=${p.name}, s=${p.subCategory})}">👁️</a>
+                                        <form class="delete-form" th:action="@{/productos/eliminar}" method="post"
+                                            style="display:inline;" th:data-name="${p.name}">
+                                            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+                                            <input type="hidden" name="name" th:value="${p.name}">
+                                            <input type="hidden" name="subCategory" th:value="${p.subCategory}">
+                                            <button class="gestion-btn gestion-btn-delete touch-target" type="button"
+                                                onclick="confirmarEliminacion(this)">🗑️</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="almacen-actions">
+                        <button type="submit" class="gestion-nuevo almacen-guardar">💾 Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="empty-section" th:if="${productos == null or #lists.isEmpty(productos)}">
+            <div class="empty-icon">📦</div>
+            <p class="empty-text">No hay productos cargados</p>
+            <a class="empty-action" th:href="@{/productos/nuevo}">+ Agregar producto</a>
+        </div>
+    </div>
+
+    <th:block th:insert="~{fragments/toast :: toast}"></th:block>
+    <script th:src="@{/js/toast.js(v=${#dates.createNow().getTime()})}"></script>
+    <script th:src="@{/js/almacen.js(v=${#dates.createNow().getTime()})}"></script>
+</body>
+
+</html>

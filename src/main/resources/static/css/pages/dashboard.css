@@ -224,6 +224,12 @@ body { background: var(--color-fondo); }
     font-weight: 700;
     white-space: nowrap;
 }
+.gestion-tabla th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.gestion-tabla th.sortable:hover { color: var(--color-texto-oscuro); }
+.sort-arrow { font-size: 0.7rem; margin-left: 2px; }
 .gestion-tabla td {
     padding: 10px 12px;
     color: var(--color-texto);

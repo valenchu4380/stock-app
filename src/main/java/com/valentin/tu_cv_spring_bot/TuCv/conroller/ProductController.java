@@ -9,6 +9,7 @@ import com.valentin.tu_cv_spring_bot.TuCv.mODEL.SubCategory;
 import com.valentin.tu_cv_spring_bot.TuCv.service.MovementService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.OrdenService;
 import com.valentin.tu_cv_spring_bot.TuCv.service.ProductService;
+import com.valentin.tu_cv_spring_bot.TuCv.service.UbicacionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class ProductController {
     private final ProductService productService;
     private final MovementService movementService;
     private final OrdenService ordenService;
+    private final UbicacionService ubicacionService;
 
     @Value("${whatsapp.number:543854202134}")
     private String whatsappNumber;
@@ -199,7 +201,8 @@ public class ProductController {
     @ResponseBody
     public Map<String, Object> ajustarStock(@RequestParam String name,
                                              @RequestParam String subCategory,
-                                             @RequestParam int cantidad) {
+                                             @RequestParam int cantidad,
+                                             @RequestParam(required = false) Long ubicacionId) {
         try {
             SubCategory sub = SubCategory.valueOf(subCategory.trim());
             // Read current stock for audit trail
@@ -210,8 +213,14 @@ public class ProductController {
             Product p = matches.get(0);
             int oldStock = p.getStock();
             // Atomic SQL update — no race condition
-            productService.adjustStock(name.trim(), sub, cantidad);
-            int nuevoStock = Math.max(0, oldStock + cantidad);
+            int nuevoStock;
+            if (ubicacionId != null) {
+                ubicacionService.adjust(name.trim(), sub.name(), ubicacionId, cantidad);
+                nuevoStock = ubicacionService.getTotalStock(name.trim(), sub.name());
+            } else {
+                productService.adjustStock(name.trim(), sub, cantidad);
+                nuevoStock = Math.max(0, oldStock + cantidad);
+            }
 
             Movement m = new Movement();
             m.setProductName(p.getName());
@@ -376,13 +385,13 @@ public class ProductController {
             model.addAttribute("filtroSub",      subCategory);
             model.addAttribute("Categorys",      ProductCategory.values());
             model.addAttribute("SubCategorys",   SubCategory.values());
-            model.addAttribute("productos",      productService.getAllFiltered(name, category, subCategory, ""));
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar dashboard: " + e.getMessage());
             model.addAttribute("Categorys",    ProductCategory.values());
             model.addAttribute("SubCategorys", SubCategory.values());
         }
+        model.addAttribute("ubicaciones", ubicacionService.list());
         return "dashboard";
     }
 

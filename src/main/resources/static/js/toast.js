@@ -46,11 +46,13 @@ function showConfirm(message, onConfirm) {
     var overlay = document.getElementById('dialog-overlay');
     var msgEl = document.getElementById('dialog-message');
     var inputArea = document.getElementById('dialog-input-area');
+    var selectArea = document.getElementById('dialog-select-area');
     var input = document.getElementById('dialog-input');
     var btnConfirm = document.getElementById('dialog-btn-confirm');
     var btnCancel = document.getElementById('dialog-btn-cancel');
 
     inputArea.style.display = 'none';
+    selectArea.style.display = 'none';
     msgEl.textContent = message;
     btnConfirm.textContent = 'S\u00ED';
     btnCancel.textContent = 'No';
@@ -73,11 +75,13 @@ function showPrompt(message, defaultValue, onConfirm) {
     var overlay = document.getElementById('dialog-overlay');
     var msgEl = document.getElementById('dialog-message');
     var inputArea = document.getElementById('dialog-input-area');
+    var selectArea = document.getElementById('dialog-select-area');
     var input = document.getElementById('dialog-input');
     var btnConfirm = document.getElementById('dialog-btn-confirm');
     var btnCancel = document.getElementById('dialog-btn-cancel');
 
     inputArea.style.display = 'block';
+    selectArea.style.display = 'none';
     msgEl.textContent = message;
     input.value = defaultValue || '1';
     input.focus();
@@ -106,5 +110,52 @@ function showPrompt(message, defaultValue, onConfirm) {
     btnConfirm.onclick = onOk;
     btnCancel.onclick = function() { cleanup(); if (onConfirm) onConfirm(null); };
     input.onkeydown = function(e) { if (e.key === 'Enter') onOk(); };
+    agregarCerrarConEscape(overlay);
+}
+
+function showSelect(message, options, onConfirm) {
+    var overlay = document.getElementById('dialog-overlay');
+    var msgEl = document.getElementById('dialog-message');
+    var inputArea = document.getElementById('dialog-input-area');
+    var selectArea = document.getElementById('dialog-select-area');
+    var select = document.getElementById('dialog-select');
+    var btnConfirm = document.getElementById('dialog-btn-confirm');
+    var btnCancel = document.getElementById('dialog-btn-cancel');
+
+    inputArea.style.display = 'none';
+    selectArea.style.display = 'block';
+    select.innerHTML = '';
+    (options || []).forEach(function(o) {
+        var opt = document.createElement('option');
+        opt.value = o.id;
+        opt.textContent = o.nombre;
+        select.appendChild(opt);
+    });
+    msgEl.textContent = message;
+    select.focus();
+    btnConfirm.textContent = 'Aceptar';
+    btnCancel.textContent = 'Cancelar';
+    overlay.style.display = 'flex';
+    trapFocus(overlay);
+
+    function cleanup() {
+        overlay.style.display = 'none';
+        btnConfirm.onclick = null;
+        btnCancel.onclick = null;
+        select.onkeydown = null;
+    }
+
+    function onOk() {
+        var selected = null;
+        (options || []).forEach(function(o) {
+            if (String(o.id) === select.value) selected = o;
+        });
+        cleanup();
+        if (onConfirm) onConfirm(selected);
+    }
+
+    btnConfirm.onclick = onOk;
+    btnCancel.onclick = function() { cleanup(); if (onConfirm) onConfirm(null); };
+    select.onkeydown = function(e) { if (e.key === 'Enter') onOk(); };
     agregarCerrarConEscape(overlay);
 }
