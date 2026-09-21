@@ -92,11 +92,6 @@ body { background: var(--color-fondo); min-height: 100vh; }
     font-weight: 800;
     color: var(--color-texto-oscuro);
 }
-.detalle-cuotas {
-    font-size: 1rem;
-    color: var(--color-verde);
-    font-weight: 600;
-}
 .detalle-stock {
     display: flex;
     align-items: center;

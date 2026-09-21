@@ -6,7 +6,6 @@
 
 function actualizarPrecioPrincipal(precioProducto) {
     const priceEl = document.getElementById('detallePrecio');
-    const cuotasEl = document.getElementById('detalleCuotas');
     const btn = document.querySelector('.btn-carrito');
     if (!btn || !priceEl) return;
     const category = btn.dataset.category;
@@ -14,7 +13,6 @@ function actualizarPrecioPrincipal(precioProducto) {
     if (!promoActiva() || !esPromoAplicable(category, sub)) return;
     const descPrice = precioConDescuento(precioProducto, category, sub);
     priceEl.innerHTML = '<span class="price-original">$' + precioProducto.toFixed(2) + '</span> <span class="price-discount">$' + descPrice.toFixed(2) + '</span>';
-    if (cuotasEl) cuotasEl.textContent = 'Hasta 3 cuotas de $' + (descPrice / 3).toFixed(2);
 }
 
 function actualizarPromoBanner(precioProducto, cantidad) {

@@ -426,7 +426,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public List<Product> findAllPagedFiltered(int offset, int limit, String name, String category, String subCategory, String linea, String sortBy, String sortDir, boolean stockBajo) throws InvalidProductException {
         List<Product> products = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE stock > 0 AND 1=1");
         List<Object> params = new ArrayList<>();
 
         if (name != null && !name.isBlank()) {

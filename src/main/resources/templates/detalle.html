@@ -53,7 +53,6 @@
             <div class="detalle-nombre" th:text="${product.name}">Nombre</div>
 
             <div class="detalle-precio" id="detallePrecio" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</div>
-            <div class="detalle-cuotas" id="detalleCuotas" th:text="'Hasta 3 cuotas de $' + ${#numbers.formatDecimal(product.price / 3, 1, 2)}">cuotas</div>
 
             <div class="detalle-stock"
                  th:classappend="${product.stock == 0} ? 'stock-red' : (${product.stock <= 5} ? 'stock-yellow' : 'stock-green')">
